@@ -38,6 +38,16 @@
 
 extern "C" const rdcstr VulkanLayerJSONBasename;
 
+static rdcstr VulkanLayerName()
+{
+  return "VK_LAYER_" + strupper(VulkanLayerJSONBasename) + "_Capture";
+}
+
+static rdcstr VulkanLayerEnableVar()
+{
+  return "ENABLE_VULKAN_" + strupper(VulkanLayerJSONBasename) + "_CAPTURE";
+}
+
 // this was removed from the vulkan definition header
 #undef VK_LAYER_EXPORT
 #define VK_LAYER_EXPORT
@@ -168,8 +178,7 @@ class VulkanHook : LibraryHook
     if(VulkanLayerJSONBasename != "renderdoc")
     {
       Process::RegisterEnvironmentModification(EnvironmentModification(
-          EnvMod::Set, EnvSep::NoSep,
-          "ENABLE_VULKAN_" + strupper(VulkanLayerJSONBasename) + "_CAPTURE", "1"));
+          EnvMod::Set, EnvSep::NoSep, VulkanLayerEnableVar(), "1"));
     }
 
     // check options to set further variables, and apply
@@ -181,6 +190,14 @@ class VulkanHook : LibraryHook
     // unset the vulkan layer environment variable
     Process::RegisterEnvironmentModification(
         EnvironmentModification(EnvMod::Set, EnvSep::NoSep, RENDERDOC_VULKAN_LAYER_VAR, "0"));
+
+    // if self-hosted under a different basename, also unset that dynamic enable variable
+    if(VulkanLayerJSONBasename != "renderdoc")
+    {
+      Process::RegisterEnvironmentModification(
+          EnvironmentModification(EnvMod::Set, EnvSep::NoSep, VulkanLayerEnableVar(), "0"));
+    }
+
     Process::ApplyEnvironmentModification();
   }
 
@@ -341,12 +358,20 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL VK_LAYER_RENDERDOC_CaptureEnumera
     if(*pPropertyCount == 0)
       return VK_INCOMPLETE;
 
-    const VkLayerProperties layerProperties = {
-        RENDERDOC_VULKAN_LAYER_NAME,
-        VK_API_VERSION_1_0,
-        VK_MAKE_VERSION(RENDERDOC_VERSION_MAJOR, RENDERDOC_VERSION_MINOR, 0),
-        "Debugging capture layer for RenderDoc",
-    };
+    VkLayerProperties layerProperties = {};
+    const rdcstr vulkanLayerName = VulkanLayerName();
+    size_t layerNameLen = vulkanLayerName.size();
+    if(layerNameLen >= sizeof(layerProperties.layerName))
+      layerNameLen = sizeof(layerProperties.layerName) - 1;
+    memcpy(layerProperties.layerName, vulkanLayerName.c_str(), layerNameLen);
+    layerProperties.specVersion = VK_API_VERSION_1_0;
+    layerProperties.implementationVersion =
+        VK_MAKE_VERSION(RENDERDOC_VERSION_MAJOR, RENDERDOC_VERSION_MINOR, 0);
+    const char layerDesc[] = "Debugging capture layer for RenderDoc";
+    size_t layerDescLen = sizeof(layerDesc) - 1;
+    if(layerDescLen >= sizeof(layerProperties.description))
+      layerDescLen = sizeof(layerProperties.description) - 1;
+    memcpy(layerProperties.description, layerDesc, layerDescLen);
 
     // set the one layer property
     *pProperties = layerProperties;
@@ -363,8 +388,9 @@ VK_LAYER_RENDERDOC_CaptureEnumerateDeviceExtensionProperties(VkPhysicalDevice ph
 {
   // if pLayerName is NULL or not ours we're calling down through the layer chain to the ICD.
   // This is our chance to filter out any reported extensions that we don't support
+  const rdcstr vulkanLayerName = VulkanLayerName();
   if(physicalDevice != NULL &&
-     (pLayerName == NULL || strcmp(pLayerName, RENDERDOC_VULKAN_LAYER_NAME) != 0))
+     (pLayerName == NULL || strcmp(pLayerName, vulkanLayerName.c_str()) != 0))
     return CoreDisp(physicalDevice)
         ->FilterDeviceExtensionProperties(physicalDevice, pLayerName, pPropertyCount, pProperties);
 
@@ -376,7 +402,9 @@ VK_LAYER_RENDERDOC_CaptureEnumerateInstanceExtensionProperties(
     const VkEnumerateInstanceExtensionPropertiesChain *pChain, const char *pLayerName,
     uint32_t *pPropertyCount, VkExtensionProperties *pProperties)
 {
-  if(pLayerName && !strcmp(pLayerName, RENDERDOC_VULKAN_LAYER_NAME))
+  const rdcstr vulkanLayerName = VulkanLayerName();
+
+  if(pLayerName && !strcmp(pLayerName, vulkanLayerName.c_str()))
     return WrappedVulkan::GetProvidedInstanceExtensionProperties(pPropertyCount, pProperties);
 
   return WrappedVulkan::FilterInstanceExtensionProperties(pChain, pLayerName, pPropertyCount,
@@ -491,20 +519,26 @@ VK_LAYER_RENDERDOC_CaptureGetInstanceProcAddr(VkInstance instance, const char *p
   if(!strcmp("vkDestroyDevice", pName))
     return (PFN_vkVoidFunction)&hooked_vkDestroyDevice;
 
+  if(!WrappedVkInstance::IsAlloc(instance))
+  {
+    static bool warnedInvalidInstance = false;
+    if(!warnedInvalidInstance)
+    {
+      warnedInvalidInstance = true;
+      RDCERR(
+          "GetInstanceProcAddr passed invalid instance (first seen for %s). "
+          "Returning NULL for unknown instances to avoid spec-broken/recursive behaviour.",
+          pName);
+    }
+    return NULL;
+  }
+
   // we should only return a function pointer for functions that are either from a supported core
   // version, an enabled instance extension or an _available_ device extension
 
   HookInitVulkanInstance();
 
-  InstanceDeviceInfo *instDevInfo = NULL;
-
-  if(WrappedVkInstance::IsAlloc(instance))
-    instDevInfo = GetRecord(instance)->instDevInfo;
-  else
-    RDCERR(
-        "GetInstanceProcAddr passed invalid instance for %s! Possibly broken loader. "
-        "Working around by assuming all extensions are enabled - WILL CAUSE SPEC-BROKEN BEHAVIOUR",
-        pName);
+  InstanceDeviceInfo *instDevInfo = GetRecord(instance)->instDevInfo;
 
   DeclExts();
 
@@ -563,6 +597,20 @@ VK_LAYER_RENDERDOC_Capture_layerGetPhysicalDeviceProcAddr(VkInstance instance, c
   if(!strcmp("vkDestroyDevice", pName))
     return NULL;
 
+  if(instance != VK_NULL_HANDLE && !WrappedVkInstance::IsAlloc(instance))
+  {
+    static bool warnedInvalidPhysDevInstance = false;
+    if(!warnedInvalidPhysDevInstance)
+    {
+      warnedInvalidPhysDevInstance = true;
+      RDCERR(
+          "GetPhysicalDeviceProcAddr passed invalid instance (first seen for %s). "
+          "Returning NULL for unknown instances to avoid spec-broken behaviour.",
+          pName);
+    }
+    return NULL;
+  }
+
   HookInitVulkanInstance_PhysDev();
 
 // any remaining functions that are known, we must return NULL for
@@ -580,15 +628,7 @@ VK_LAYER_RENDERDOC_Capture_layerGetPhysicalDeviceProcAddr(VkInstance instance, c
   if(instance == VK_NULL_HANDLE)
     return NULL;
 
-  InstanceDeviceInfo *instDevInfo = NULL;
-
-  if(WrappedVkInstance::IsAlloc(instance))
-    instDevInfo = GetRecord(instance)->instDevInfo;
-  else
-    RDCERR(
-        "GetPhysicalDeviceProcAddr passed invalid instance for %s! Possibly broken loader. "
-        "Working around by assuming all extensions are enabled - WILL CAUSE SPEC-BROKEN BEHAVIOUR",
-        pName);
+  InstanceDeviceInfo *instDevInfo = GetRecord(instance)->instDevInfo;
 
   DeclExts();
 

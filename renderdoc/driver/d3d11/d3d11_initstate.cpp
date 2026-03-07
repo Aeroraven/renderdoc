@@ -380,8 +380,16 @@ bool WrappedID3D11Device::Serialise_InitialState(SerialiserType &ser, ResourceId
 {
   D3D11ResourceType type = Resource_Unknown;
 
-  if(IsCaptureMode(m_State))
+  if(ser.IsWriting())
+  {
+    if(initial == NULL)
+    {
+      RDCERR("Missing initial contents while serialising initial state for %s", ToStr(id).c_str());
+      return false;
+    }
+
     type = initial->resourceType;
+  }
 
   bool ret = true;
 

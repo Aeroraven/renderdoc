@@ -33,6 +33,13 @@
 #include "driver/ihv/nv/nv_aftermath.h"
 #include "strings/string_utils.h"
 
+extern "C" const rdcstr VulkanLayerJSONBasename;
+
+static rdcstr VulkanLayerName()
+{
+  return "VK_LAYER_" + strupper(VulkanLayerJSONBasename) + "_Capture";
+}
+
 RDOC_CONFIG(
     bool, Vulkan_Debug_ReplaceAppInfo, true,
     "By default we have no choice but to replace VkApplicationInfo to safely work on all drivers. "
@@ -115,9 +122,11 @@ void InitInstanceTable(VkInstance inst, PFN_vkGetInstanceProcAddr gpa);
 
 static void StripUnwantedLayers(rdcarray<rdcstr> &Layers)
 {
-  Layers.removeIf([](const rdcstr &layer) {
+  const rdcstr vulkanLayerName = VulkanLayerName();
+
+  Layers.removeIf([&vulkanLayerName](const rdcstr &layer) {
     // don't try and create our own layer on replay!
-    if(layer == RENDERDOC_VULKAN_LAYER_NAME)
+    if(layer == RENDERDOC_VULKAN_LAYER_NAME || layer == vulkanLayerName)
     {
       return true;
     }
@@ -511,7 +520,7 @@ RDResult WrappedVulkan::Initialise(VkInitParams &params, uint64_t sectionVersion
   m_PrevQueue = m_Queue = VK_NULL_HANDLE;
   m_InternalCmds.Reset();
 
-  if(ObjDisp(m_Instance)->CreateDebugUtilsMessengerEXT)
+  if(m_ReplayOptions.apiValidation && ObjDisp(m_Instance)->CreateDebugUtilsMessengerEXT)
   {
     VkDebugUtilsMessengerCreateInfoEXT debugInfo = {};
     debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -526,7 +535,7 @@ RDResult WrappedVulkan::Initialise(VkInitParams &params, uint64_t sectionVersion
     ObjDisp(m_Instance)
         ->CreateDebugUtilsMessengerEXT(Unwrap(m_Instance), &debugInfo, NULL, &m_DbgUtilsCallback);
   }
-  else if(ObjDisp(m_Instance)->CreateDebugReportCallbackEXT)
+  else if(m_ReplayOptions.apiValidation && ObjDisp(m_Instance)->CreateDebugReportCallbackEXT)
   {
     VkDebugReportCallbackCreateInfoEXT debugInfo = {};
     debugInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
@@ -573,7 +582,8 @@ RDResult WrappedVulkan::Initialise(VkInitParams &params, uint64_t sectionVersion
 }
 
 VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo,
-                                         const VkAllocationCallbacks *, VkInstance *pInstance)
+                                         const VkAllocationCallbacks *pAllocator,
+                                         VkInstance *pInstance)
 {
   RDCASSERT(pCreateInfo);
 
@@ -582,7 +592,11 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
 
   const bool internalInstance =
       (pCreateInfo->pApplicationInfo && pCreateInfo->pApplicationInfo->pApplicationName &&
-       rdcstr(pCreateInfo->pApplicationInfo->pApplicationName) == "RenderDoc forced instance");
+       (rdcstr(pCreateInfo->pApplicationInfo->pApplicationName) == "RenderDoc forced instance" ||
+        rdcstr(pCreateInfo->pApplicationInfo->pApplicationName) == "RenderDoc Capturing App"));
+
+  PFN_vkGetInstanceProcAddr gpa = NULL;
+  PFN_vkCreateInstance createFunc = NULL;
 
   VkLayerInstanceCreateInfo *layerCreateInfo = (VkLayerInstanceCreateInfo *)pCreateInfo->pNext;
 
@@ -592,19 +606,39 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
   {
     layerCreateInfo = (VkLayerInstanceCreateInfo *)layerCreateInfo->pNext;
   }
-  RDCASSERT(layerCreateInfo);
 
-  if(layerCreateInfo == NULL)
+  if(layerCreateInfo && layerCreateInfo->u.pLayerInfo &&
+     layerCreateInfo->u.pLayerInfo->pfnNextGetInstanceProcAddr)
   {
-    RDCERR("Couldn't find loader instance create info, which is required. Incompatible loader?");
-    return VK_ERROR_INITIALIZATION_FAILED;
+    gpa = layerCreateInfo->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+
+    // move chain on for next layer
+    layerCreateInfo->u.pLayerInfo = layerCreateInfo->u.pLayerInfo->pNext;
+
+    createFunc = (PFN_vkCreateInstance)gpa(VK_NULL_HANDLE, "vkCreateInstance");
   }
 
-  PFN_vkGetInstanceProcAddr gpa = layerCreateInfo->u.pLayerInfo->pfnNextGetInstanceProcAddr;
-  // move chain on for next layer
-  layerCreateInfo->u.pLayerInfo = layerCreateInfo->u.pLayerInfo->pNext;
+  if(!createFunc || !gpa)
+  {
+    // Fallback path: if the loader didn't provide VK_LAYER_LINK_INFO, avoid dereferencing
+    // invalid pNext data and resolve directly from the Vulkan loader module.
+    void *module = LoadVulkanLibrary();
+    if(module)
+    {
+      if(!gpa)
+        gpa = (PFN_vkGetInstanceProcAddr)Process::GetFunctionAddress(module, "vkGetInstanceProcAddr");
+      if(!createFunc)
+        createFunc = (PFN_vkCreateInstance)Process::GetFunctionAddress(module, "vkCreateInstance");
+    }
 
-  PFN_vkCreateInstance createFunc = (PFN_vkCreateInstance)gpa(VK_NULL_HANDLE, "vkCreateInstance");
+    if(!createFunc || !gpa)
+    {
+      RDCERR("Couldn't resolve vkCreateInstance/vkGetInstanceProcAddr for Vulkan instance creation.");
+      return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    RDCWARN("Couldn't find valid loader instance create info, using direct vkCreateInstance fallback.");
+  }
 
   VkInstanceCreateInfo modifiedCreateInfo;
   modifiedCreateInfo = *pCreateInfo;
@@ -615,7 +649,7 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
 #if DISABLED(RDOC_ANDROID)
   for(uint32_t i = 0; i < modifiedCreateInfo.enabledLayerCount; i++)
   {
-    if(rdcstr(modifiedCreateInfo.ppEnabledLayerNames[i]) == RENDERDOC_VULKAN_LAYER_NAME)
+    if(rdcstr(modifiedCreateInfo.ppEnabledLayerNames[i]) == VulkanLayerName())
     {
       // see if any debug report callbacks were passed in the pNext chain
       VkDebugReportCallbackCreateInfoEXT *report =
@@ -828,7 +862,23 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
   // if we forced on API validation, it's also available
   m_LayersEnabled[VkCheckLayer_unique_objects] |= RenderDoc::Inst().GetCaptureOptions().apiValidation;
 
-  VkResult ret = createFunc(&modifiedCreateInfo, NULL, pInstance);
+  VkResult ret = createFunc(&modifiedCreateInfo, pAllocator, pInstance);
+
+  if(ret != VK_SUCCESS || pInstance == NULL || *pInstance == VK_NULL_HANDLE)
+  {
+    RDCERR("vkCreateInstance failed in layer: ret=%s, pInstance=%p, instance=%p", ToStr(ret).c_str(),
+           pInstance, (pInstance ? *pInstance : VK_NULL_HANDLE));
+    SAFE_DELETE_ARRAY(addedExts);
+    return ret;
+  }
+
+  // This path is capture-only. If this is one of our own internal instances (or we're not in a
+  // capture state), skip capture setup entirely.
+  if(internalInstance || !IsCaptureMode(m_State))
+  {
+    SAFE_DELETE_ARRAY(addedExts);
+    return ret;
+  }
 
   m_Instance = *pInstance;
 
@@ -858,11 +908,23 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
 
   {
     uint32_t count = 0;
-    ObjDisp(m_Instance)->EnumeratePhysicalDevices(Unwrap(m_Instance), &count, NULL);
+    VkResult physRet = ObjDisp(m_Instance)->EnumeratePhysicalDevices(Unwrap(m_Instance), &count, NULL);
+    if(physRet != VK_SUCCESS || count == 0)
+    {  
+      RDCERR("EnumeratePhysicalDevices(count) failed: ret=%s, count=%u", ToStr(physRet).c_str(), count);
+      SAFE_DELETE_ARRAY(addedExts);
+      return (physRet == VK_SUCCESS ? VK_ERROR_INITIALIZATION_FAILED : physRet);
+    }
 
     rdcarray<VkPhysicalDevice> physDevs;
     physDevs.resize(count);
-    ObjDisp(m_Instance)->EnumeratePhysicalDevices(Unwrap(m_Instance), &count, physDevs.data());
+    physRet = ObjDisp(m_Instance)->EnumeratePhysicalDevices(Unwrap(m_Instance), &count, physDevs.data());
+    if(physRet != VK_SUCCESS)
+    {
+      RDCERR("EnumeratePhysicalDevices(list) failed: ret=%s, count=%u", ToStr(physRet).c_str(), count);
+      SAFE_DELETE_ARRAY(addedExts);
+      return physRet;
+    }
 
     rdcarray<VkExtensionProperties> exts;
     for(VkPhysicalDevice p : physDevs)

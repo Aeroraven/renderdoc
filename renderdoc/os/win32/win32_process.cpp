@@ -717,7 +717,7 @@ rdcpair<RDResult, uint32_t> Process::InjectIntoProcess(uint32_t pid,
     }
   }
 #else
-  // farm off to alternate bitness renderdoccmd.exe
+  // farm off to alternate bitness gugugagacmd.exe
 
   // if the target process is 'wow64' that means it's 32-bit.
   capalt = (isWow64 == TRUE);
@@ -735,7 +735,7 @@ rdcpair<RDResult, uint32_t> Process::InjectIntoProcess(uint32_t pid,
 
       renderdocPath[idx] = 0;
 
-      wcscat_s(renderdocPath, L"\\Win32\\Development\\gugugagacmd.exe");
+      wcscat_s(renderdocPath, L"\\x64\\Development\\gugugagacmd.exe");
     }
 
     if(!devLocation)
@@ -748,7 +748,7 @@ rdcpair<RDResult, uint32_t> Process::InjectIntoProcess(uint32_t pid,
 
         renderdocPath[idx] = 0;
 
-        wcscat_s(renderdocPath, L"\\Win32\\Release\\renderdoccmd.exe");
+        wcscat_s(renderdocPath, L"\\x64\\Release\\gugugagacmd.exe");
       }
     }
 
@@ -763,24 +763,24 @@ rdcpair<RDResult, uint32_t> Process::InjectIntoProcess(uint32_t pid,
         *slash = 0;
 
       // append path
-      wcscat_s(renderdocPath, L"\\x86\\renderdoccmd.exe");
+      wcscat_s(renderdocPath, L"\\x64\\gugugagacmd.exe");
     }
 #else
     // if it looks like we're in the development environment, look for the alternate bitness in the
     // corresponding folder
-    const wchar_t *devLocation = wcsstr(renderdocPathLower, L"\\win32\\development\\");
+    const wchar_t *devLocation = wcsstr(renderdocPathLower, L"\\64\\development\\");
     if(devLocation)
     {
       size_t idx = devLocation - renderdocPathLower;
 
       renderdocPath[idx] = 0;
 
-      wcscat_s(renderdocPath, L"\\x64\\Development\\renderdoccmd.exe");
+      wcscat_s(renderdocPath, L"\\x64\\Development\\gugugagacmd.exe");
     }
 
     if(!devLocation)
     {
-      devLocation = wcsstr(renderdocPathLower, L"\\win32\\release\\");
+      devLocation = wcsstr(renderdocPathLower, L"\\x64\\release\\");
 
       if(devLocation)
       {
@@ -788,7 +788,7 @@ rdcpair<RDResult, uint32_t> Process::InjectIntoProcess(uint32_t pid,
 
         renderdocPath[idx] = 0;
 
-        wcscat_s(renderdocPath, L"\\x64\\Release\\renderdoccmd.exe");
+        wcscat_s(renderdocPath, L"\\x64\\Release\\gugugagacmd.exe");
       }
     }
 
@@ -808,7 +808,7 @@ rdcpair<RDResult, uint32_t> Process::InjectIntoProcess(uint32_t pid,
         *slash = 0;
 
       // append path
-      wcscat_s(renderdocPath, L"\\renderdoccmd.exe");
+      wcscat_s(renderdocPath, L"\\gugugagacmd.exe");
     }
 #endif
 
@@ -1379,7 +1379,7 @@ RDResult BackupAndChangeRegistry(GlobalHookData &hookdata, const rdcstr &shimpat
   // write it to disk but don't fail if we can't, just print it to the log and keep going.
   wchar_t reg_backup[MAX_PATH];
   GetTempPathW(MAX_PATH, reg_backup);
-  wcscat_s(reg_backup, L"RenderDoc_RestoreGlobalHook.reg");
+  wcscat_s(reg_backup, L"GuguGaga_RestoreGlobalHook.reg");
 
   FILE *f = NULL;
   _wfopen_s(&f, reg_backup, L"w");
@@ -1497,8 +1497,8 @@ RDResult Process::StartGlobalHook(const rdcstr &pathmatch, const rdcstr &capture
 
   renderdocPath = get_dirname(renderdocPath);
 
-  // the native renderdoccmd.exe is always next to the dll. Wow32 will be somewhere else
-  rdcstr cmdpathNative = renderdocPath + "\\renderdoccmd.exe";
+  // the native gugugagacmd.exe is always next to the dll. Wow32 will be somewhere else
+  rdcstr cmdpathNative = renderdocPath + "\\gugugagacmd.exe";
   rdcstr cmdpathWow32;
 
   rdcstr shimpathNative = renderdocPath;
@@ -1506,7 +1506,7 @@ RDResult Process::StartGlobalHook(const rdcstr &pathmatch, const rdcstr &capture
 
 #if ENABLED(RDOC_X64)
 
-  // native shim is just renderdocshim64.dll
+  // native shim is just gugugagashim64.dll
   shimpathNative = renderdocPath + "\\gugugagashim64.dll";
 
   // if it looks like we're in the development environment, look for the alternate bitness in the
@@ -1516,8 +1516,8 @@ RDResult Process::StartGlobalHook(const rdcstr &pathmatch, const rdcstr &capture
   {
     renderdocPath.erase(devLocation, ~0U);
 
-    shimpathWow32 = renderdocPath + "\\Win32\\Development\\gugugagashim32.dll";
-    cmdpathWow32 = renderdocPath + "\\Win32\\Development\\gugugagacmd.exe";
+    shimpathWow32 = renderdocPath + "\\x64\\Development\\gugugagashim64.dll";
+    cmdpathWow32 = renderdocPath + "\\x64\\Development\\gugugagacmd.exe";
   }
   else
   {
@@ -1527,22 +1527,22 @@ RDResult Process::StartGlobalHook(const rdcstr &pathmatch, const rdcstr &capture
     {
       renderdocPath.erase(devLocation, ~0U);
 
-      shimpathWow32 = renderdocPath + "\\Win32\\Release\\gugugagashimshim32.dll";
-      cmdpathWow32 = renderdocPath + "\\Win32\\Release\\gugugagashimcmd.exe";
+      shimpathWow32 = renderdocPath + "\\x64\\Release\\gugugagashim64.dll";
+      cmdpathWow32 = renderdocPath + "\\x64\\Release\\gugugagacmd.exe";
     }
   }
 
   // if we're not in the dev environment, assume it's under a x86\ subfolder
   if(devLocation < 0)
   {
-    shimpathWow32 = renderdocPath + "\\x86\\gugugagashimshim32.dll";
-    cmdpathWow32 = renderdocPath + "\\x86\\gugugagashimcmd.exe";
+    shimpathWow32 = renderdocPath + "\\x86\\gugugagashim32.dll";
+    cmdpathWow32 = renderdocPath + "\\x86\\gugugagacmd.exe";
   }
 
 #else
 
   // nothing fancy to do here for 32-bit, just point the shim next to our dll.
-  shimpathNative = renderdocPath + "\\renderdocshim32.dll";
+  shimpathNative = renderdocPath + "\\gugugagashim32.dll";
 
 #endif
 

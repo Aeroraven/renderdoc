@@ -2438,8 +2438,28 @@ VkBool32 VKAPI_PTR UserDebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT
 
 VkResult WrappedVulkan::vkCreateDebugReportCallbackEXT(
     VkInstance instance, const VkDebugReportCallbackCreateInfoEXT *pCreateInfo,
-    const VkAllocationCallbacks *, VkDebugReportCallbackEXT *pCallback)
+    const VkAllocationCallbacks *pAllocator, VkDebugReportCallbackEXT *pCallback)
 {
+  // In replay/non-capture mode we don't need callback interception, and forwarding directly avoids
+  // assuming this instance has capture-time wrapping metadata.
+  if(!IsCaptureMode(m_State))
+  {
+    if(WrappedVkInstance::IsAlloc(instance))
+      return ObjDisp(instance)->CreateDebugReportCallbackEXT(Unwrap(instance), pCreateInfo, pAllocator,
+                                                             pCallback);
+
+    VkInstDispatchTable *table = GetInstanceDispatchTable(instance);
+    if(table && table->CreateDebugReportCallbackEXT)
+      return table->CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
+
+    RDCERR("CreateDebugReportCallbackEXT dispatch is unavailable for instance %p", instance);
+    if(pCallback)
+      *pCallback = VK_NULL_HANDLE;
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+  }
+
+  VkInstance unwrappedInstance = Unwrap(instance);
+
   // we create an interception object here so that we can dynamically check the state of API
   // messages being muted, since it's quite likely that the application will initialise Vulkan (and
   // so create a debug report callback) before it messes with RenderDoc's API to unmute messages.
@@ -2452,8 +2472,9 @@ VkResult WrappedVulkan::vkCreateDebugReportCallbackEXT(
   wrappedCreateInfo.pfnCallback = &UserDebugReportCallback;
   wrappedCreateInfo.pUserData = user;
 
-  VkResult vkr = ObjDisp(instance)->CreateDebugReportCallbackEXT(
-      Unwrap(instance), &wrappedCreateInfo, NULL, &user->realObject);
+  VkResult vkr = ObjDisp(instance)->CreateDebugReportCallbackEXT(unwrappedInstance,
+                                                                 &wrappedCreateInfo, NULL,
+                                                                 &user->realObject);
 
   if(vkr != VK_SUCCESS)
   {
@@ -2474,15 +2495,31 @@ VkResult WrappedVulkan::vkCreateDebugReportCallbackEXT(
 
 void WrappedVulkan::vkDestroyDebugReportCallbackEXT(VkInstance instance,
                                                     VkDebugReportCallbackEXT callback,
-                                                    const VkAllocationCallbacks *)
+                                                    const VkAllocationCallbacks *pAllocator)
 {
+  if(!IsCaptureMode(m_State))
+  {
+    if(WrappedVkInstance::IsAlloc(instance))
+    {
+      ObjDisp(instance)->DestroyDebugReportCallbackEXT(Unwrap(instance), callback, pAllocator);
+      return;
+    }
+
+    VkInstDispatchTable *table = GetInstanceDispatchTable(instance);
+    if(table && table->DestroyDebugReportCallbackEXT)
+      table->DestroyDebugReportCallbackEXT(instance, callback, pAllocator);
+    return;
+  }
+
+  VkInstance unwrappedInstance = Unwrap(instance);
+
   if(callback == VK_NULL_HANDLE)
     return;
 
   UserDebugReportCallbackData *user =
       (UserDebugReportCallbackData *)(uintptr_t)NON_DISP_TO_UINT64(callback);
 
-  ObjDisp(instance)->DestroyDebugReportCallbackEXT(Unwrap(instance), user->realObject, NULL);
+  ObjDisp(instance)->DestroyDebugReportCallbackEXT(unwrappedInstance, user->realObject, NULL);
 
   {
     SCOPED_LOCK(m_CallbacksLock);
@@ -2497,8 +2534,19 @@ void WrappedVulkan::vkDebugReportMessageEXT(VkInstance instance, VkDebugReportFl
                                             size_t location, int32_t messageCode,
                                             const char *pLayerPrefix, const char *pMessage)
 {
-  return ObjDisp(instance)->DebugReportMessageEXT(Unwrap(instance), flags, objectType, object,
-                                                  location, messageCode, pLayerPrefix, pMessage);
+  if(!IsCaptureMode(m_State))
+  {
+    if(WrappedVkInstance::IsAlloc(instance))
+      return ObjDisp(instance)->DebugReportMessageEXT(Unwrap(instance), flags, objectType, object,
+                                                      location, messageCode, pLayerPrefix, pMessage);
+
+    return GetInstanceDispatchTable(instance)->DebugReportMessageEXT(
+        instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
+  }
+
+  VkInstance unwrappedInstance = Unwrap(instance);
+  return GetInstanceDispatchTable(unwrappedInstance)->DebugReportMessageEXT(
+      unwrappedInstance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
 }
 
 void WrappedVulkan::vkSetHdrMetadataEXT(VkDevice device, uint32_t swapchainCount,
@@ -3078,8 +3126,28 @@ VkResult WrappedVulkan::vkDebugMarkerSetObjectNameEXT(VkDevice device,
 
 VkResult WrappedVulkan::vkCreateDebugUtilsMessengerEXT(
     VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-    const VkAllocationCallbacks *, VkDebugUtilsMessengerEXT *pMessenger)
+    const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pMessenger)
 {
+  // In replay/non-capture mode we don't need callback interception, and forwarding directly avoids
+  // assuming this instance has capture-time wrapping metadata.
+  if(!IsCaptureMode(m_State))
+  {
+    if(WrappedVkInstance::IsAlloc(instance))
+      return ObjDisp(instance)->CreateDebugUtilsMessengerEXT(Unwrap(instance), pCreateInfo,
+                                                             pAllocator, pMessenger);
+
+    VkInstDispatchTable *table = GetInstanceDispatchTable(instance);
+    if(table && table->CreateDebugUtilsMessengerEXT)
+      return table->CreateDebugUtilsMessengerEXT(instance, pCreateInfo, pAllocator, pMessenger);
+
+    RDCERR("CreateDebugUtilsMessengerEXT dispatch is unavailable for instance %p", instance);
+    if(pMessenger)
+      *pMessenger = VK_NULL_HANDLE;
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+  }
+
+  VkInstance unwrappedInstance = Unwrap(instance);
+
   // we create an interception object here so that we can dynamically check the state of API
   // messages being muted, since it's quite likely that the application will initialise Vulkan (and
   // so create a debug report callback) before it messes with RenderDoc's API to unmute messages.
@@ -3091,8 +3159,9 @@ VkResult WrappedVulkan::vkCreateDebugUtilsMessengerEXT(
   wrappedCreateInfo.pfnUserCallback = &UserDebugUtilsCallback;
   wrappedCreateInfo.pUserData = user;
 
-  VkResult vkr = ObjDisp(instance)->CreateDebugUtilsMessengerEXT(
-      Unwrap(instance), &wrappedCreateInfo, NULL, &user->realObject);
+  VkResult vkr = ObjDisp(instance)->CreateDebugUtilsMessengerEXT(unwrappedInstance,
+                                                                 &wrappedCreateInfo, NULL,
+                                                                 &user->realObject);
 
   if(vkr != VK_SUCCESS)
   {
@@ -3113,15 +3182,31 @@ VkResult WrappedVulkan::vkCreateDebugUtilsMessengerEXT(
 
 void WrappedVulkan::vkDestroyDebugUtilsMessengerEXT(VkInstance instance,
                                                     VkDebugUtilsMessengerEXT messenger,
-                                                    const VkAllocationCallbacks *)
+                                                    const VkAllocationCallbacks *pAllocator)
 {
+  if(!IsCaptureMode(m_State))
+  {
+    if(WrappedVkInstance::IsAlloc(instance))
+    {
+      ObjDisp(instance)->DestroyDebugUtilsMessengerEXT(Unwrap(instance), messenger, pAllocator);
+      return;
+    }
+
+    VkInstDispatchTable *table = GetInstanceDispatchTable(instance);
+    if(table && table->DestroyDebugUtilsMessengerEXT)
+      table->DestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
+    return;
+  }
+
+  VkInstance unwrappedInstance = Unwrap(instance);
+
   if(messenger == VK_NULL_HANDLE)
     return;
 
   UserDebugUtilsCallbackData *user =
       (UserDebugUtilsCallbackData *)(uintptr_t)NON_DISP_TO_UINT64(messenger);
 
-  ObjDisp(instance)->DestroyDebugUtilsMessengerEXT(Unwrap(instance), user->realObject, NULL);
+  ObjDisp(instance)->DestroyDebugUtilsMessengerEXT(unwrappedInstance, user->realObject, NULL);
 
   {
     SCOPED_LOCK(m_CallbacksLock);
@@ -3136,8 +3221,19 @@ void WrappedVulkan::vkSubmitDebugUtilsMessageEXT(
     VkDebugUtilsMessageTypeFlagsEXT messageTypes,
     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData)
 {
-  return ObjDisp(instance)->SubmitDebugUtilsMessageEXT(Unwrap(instance), messageSeverity,
-                                                       messageTypes, pCallbackData);
+  if(!IsCaptureMode(m_State))
+  {
+    if(WrappedVkInstance::IsAlloc(instance))
+      return ObjDisp(instance)->SubmitDebugUtilsMessageEXT(
+          Unwrap(instance), messageSeverity, messageTypes, pCallbackData);
+
+    return GetInstanceDispatchTable(instance)->SubmitDebugUtilsMessageEXT(
+        instance, messageSeverity, messageTypes, pCallbackData);
+  }
+
+  VkInstance unwrappedInstance = Unwrap(instance);
+  return GetInstanceDispatchTable(unwrappedInstance)->SubmitDebugUtilsMessageEXT(
+      unwrappedInstance, messageSeverity, messageTypes, pCallbackData);
 }
 
 template <typename SerialiserType>

@@ -307,7 +307,7 @@ rdcstr GetReplayAppFilename()
   }
 
   // if we didn't find the exe at all, we must not be in a standard
-  // distributed renderdoc package. On windows we can check in the registry
+  // distributed GuguGaga package. On windows we can check in the registry
   // to try and find the installed path.
 
   DWORD type = 0;

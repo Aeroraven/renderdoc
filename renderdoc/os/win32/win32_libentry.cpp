@@ -49,8 +49,11 @@ static BOOL add_hooks()
     return TRUE;
   }
 
-  // search for an exported symbol with this name, typically renderdoc__replay__marker
-  if(LibraryHooks::Detect(STRINGIZE(RDOC_BASE_NAME) "__replay__marker"))
+  // search for an exported symbol with this name, typically renderdoc__replay__marker.
+  // Also accept the legacy/alternate longer marker name.
+  const rdcstr replayMarker = STRINGIZE(RDOC_BASE_NAME) "__replay__marker";
+  if(LibraryHooks::Detect(replayMarker.c_str()) ||
+     LibraryHooks::Detect((replayMarker + "__replay__marker").c_str()))
   {
     RDCDEBUG("Not creating hooks - in replay app");
 

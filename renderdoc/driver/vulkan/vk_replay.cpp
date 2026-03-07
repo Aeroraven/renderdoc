@@ -46,6 +46,13 @@
 
 RDOC_EXTERN_CONFIG(bool, Vulkan_Debug_SingleSubmitFlushing);
 
+extern "C" const rdcstr VulkanLayerJSONBasename;
+
+static rdcstr VulkanLayerEnableVar()
+{
+  return "ENABLE_VULKAN_" + strupper(VulkanLayerJSONBasename) + "_CAPTURE";
+}
+
 static const char *SPIRVDisassemblyTarget = "SPIR-V (RenderDoc)";
 static const char *AMDShaderInfoTarget = "AMD_shader_info";
 static const char *KHRExecutablePropertiesTarget = "KHR_pipeline_executable_properties";
@@ -5534,6 +5541,10 @@ RDResult Vulkan_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IRep
   // disable the layer env var, just in case the user left it set from a previous capture run
   Process::RegisterEnvironmentModification(
       EnvironmentModification(EnvMod::Set, EnvSep::NoSep, RENDERDOC_VULKAN_LAYER_VAR, "0"));
+
+  // if self-hosted under a different basename, disable that dynamic enable variable too
+  Process::RegisterEnvironmentModification(
+      EnvironmentModification(EnvMod::Set, EnvSep::NoSep, VulkanLayerEnableVar(), "0"));
 
   // disable buggy and user-hostile NV optimus layer, which can completely delete physical devices
   // (not just rearrange them) and cause problems between capture and replay.

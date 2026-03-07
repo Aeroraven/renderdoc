@@ -1588,10 +1588,10 @@ This happens either locally, or on the remote server, depending on whether a con
   running the program.
 :param str capturefile: The location to save any captures, if running locally.
 :param renderdoc.CaptureOptions opts: The capture options to use when injecting into the program.
-:return: The :class:`~renderdoc.ExecuteResult` indicating both the status of the operation (success
+:return: The :class:`~gugugaga.executeResult` indicating both the status of the operation (success
   or failure) and any reason for failure, or else the ident where the new application is listening
   for target control if everything succeeded.
-:rtype: renderdoc.ExecuteResult
+:rtype: gugugaga.executeResult
 )");
   virtual ExecuteResult ExecuteAndInject(const rdcstr &exe, const rdcstr &workingDir,
                                          const rdcstr &cmdLine,
