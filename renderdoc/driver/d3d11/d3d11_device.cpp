@@ -51,7 +51,7 @@ WrappedID3D11Device::WrappedID3D11Device(ID3D11Device *realDevice, D3D11InitPara
       m_WrappedNVAPI(*this),
       m_WrappedAGS(*this)
 {
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(WrappedID3D11Device));
+  GuguGaga::Inst().RegisterMemoryRegion(this, sizeof(WrappedID3D11Device));
 
   // if there's no other device, claim it!
   if(m_pCurrentWrappedDevice == NULL)
@@ -65,7 +65,7 @@ WrappedID3D11Device::WrappedID3D11Device(ID3D11Device *realDevice, D3D11InitPara
   uint32_t flags = WriteSerialiser::ChunkDuration | WriteSerialiser::ChunkTimestamp |
                    WriteSerialiser::ChunkThreadID;
 
-  if(RenderDoc::Inst().GetCaptureOptions().captureCallstacks)
+  if(GuguGaga::Inst().GetCaptureOptions().captureCallstacks)
     flags |= WriteSerialiser::ChunkCallstack;
 
   m_ScratchSerialiser.SetChunkMetadataRecording(flags);
@@ -98,7 +98,7 @@ WrappedID3D11Device::WrappedID3D11Device(ID3D11Device *realDevice, D3D11InitPara
 
   m_ChunkAtomic = 0;
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     m_State = CaptureState::LoadingReplaying;
 
@@ -124,7 +124,7 @@ WrappedID3D11Device::WrappedID3D11Device(ID3D11Device *realDevice, D3D11InitPara
 
   m_InitParams = params;
 
-  if(!RenderDoc::Inst().IsReplayApp())
+  if(!GuguGaga::Inst().IsReplayApp())
   {
     m_DeviceRecord = GetResourceManager()->AddResourceRecord(m_ResourceID);
     m_DeviceRecord->DataInSerialiser = false;
@@ -133,7 +133,7 @@ WrappedID3D11Device::WrappedID3D11Device(ID3D11Device *realDevice, D3D11InitPara
     m_DeviceRecord->NumSubResources = 0;
     m_DeviceRecord->SubResources = NULL;
 
-    RenderDoc::Inst().AddDeviceFrameCapturer((ID3D11Device *)this, this);
+    GuguGaga::Inst().AddDeviceFrameCapturer((ID3D11Device *)this, this);
 
     {
       IDXGIDevice *pDXGIDevice = NULL;
@@ -205,7 +205,7 @@ WrappedID3D11Device::WrappedID3D11Device(ID3D11Device *realDevice, D3D11InitPara
 
   if(m_pInfoQueue)
   {
-    if(RenderDoc::Inst().GetCaptureOptions().debugOutputMute)
+    if(GuguGaga::Inst().GetCaptureOptions().debugOutputMute)
       m_pInfoQueue->SetMuteDebugOutput(true);
 
     UINT size = m_pInfoQueue->GetStorageFilterStackSize();
@@ -226,7 +226,7 @@ WrappedID3D11Device::WrappedID3D11Device(ID3D11Device *realDevice, D3D11InitPara
 
     m_pInfoQueue->ClearStoredMessages();
 
-    if(RenderDoc::Inst().IsReplayApp())
+    if(GuguGaga::Inst().IsReplayApp())
       m_pInfoQueue->SetMuteDebugOutput(false);
   }
   else if(m_pDevice)
@@ -268,7 +268,7 @@ WrappedID3D11Device::~WrappedID3D11Device()
 
   D3D11MarkerRegion::device = NULL;
 
-  RenderDoc::Inst().RemoveDeviceFrameCapturer((ID3D11Device *)this);
+  GuguGaga::Inst().RemoveDeviceFrameCapturer((ID3D11Device *)this);
 
   for(auto it = m_StreamOutCounters.begin(); it != m_StreamOutCounters.end(); ++it)
     SAFE_RELEASE(it->second.query);
@@ -345,7 +345,7 @@ WrappedID3D11Device::~WrappedID3D11Device()
   SAFE_RELEASE(m_ReplayNVAPI);
   SAFE_RELEASE(m_ReplayAGS);
 
-  RenderDoc::Inst().UnregisterMemoryRegion(this);
+  GuguGaga::Inst().UnregisterMemoryRegion(this);
 }
 
 HRESULT STDMETHODCALLTYPE DummyID3D11InfoQueue::QueryInterface(REFIID riid, void **ppvObject)
@@ -577,8 +577,8 @@ HRESULT WrappedID3D11Device::QueryInterface(REFIID riid, void **ppvObject)
   static const GUID ID3D11On12Device_uuid = {
       0x85611e73, 0x70a9, 0x490e, {0x96, 0x14, 0xa9, 0xe3, 0x02, 0x77, 0x79, 0x04}};
 
-  // RenderDoc UUID {A7AA6116-9C8D-4BBA-9083-B4D816B71B78}
-  static const GUID IRenderDoc_uuid = {
+  // GuguGaga UUID {A7AA6116-9C8D-4BBA-9083-B4D816B71B78}
+  static const GUID IGuguGaga_uuid = {
       0xa7aa6116, 0x9c8d, 0x4bba, {0x90, 0x83, 0xb4, 0xd8, 0x16, 0xb7, 0x1b, 0x78}};
 
   // UUID for returning unwrapped ID3D11InfoQueue {3FC4E618-3F70-452A-8B8F-A73ACCB58E3D}
@@ -801,7 +801,7 @@ HRESULT WrappedID3D11Device::QueryInterface(REFIID riid, void **ppvObject)
   else if(riid == __uuidof(ID3D11InfoQueue))
   {
     RDCWARN(
-        "Returning a dummy ID3D11InfoQueue that does nothing. RenderDoc takes control of the debug "
+        "Returning a dummy ID3D11InfoQueue that does nothing. GuguGaga takes control of the debug "
         "layer.");
     RDCWARN(
         "If you want direct access, enable API validation and query for %s. This will return the "
@@ -834,11 +834,11 @@ HRESULT WrappedID3D11Device::QueryInterface(REFIID riid, void **ppvObject)
     }
     else
     {
-      if(!RenderDoc::Inst().GetCaptureOptions().apiValidation)
+      if(!GuguGaga::Inst().GetCaptureOptions().apiValidation)
       {
-        RDCWARN("API Validation is not enabled, RenderDoc disabled the debug layer.");
+        RDCWARN("API Validation is not enabled, GuguGaga disabled the debug layer.");
         RDCWARN(
-            "Enable this either in the capture options, or using the RenderDoc API before device "
+            "Enable this either in the capture options, or using the GuguGaga API before device "
             "creation.");
       }
       return E_NOINTERFACE;
@@ -862,7 +862,7 @@ HRESULT WrappedID3D11Device::QueryInterface(REFIID riid, void **ppvObject)
       return S_OK;
     }
   }
-  else if(riid == IRenderDoc_uuid)
+  else if(riid == IGuguGaga_uuid)
   {
     AddRef();
     *ppvObject = (IUnknown *)this;
@@ -1451,7 +1451,7 @@ RDResult WrappedID3D11Device::ReadLogInitialisation(RDCFile *rdc, bool storeStru
 
     uint64_t offsetEnd = reader->GetOffset();
 
-    RenderDoc::Inst().SetProgress(LoadProgress::FileInitialRead,
+    GuguGaga::Inst().SetProgress(LoadProgress::FileInitialRead,
                                   float(offsetEnd) / float(reader->GetSize()));
 
     if((SystemChunk)context == SystemChunk::CaptureScope)
@@ -1585,14 +1585,14 @@ void WrappedID3D11Device::ReplayLog(uint32_t startEventID, uint32_t endEventID,
 
   if(!partial)
   {
-    RENDERDOC_PROFILEREGION("ApplyInitialContents");
-    D3D11MarkerRegion apply("!!!!RenderDoc Internal: ApplyInitialContents");
+    GUGUGAGA_PROFILEREGION("ApplyInitialContents");
+    D3D11MarkerRegion apply("!!!!GuguGaga Internal: ApplyInitialContents");
     GetResourceManager()->ApplyInitialContents();
   }
 
   m_State = CaptureState::ActiveReplaying;
 
-  D3D11MarkerRegion::Set(StringFormat::Fmt("!!!!RenderDoc Internal: Replay %d (%d): %u->%u",
+  D3D11MarkerRegion::Set(StringFormat::Fmt("!!!!GuguGaga Internal: Replay %d (%d): %u->%u",
                                            (int)replayType, (int)partial, startEventID, endEventID));
 
   m_ReplayEventCount = 0;
@@ -1615,7 +1615,7 @@ void WrappedID3D11Device::ReplayLog(uint32_t startEventID, uint32_t endEventID,
   for(int i = 0; i < m_ReplayEventCount; i++)
     D3D11MarkerRegion::End();
 
-  D3D11MarkerRegion::Set("!!!!RenderDoc Internal: Done replay");
+  D3D11MarkerRegion::Set("!!!!GuguGaga Internal: Done replay");
 
   if(m_pDevice->GetDeviceRemovedReason() != S_OK)
     SET_ERROR_RESULT(m_FatalError, ResultCode::DeviceLost, "Device lost during replay: %s",
@@ -1974,7 +1974,7 @@ void WrappedID3D11Device::DestroyDeadObject(ID3D11DeviceChild *child)
     //
     // Instead we hijack ID3D11DeviceChild's SetPrivateData with a custom GUID to get the object
     // to delete itself.
-    wrapped->SetPrivateData(RENDERDOC_DeleteSelf, 0, NULL);
+    wrapped->SetPrivateData(GUGUGAGA_DeleteSelf, 0, NULL);
   }
 }
 
@@ -2003,17 +2003,17 @@ int WrappedID3D11Device::EndEvent()
 }
 
 uint32_t WrappedID3D11Device::SetObjectAnnotation(void *object, const char *key,
-                                                  RENDERDOC_AnnotationType valueType,
+                                                  GUGUGAGA_AnnotationType valueType,
                                                   uint32_t valueVectorWidth,
-                                                  const RENDERDOC_AnnotationValue *value)
+                                                  const GUGUGAGA_AnnotationValue *value)
 {
   return m_pImmediateContext->SetObjectAnnotation(object, key, valueType, valueVectorWidth, value);
 }
 
 uint32_t WrappedID3D11Device::SetCommandAnnotation(void *queueOrCommandBuffer, const char *key,
-                                                   RENDERDOC_AnnotationType valueType,
+                                                   GUGUGAGA_AnnotationType valueType,
                                                    uint32_t valueVectorWidth,
-                                                   const RENDERDOC_AnnotationValue *value)
+                                                   const GUGUGAGA_AnnotationValue *value)
 {
   if(queueOrCommandBuffer != NULL && queueOrCommandBuffer != m_pImmediateContext)
     return 2;
@@ -2144,7 +2144,7 @@ bool WrappedID3D11Device::EndFrameCapture(DeviceOwnedWindow devWnd)
     }
 
     const uint32_t maxSize = 2048;
-    RenderDoc::FramePixels fp;
+    GuguGaga::FramePixels fp;
 
     if(swapper != NULL)
     {
@@ -2262,7 +2262,7 @@ bool WrappedID3D11Device::EndFrameCapture(DeviceOwnedWindow devWnd)
     }
 
     RDCFile *rdc =
-        RenderDoc::Inst().CreateRDC(RDCDriver::D3D11, m_CapturedFrames.back().frameNumber, fp);
+        GuguGaga::Inst().CreateRDC(RDCDriver::D3D11, m_CapturedFrames.back().frameNumber, fp);
 
     StreamWriter *captureWriter = NULL;
 
@@ -2344,7 +2344,7 @@ bool WrappedID3D11Device::EndFrameCapture(DeviceOwnedWindow devWnd)
 
         for(auto it = recordlist.begin(); it != recordlist.end(); ++it)
         {
-          RenderDoc::Inst().SetProgress(CaptureProgress::SerialiseFrameContents, idx / num);
+          GuguGaga::Inst().SetProgress(CaptureProgress::SerialiseFrameContents, idx / num);
           idx += 1.0f;
           it->second->Write(ser);
         }
@@ -2360,7 +2360,7 @@ bool WrappedID3D11Device::EndFrameCapture(DeviceOwnedWindow devWnd)
     RDCLOG("Captured D3D11 frame with %f MB capture section in %f seconds",
            double(captureSectionSize) / (1024.0 * 1024.0), m_CaptureTimer.GetMilliseconds() / 1000.0);
 
-    RenderDoc::Inst().FinishCaptureWriting(rdc, m_CapturedFrames.back().frameNumber);
+    GuguGaga::Inst().FinishCaptureWriting(rdc, m_CapturedFrames.back().frameNumber);
 
     m_State = CaptureState::BackgroundCapturing;
 
@@ -2400,7 +2400,7 @@ bool WrappedID3D11Device::EndFrameCapture(DeviceOwnedWindow devWnd)
 
     m_Failures++;
 
-    if((RenderDoc::Inst().GetOverlayBits() & eRENDERDOC_Overlay_Enabled) && swapper)
+    if((GuguGaga::Inst().GetOverlayBits() & eGUGUGAGA_Overlay_Enabled) && swapper)
     {
       D3D11RenderState old = *m_pImmediateContext->GetCurrentPipelineState();
 
@@ -2525,7 +2525,7 @@ bool WrappedID3D11Device::DiscardFrameCapture(DeviceOwnedWindow devWnd)
 
   RDCLOG("Discarding frame capture.");
 
-  RenderDoc::Inst().FinishCaptureWriting(NULL, m_CapturedFrames.back().frameNumber);
+  GuguGaga::Inst().FinishCaptureWriting(NULL, m_CapturedFrames.back().frameNumber);
 
   m_pImmediateContext->CleanupCapture();
 
@@ -2673,9 +2673,9 @@ void WrappedID3D11Device::UnlockForChunkRemoval()
 void WrappedID3D11Device::FirstFrame(IDXGISwapper *swapper)
 {
   // if we have to capture the first frame, begin capturing immediately
-  if(IsBackgroundCapturing(m_State) && RenderDoc::Inst().ShouldTriggerCapture(0))
+  if(IsBackgroundCapturing(m_State) && GuguGaga::Inst().ShouldTriggerCapture(0))
   {
-    RenderDoc::Inst().StartFrameCapture(DeviceOwnedWindow((ID3D11Device *)this, swapper->GetHWND()));
+    GuguGaga::Inst().StartFrameCapture(DeviceOwnedWindow((ID3D11Device *)this, swapper->GetHWND()));
 
     m_FirstFrameCaptureWindow = swapper->GetHWND();
 
@@ -2721,7 +2721,7 @@ HRESULT WrappedID3D11Device::Present(IDXGISwapper *swapper, UINT SyncInterval, U
   m_pCurrentWrappedDevice = this;
 
   if(IsBackgroundCapturing(m_State))
-    RenderDoc::Inst().Tick();
+    GuguGaga::Inst().Tick();
 
   FlushPendingDead();
 
@@ -2733,7 +2733,7 @@ HRESULT WrappedID3D11Device::Present(IDXGISwapper *swapper, UINT SyncInterval, U
 
   DeviceOwnedWindow devWnd((ID3D11Device *)this, swapper->GetHWND());
 
-  bool activeWindow = RenderDoc::Inst().IsActiveWindow(devWnd);
+  bool activeWindow = GuguGaga::Inst().IsActiveWindow(devWnd);
 
   m_LastSwap = swapper;
 
@@ -2741,9 +2741,9 @@ HRESULT WrappedID3D11Device::Present(IDXGISwapper *swapper, UINT SyncInterval, U
   {
     D3D11RenderState old = *m_pImmediateContext->GetCurrentPipelineState();
 
-    uint32_t overlay = RenderDoc::Inst().GetOverlayBits();
+    uint32_t overlay = GuguGaga::Inst().GetOverlayBits();
 
-    if(overlay & eRENDERDOC_Overlay_Enabled)
+    if(overlay & eGUGUGAGA_Overlay_Enabled)
     {
       ID3D11RenderTargetView *rtv = m_SwapChains[swapper];
 
@@ -2753,7 +2753,7 @@ HRESULT WrappedID3D11Device::Present(IDXGISwapper *swapper, UINT SyncInterval, U
       m_TextRenderer->SetOutputWindow(swapper->GetHWND());
 
       rdcstr overlayText =
-          RenderDoc::Inst().GetOverlayText(RDCDriver::D3D11, devWnd, m_FrameCounter, 0);
+          GuguGaga::Inst().GetOverlayText(RDCDriver::D3D11, devWnd, m_FrameCounter, 0);
 
       if(activeWindow && m_FailedFrame > 0)
       {
@@ -2775,7 +2775,7 @@ HRESULT WrappedID3D11Device::Present(IDXGISwapper *swapper, UINT SyncInterval, U
     }
   }
 
-  RenderDoc::Inst().AddActiveDriver(RDCDriver::D3D11, true);
+  GuguGaga::Inst().AddActiveDriver(RDCDriver::D3D11, true);
 
   // serialise the present call, even for inactive windows
   if(IsActiveCapturing(m_State))
@@ -2786,7 +2786,7 @@ HRESULT WrappedID3D11Device::Present(IDXGISwapper *swapper, UINT SyncInterval, U
     // first present to *any* window, even inactive, terminates frame 0
     if(m_FirstFrameCaptureWindow != NULL && IsActiveCapturing(m_State))
     {
-      RenderDoc::Inst().EndFrameCapture(
+      GuguGaga::Inst().EndFrameCapture(
           DeviceOwnedWindow((ID3D11Device *)this, m_FirstFrameCaptureWindow));
       m_FirstFrameCaptureWindow = NULL;
     }
@@ -2797,12 +2797,12 @@ HRESULT WrappedID3D11Device::Present(IDXGISwapper *swapper, UINT SyncInterval, U
   // kill any current capture that isn't application defined
   if(IsActiveCapturing(m_State) && !m_AppControlledCapture)
   {
-    RenderDoc::Inst().EndFrameCapture(devWnd);
+    GuguGaga::Inst().EndFrameCapture(devWnd);
   }
 
-  if(IsBackgroundCapturing(m_State) && RenderDoc::Inst().ShouldTriggerCapture(m_FrameCounter))
+  if(IsBackgroundCapturing(m_State) && GuguGaga::Inst().ShouldTriggerCapture(m_FrameCounter))
   {
-    RenderDoc::Inst().StartFrameCapture(devWnd);
+    GuguGaga::Inst().StartFrameCapture(devWnd);
 
     m_AppControlledCapture = false;
     m_CapturedFrames.back().frameNumber = m_FrameCounter;

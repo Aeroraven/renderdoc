@@ -1,4 +1,4 @@
-// this file is included from renderdoc.i, it's not a module in itself
+﻿// this file is included from renderdoc.i, it's not a module in itself
 
 %define STRINGIZE(val) #val %enddef
 
@@ -53,7 +53,7 @@ SIMPLE_TYPEMAPS_VARIANT(SimpleType, SimpleType &)
 // inserted code to include C++ conversion header
 
 %{
-  #include "renderdoc_replay.h"
+  #include "gugugaga_replay.h"
 
   static char convert_error[1024] = {};
   
@@ -76,3 +76,4 @@ SIMPLE_TYPEMAPS_VARIANT(SimpleType, SimpleType &)
 
 %include "ext_refcounts.i"
 %include "container_handling.i"
+

@@ -442,7 +442,7 @@ public:
                                                  D3D_FEATURE_LEVEL FeatureLevel, REFIID riid,
                                                  _COM_Outptr_opt_ void **ppvDevice)
   {
-    if(RenderDoc::Inst().GetCaptureOptions().apiValidation)
+    if(GuguGaga::Inst().GetCaptureOptions().apiValidation)
     {
       D3D12DevConfiguration tmpConfig = {};
       HRESULT hr = m_pReal->GetConfigurationInterface(CLSID_D3D12Debug, __uuidof(ID3D12Debug),
@@ -734,11 +734,11 @@ private:
     RDCDEBUG("Call to Create_Internal Feature Level %x", MinimumFeatureLevel, ToStr(riid).c_str());
 
     // we should no longer go through here in the replay application
-    RDCASSERT(!RenderDoc::Inst().IsReplayApp());
+    RDCASSERT(!GuguGaga::Inst().IsReplayApp());
 
     bool EnableDebugLayer = false;
 
-    if(RenderDoc::Inst().GetCaptureOptions().apiValidation)
+    if(GuguGaga::Inst().GetCaptureOptions().apiValidation)
       EnableDebugLayer = EnableD3D12DebugLayer(NULL, GetDebugInterface());
 
     RDCDEBUG("Calling real createdevice...");

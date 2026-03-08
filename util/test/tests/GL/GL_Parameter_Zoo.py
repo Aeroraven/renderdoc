@@ -1,6 +1,6 @@
 import struct
 import math
-import renderdoc as rd
+import gugugaga as rd
 import rdtest
 
 

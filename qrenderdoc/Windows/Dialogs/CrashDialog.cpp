@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2017-2026 Baldur Karlsson
+ * Copyright (c) 2017-2026 GuguGaga Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -82,7 +82,7 @@ CrashDialog::CrashDialog(PersistantConfig &cfg, QVariantMap crashReportJSON, QWi
     // hide the preview until we have a successful thumbnail
     ui->capturePreviewFrame->hide();
 
-    ICaptureFile *cap = RENDERDOC_OpenCaptureFile();
+    ICaptureFile *cap = GUGUGAGA_OpenCaptureFile();
 
     ResultDetails result = cap->OpenFile(capInfo.absoluteFilePath(), "", NULL);
 
@@ -145,18 +145,18 @@ CrashDialog::CrashDialog(PersistantConfig &cfg, QVariantMap crashReportJSON, QWi
   else if(replayCrash)
   {
     text =
-        tr("<p>RenderDoc encountered a serious problem. Please take a moment to look over this "
-           "form to check what has been gathered then send it off so that RenderDoc can get "
+        tr("<p>GuguGaga encountered a serious problem. Please take a moment to look over this "
+           "form to check what has been gathered then send it off so that GuguGaga can get "
            "better!</p>");
   }
   else
   {
     text =
-        tr("<p>A crash happened while RenderDoc was injected into your application. It's not "
-           "feasible to tell whether the crash was in your application or in RenderDoc's capturing "
+        tr("<p>A crash happened while GuguGaga was injected into your application. It's not "
+           "feasible to tell whether the crash was in your application or in GuguGaga's capturing "
            "code. The minidump <a href=\"%1\">in the zip</a> might show the problem.</p>"
            "<p>If you don't think your application crashed on its own please take a moment to "
-           "look over this form to check what has been gathered then send it off so that RenderDoc "
+           "look over this form to check what has been gathered then send it off so that GuguGaga "
            "can get better!</p>")
             .arg(QUrl::fromLocalFile(m_ReportPath).toString());
   }
@@ -169,7 +169,7 @@ CrashDialog::CrashDialog(PersistantConfig &cfg, QVariantMap crashReportJSON, QWi
   if(m_Config.CheckUpdate_UpdateAvailable)
   {
     text +=
-        tr("<p><b><a href=\"https://renderdoc.org/builds\">An updated version of RenderDoc</a> is "
+        tr("<p><b><a href=\"https://gugugaga.org/builds\">An updated version of GuguGaga</a> is "
            "available</b>. This bug may be fixed in a newer version, it's advised that you "
            "update to see if the bug is fixed.</p>");
   }
@@ -193,7 +193,7 @@ CrashDialog::CrashDialog(PersistantConfig &cfg, QVariantMap crashReportJSON, QWi
     ui->email->setEnabled(false);
 
     text = tr(
-        "<p>RenderDoc encountered a serious problem. "
+        "<p>GuguGaga encountered a serious problem. "
         "Unfortunately something went wrong while initialising the bug reporter as Qt was unable "
         "to load SSL support at runtime.</p>");
 
@@ -229,7 +229,7 @@ CrashDialog::CrashDialog(PersistantConfig &cfg, QVariantMap crashReportJSON, QWi
 
     text += tr("<p>There is no non-secure bug reporting system available so unfortunately we can't "
                "proceed. If you'd like to send in the capture directly you can "
-               "<a href=\"mailto:baldurk@baldurk.org\">email it to me</a> attaching "
+               "<a href=\"mailto:contact@gugugaga.org\">email it to me</a> attaching "
                "<a href=\"%1\">this report</a> ")
                 .arg(QUrl::fromLocalFile(m_ReportPath).toString());
 
@@ -324,10 +324,10 @@ void CrashDialog::on_send_clicked()
     QMessageBox::StandardButton result =
         RDDialog::question(this, tr("Are you sure?"),
                            tr("Uploading your capture file will send it privately to the "
-                              "RenderDoc server where I can "
+                              "GuguGaga server where I can "
                               "use it to reproduce your problem.\n\nAre you sure you are "
                               "OK with sending the capture "
-                              "securely to RenderDoc's website?"));
+                              "securely to GuguGaga's website?"));
 
     if(result != QMessageBox::Yes)
     {
@@ -341,8 +341,8 @@ void CrashDialog::on_send_clicked()
                "capture to reproduce the problem it's impossible to tell what "
                "went wrong so a crash report is unfortunately required.\n\n"
                "If you don't wish to share your capture that is OK. You can also email me at <a "
-               "href=\"mailto:baldurk@baldurk.org?subject=RenderDoc%20Unrecoverable%20error\">"
-               "baldurk@baldurk.org</a> with information and I can help investigate.</html>"));
+               "href=\"mailto:contact@gugugaga.org?subject=GuguGaga%20Unrecoverable%20error\">"
+               "contact@gugugaga.org</a> with information and I can help investigate.</html>"));
       return;
     }
   }
@@ -430,7 +430,7 @@ void CrashDialog::sendReport()
         file->setParent(multiPart);
 
         capture.setHeader(QNetworkRequest::ContentTypeHeader,
-                          lit("application/x-renderdoc-capture"));
+                          lit("application/x-gugugaga-capture"));
         capture.setHeader(QNetworkRequest::ContentDispositionHeader,
                           lit("form-data; name=\"capture\"; filename=\"capture.rdc\""));
         capture.setBodyDevice(file);

@@ -191,9 +191,9 @@ int WrappedID3D11DeviceContext::PopMarker()
 
 template <typename SerialiserType>
 bool WrappedID3D11DeviceContext::Serialise_SetCommandAnnotation(SerialiserType &ser, rdcstr key,
-                                                                RENDERDOC_AnnotationType valueType,
+                                                                GUGUGAGA_AnnotationType valueType,
                                                                 uint32_t valueVectorWidth,
-                                                                RENDERDOC_AnnotationValue value)
+                                                                GUGUGAGA_AnnotationValue value)
 {
   SERIALISE_ELEMENT(key);
   SERIALISE_ELEMENT(valueType);
@@ -212,7 +212,7 @@ bool WrappedID3D11DeviceContext::Serialise_SetCommandAnnotation(SerialiserType &
 
       SDObject *root = m_RootAnnotation;
 
-      if(valueType == eRENDERDOC_Empty)
+      if(valueType == eGUGUGAGA_Empty)
       {
         root->EraseChildByKeyPath(key);
       }
@@ -229,9 +229,9 @@ bool WrappedID3D11DeviceContext::Serialise_SetCommandAnnotation(SerialiserType &
 }
 
 uint32_t WrappedID3D11DeviceContext::SetCommandAnnotation(const char *key,
-                                                          RENDERDOC_AnnotationType valueType,
+                                                          GUGUGAGA_AnnotationType valueType,
                                                           uint32_t valueVectorWidth,
-                                                          const RENDERDOC_AnnotationValue *value)
+                                                          const GUGUGAGA_AnnotationValue *value)
 {
   SERIALISE_TIME_CALL();
 
@@ -242,9 +242,9 @@ uint32_t WrappedID3D11DeviceContext::SetCommandAnnotation(const char *key,
     SCOPED_SERIALISE_CHUNK(D3D11Chunk::SetCommandAnnotation);
     SERIALISE_ELEMENT(m_ResourceID).Named("Context"_lit).TypedAs("ID3D11DeviceContext *"_lit);
 
-    RENDERDOC_AnnotationValue val = value ? *value : RENDERDOC_AnnotationValue();
+    GUGUGAGA_AnnotationValue val = value ? *value : GUGUGAGA_AnnotationValue();
 
-    if(valueType == eRENDERDOC_APIObject && val.apiObject)
+    if(valueType == eGUGUGAGA_APIObject && val.apiObject)
     {
       ResourceId id = GetIDForDeviceChild((ID3D11DeviceChild *)val.apiObject);
       RDCCOMPILE_ASSERT(sizeof(val.uint64) == sizeof(id), "ResourceId isn't 64-bit!");
@@ -260,18 +260,18 @@ uint32_t WrappedID3D11DeviceContext::SetCommandAnnotation(const char *key,
 }
 
 uint32_t WrappedID3D11DeviceContext::SetObjectAnnotation(void *object, const char *key,
-                                                         RENDERDOC_AnnotationType valueType,
+                                                         GUGUGAGA_AnnotationType valueType,
                                                          uint32_t valueVectorWidth,
-                                                         const RENDERDOC_AnnotationValue *value)
+                                                         const GUGUGAGA_AnnotationValue *value)
 {
   ResourceId id = GetIDForDeviceChild((ID3D11DeviceChild *)object);
 
   if(id != ResourceId())
   {
-    RENDERDOC_AnnotationValue val = value ? *value : RENDERDOC_AnnotationValue();
+    GUGUGAGA_AnnotationValue val = value ? *value : GUGUGAGA_AnnotationValue();
 
     // Convert API object references to ResourceId
-    if(valueType == eRENDERDOC_APIObject && val.apiObject)
+    if(valueType == eGUGUGAGA_APIObject && val.apiObject)
     {
       ResourceId valId = GetIDForDeviceChild((ID3D11DeviceChild *)val.apiObject);
       RDCCOMPILE_ASSERT(sizeof(val.uint64) == sizeof(valId), "ResourceId isn't 64-bit!");
@@ -286,7 +286,7 @@ uint32_t WrappedID3D11DeviceContext::SetObjectAnnotation(void *object, const cha
         root = m_Annotations[id] = new SDObject("Object Annotations"_lit, "Object Annotations"_lit);
     }
 
-    if(valueType == eRENDERDOC_Empty)
+    if(valueType == eGUGUGAGA_Empty)
     {
       root->EraseChildByKeyPath(key);
     }
@@ -4312,7 +4312,7 @@ bool WrappedID3D11DeviceContext::Serialise_DrawAuto(SerialiserType &ser)
                                      MessageSource::IncorrectAPIUse,
                                      "Call to DrawAuto may be inaccurate if topology or vertex "
                                      "stride has changed between stream-out and draw.\n"
-                                     "Recapture with this version of RenderDoc to fix this "
+                                     "Recapture with this version of GuguGaga to fix this "
                                      "problem, this capture was created with an older version.");
 
           if(m_CurrentPipelineState->IA.Topo == D3D11_PRIMITIVE_TOPOLOGY_POINTLIST)
@@ -7683,13 +7683,13 @@ bool WrappedID3D11DeviceContext::Serialise_Map(SerialiserType &ser, ID3D11Resour
 
     if(MapType == D3D11_MAP_WRITE_DISCARD)
     {
-      if(RenderDoc::Inst().GetCaptureOptions().verifyBufferAccess)
+      if(GuguGaga::Inst().GetCaptureOptions().verifyBufferAccess)
         memset(appMem, 0xcc, mapLength);
       memcpy(record->GetShadowPtr(ctxMapID, 1), appMem, mapLength);
     }
 
     intercept = MapIntercept();
-    intercept.verifyWrite = RenderDoc::Inst().GetCaptureOptions().verifyBufferAccess;
+    intercept.verifyWrite = GuguGaga::Inst().GetCaptureOptions().verifyBufferAccess;
     intercept.SetD3D(mappedResource);
     intercept.InitWrappedResource(resMap, Subresource, appMem);
     intercept.MapType = MapType;
@@ -7708,7 +7708,7 @@ bool WrappedID3D11DeviceContext::Serialise_Map(SerialiserType &ser, ID3D11Resour
     mapLength = (size_t)record->Length;
 
     intercept = MapIntercept();
-    intercept.verifyWrite = RenderDoc::Inst().GetCaptureOptions().verifyBufferAccess;
+    intercept.verifyWrite = GuguGaga::Inst().GetCaptureOptions().verifyBufferAccess;
     intercept.SetD3D(mappedResource);
     intercept.MapType = MapType;
     intercept.MapFlags = MapFlags;
@@ -7858,7 +7858,7 @@ HRESULT WrappedID3D11DeviceContext::Map(ID3D11Resource *pResource, UINT Subresou
 
       record->UpdateCount++;
 
-      if(record->UpdateCount > 60 && !RenderDoc::Inst().GetCaptureOptions().verifyBufferAccess)
+      if(record->UpdateCount > 60 && !GuguGaga::Inst().GetCaptureOptions().verifyBufferAccess)
       {
         m_HighTrafficResources.insert(Id);
         MarkDirtyResource(Id);

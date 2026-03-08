@@ -196,7 +196,7 @@ bool IntelGlCounters::Init()
 
   m_Paranoid = false;
 
-#if defined(RENDERDOC_PLATFORM_ANDROID) || defined(RENDERDOC_PLATFORM_LINUX)
+#if defined(GUGUGAGA_PLATFORM_ANDROID) || defined(GUGUGAGA_PLATFORM_LINUX)
   rdcstr i915_contents, xe_contents;
 
   FileIO::ReadAll("/proc/sys/dev/i915/perf_stream_paranoid", i915_contents);

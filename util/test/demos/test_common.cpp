@@ -572,7 +572,7 @@ void GraphicsTest::Prepare(int argc, char **argv)
 
   prepared = true;
 
-  dataRoot = GetEnvVar("RENDERDOC_DEMOS_DATA");
+  dataRoot = GetEnvVar("GUGUGAGA_DEMOS_DATA");
 
   if(dataRoot.empty())
     dataRoot = GetCWD() + "/data/demos/";
@@ -625,31 +625,31 @@ void GraphicsTest::Prepare(int argc, char **argv)
     }
   }
 
-  pRENDERDOC_GetAPI RENDERDOC_GetAPI = NULL;
+  pGUGUGAGA_GetAPI GUGUGAGA_GetAPI = NULL;
 
 #if defined(WIN32)
   HMODULE mod = GetModuleHandleA("gugugaga.dll");
   if(mod)
-    RENDERDOC_GetAPI = (pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
+    GUGUGAGA_GetAPI = (pGUGUGAGA_GetAPI)GetProcAddress(mod, "GUGUGAGA_GetAPI");
 #elif defined(ANDROID)
-  void *mod = dlopen("libVkLayer_GLES_RenderDoc.so", RTLD_NOW | RTLD_NOLOAD);
+  void *mod = dlopen("libVkLayer_GLES_GuguGaga.so", RTLD_NOW | RTLD_NOLOAD);
   if(mod)
-    RENDERDOC_GetAPI = (pRENDERDOC_GetAPI)dlsym(mod, "RENDERDOC_GetAPI");
+    GUGUGAGA_GetAPI = (pGUGUGAGA_GetAPI)dlsym(mod, "GUGUGAGA_GetAPI");
 #elif defined(__linux__)
-  void *mod = dlopen("librenderdoc.so", RTLD_NOW | RTLD_NOLOAD);
+  void *mod = dlopen("libgugugaga.so", RTLD_NOW | RTLD_NOLOAD);
   if(mod)
-    RENDERDOC_GetAPI = (pRENDERDOC_GetAPI)dlsym(mod, "RENDERDOC_GetAPI");
+    GUGUGAGA_GetAPI = (pGUGUGAGA_GetAPI)dlsym(mod, "GUGUGAGA_GetAPI");
 #elif defined(__APPLE__)
-  void *mod = dlopen("librenderdoc.dylib", RTLD_NOW | RTLD_NOLOAD);
+  void *mod = dlopen("libgugugaga.dylib", RTLD_NOW | RTLD_NOLOAD);
   if(mod)
-    RENDERDOC_GetAPI = (pRENDERDOC_GetAPI)dlsym(mod, "RENDERDOC_GetAPI");
+    GUGUGAGA_GetAPI = (pGUGUGAGA_GetAPI)dlsym(mod, "GUGUGAGA_GetAPI");
 #else
 #error UNKNOWN PLATFORM
 #endif
 
-  if(RENDERDOC_GetAPI)
+  if(GUGUGAGA_GetAPI)
   {
-    int ret = RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_7_0, (void **)&rdoc);
+    int ret = GUGUGAGA_GetAPI(eGUGUGAGA_API_Version_1_7_0, (void **)&rdoc);
 
     if(ret != 1)
       rdoc = NULL;

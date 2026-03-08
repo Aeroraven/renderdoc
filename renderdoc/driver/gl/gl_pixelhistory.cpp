@@ -1884,7 +1884,7 @@ void QueryShaderOutPerFragment(WrappedOpenGL *driver, GLReplay *replay,
 
         Topology topo = drawParams.topo;
         GLenum glTopo = MakeGLPrimitiveTopology(topo);
-        uint32_t numVerts = RENDERDOC_NumVerticesPerPrimitive(topo);
+        uint32_t numVerts = GUGUGAGA_NumVerticesPerPrimitive(topo);
 
         if(action->flags & ActionFlags::Indexed)
         {
@@ -1896,7 +1896,7 @@ void QueryShaderOutPerFragment(WrappedOpenGL *driver, GLReplay *replay,
 
           void *indexOffset =
               (void *)(uintptr_t)(action->indexOffset +
-                                  RENDERDOC_VertexOffset(topo, historyIndex->primitiveID));
+                                  GUGUGAGA_VertexOffset(topo, historyIndex->primitiveID));
 
           if(action->flags & ActionFlags::Instanced)
           {
@@ -1924,7 +1924,7 @@ void QueryShaderOutPerFragment(WrappedOpenGL *driver, GLReplay *replay,
         else
         {
           uint32_t vertexOffset =
-              action->vertexOffset + RENDERDOC_VertexOffset(topo, historyIndex->primitiveID);
+              action->vertexOffset + GUGUGAGA_VertexOffset(topo, historyIndex->primitiveID);
 
           if(action->flags & ActionFlags::Instanced)
           {
@@ -2250,7 +2250,7 @@ void QueryPrePostModPerFragment(WrappedOpenGL *driver, GLReplay *replay,
 
         Topology topo = drawParams.topo;
         GLenum glTopo = MakeGLPrimitiveTopology(topo);
-        uint32_t numVerts = RENDERDOC_NumVerticesPerPrimitive(topo);
+        uint32_t numVerts = GUGUGAGA_NumVerticesPerPrimitive(topo);
 
         if(action->flags & ActionFlags::Indexed)
         {
@@ -2262,7 +2262,7 @@ void QueryPrePostModPerFragment(WrappedOpenGL *driver, GLReplay *replay,
 
           void *indexOffset =
               (void *)(uintptr_t)(action->indexOffset +
-                                  RENDERDOC_VertexOffset(topo, curFragHistoryIndex->primitiveID));
+                                  GUGUGAGA_VertexOffset(topo, curFragHistoryIndex->primitiveID));
 
           if(action->flags & ActionFlags::Instanced)
           {
@@ -2290,7 +2290,7 @@ void QueryPrePostModPerFragment(WrappedOpenGL *driver, GLReplay *replay,
         else
         {
           uint32_t vertexOffset =
-              action->vertexOffset + RENDERDOC_VertexOffset(topo, curFragHistoryIndex->primitiveID);
+              action->vertexOffset + GUGUGAGA_VertexOffset(topo, curFragHistoryIndex->primitiveID);
 
           if(action->flags & ActionFlags::Instanced)
           {
@@ -2785,7 +2785,7 @@ rdcarray<PixelModification> GLReplay::PixelHistory(rdcarray<EventUsage> events, 
   if(textureDesc.format.type == ResourceFormatType::Undefined)
     return history;
 
-  // When RenderDoc passed y, the value being passed in is with the Y axis starting from the top
+  // When GuguGaga passed y, the value being passed in is with the Y axis starting from the top
   // However, we need to have it starting from the bottom, so flip it by subtracting y from the
   // height.
   uint32_t flippedY = (textureDesc.height >> sub.mip) - y - 1;

@@ -33,7 +33,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
-#include "api/app/renderdoc_app.h"
+#include "api/app/gugugaga_app.h"
 #include "common/common.h"
 #include "common/threading.h"
 #include "os/os_specific.h"
@@ -68,72 +68,72 @@ bool GetKeyState(int key)
 
   switch(key)
   {
-    case eRENDERDOC_Key_A: appleKeyCode = kVK_ANSI_A; break;
-    case eRENDERDOC_Key_B: appleKeyCode = kVK_ANSI_B; break;
-    case eRENDERDOC_Key_C: appleKeyCode = kVK_ANSI_C; break;
-    case eRENDERDOC_Key_D: appleKeyCode = kVK_ANSI_D; break;
-    case eRENDERDOC_Key_E: appleKeyCode = kVK_ANSI_E; break;
-    case eRENDERDOC_Key_F: appleKeyCode = kVK_ANSI_F; break;
-    case eRENDERDOC_Key_G: appleKeyCode = kVK_ANSI_G; break;
-    case eRENDERDOC_Key_H: appleKeyCode = kVK_ANSI_H; break;
-    case eRENDERDOC_Key_I: appleKeyCode = kVK_ANSI_I; break;
-    case eRENDERDOC_Key_J: appleKeyCode = kVK_ANSI_J; break;
-    case eRENDERDOC_Key_K: appleKeyCode = kVK_ANSI_K; break;
-    case eRENDERDOC_Key_L: appleKeyCode = kVK_ANSI_L; break;
-    case eRENDERDOC_Key_M: appleKeyCode = kVK_ANSI_M; break;
-    case eRENDERDOC_Key_N: appleKeyCode = kVK_ANSI_N; break;
-    case eRENDERDOC_Key_O: appleKeyCode = kVK_ANSI_O; break;
-    case eRENDERDOC_Key_P: appleKeyCode = kVK_ANSI_P; break;
-    case eRENDERDOC_Key_Q: appleKeyCode = kVK_ANSI_Q; break;
-    case eRENDERDOC_Key_R: appleKeyCode = kVK_ANSI_R; break;
-    case eRENDERDOC_Key_S: appleKeyCode = kVK_ANSI_S; break;
-    case eRENDERDOC_Key_T: appleKeyCode = kVK_ANSI_T; break;
-    case eRENDERDOC_Key_U: appleKeyCode = kVK_ANSI_U; break;
-    case eRENDERDOC_Key_V: appleKeyCode = kVK_ANSI_V; break;
-    case eRENDERDOC_Key_W: appleKeyCode = kVK_ANSI_W; break;
-    case eRENDERDOC_Key_X: appleKeyCode = kVK_ANSI_X; break;
-    case eRENDERDOC_Key_Y: appleKeyCode = kVK_ANSI_Y; break;
-    case eRENDERDOC_Key_Z: appleKeyCode = kVK_ANSI_Z; break;
+    case eGUGUGAGA_Key_A: appleKeyCode = kVK_ANSI_A; break;
+    case eGUGUGAGA_Key_B: appleKeyCode = kVK_ANSI_B; break;
+    case eGUGUGAGA_Key_C: appleKeyCode = kVK_ANSI_C; break;
+    case eGUGUGAGA_Key_D: appleKeyCode = kVK_ANSI_D; break;
+    case eGUGUGAGA_Key_E: appleKeyCode = kVK_ANSI_E; break;
+    case eGUGUGAGA_Key_F: appleKeyCode = kVK_ANSI_F; break;
+    case eGUGUGAGA_Key_G: appleKeyCode = kVK_ANSI_G; break;
+    case eGUGUGAGA_Key_H: appleKeyCode = kVK_ANSI_H; break;
+    case eGUGUGAGA_Key_I: appleKeyCode = kVK_ANSI_I; break;
+    case eGUGUGAGA_Key_J: appleKeyCode = kVK_ANSI_J; break;
+    case eGUGUGAGA_Key_K: appleKeyCode = kVK_ANSI_K; break;
+    case eGUGUGAGA_Key_L: appleKeyCode = kVK_ANSI_L; break;
+    case eGUGUGAGA_Key_M: appleKeyCode = kVK_ANSI_M; break;
+    case eGUGUGAGA_Key_N: appleKeyCode = kVK_ANSI_N; break;
+    case eGUGUGAGA_Key_O: appleKeyCode = kVK_ANSI_O; break;
+    case eGUGUGAGA_Key_P: appleKeyCode = kVK_ANSI_P; break;
+    case eGUGUGAGA_Key_Q: appleKeyCode = kVK_ANSI_Q; break;
+    case eGUGUGAGA_Key_R: appleKeyCode = kVK_ANSI_R; break;
+    case eGUGUGAGA_Key_S: appleKeyCode = kVK_ANSI_S; break;
+    case eGUGUGAGA_Key_T: appleKeyCode = kVK_ANSI_T; break;
+    case eGUGUGAGA_Key_U: appleKeyCode = kVK_ANSI_U; break;
+    case eGUGUGAGA_Key_V: appleKeyCode = kVK_ANSI_V; break;
+    case eGUGUGAGA_Key_W: appleKeyCode = kVK_ANSI_W; break;
+    case eGUGUGAGA_Key_X: appleKeyCode = kVK_ANSI_X; break;
+    case eGUGUGAGA_Key_Y: appleKeyCode = kVK_ANSI_Y; break;
+    case eGUGUGAGA_Key_Z: appleKeyCode = kVK_ANSI_Z; break;
 
-    case eRENDERDOC_Key_0: appleKeyCode = kVK_ANSI_0; break;
-    case eRENDERDOC_Key_1: appleKeyCode = kVK_ANSI_1; break;
-    case eRENDERDOC_Key_2: appleKeyCode = kVK_ANSI_2; break;
-    case eRENDERDOC_Key_3: appleKeyCode = kVK_ANSI_3; break;
-    case eRENDERDOC_Key_4: appleKeyCode = kVK_ANSI_4; break;
-    case eRENDERDOC_Key_5: appleKeyCode = kVK_ANSI_5; break;
-    case eRENDERDOC_Key_6: appleKeyCode = kVK_ANSI_6; break;
-    case eRENDERDOC_Key_7: appleKeyCode = kVK_ANSI_7; break;
-    case eRENDERDOC_Key_8: appleKeyCode = kVK_ANSI_8; break;
-    case eRENDERDOC_Key_9: appleKeyCode = kVK_ANSI_9; break;
+    case eGUGUGAGA_Key_0: appleKeyCode = kVK_ANSI_0; break;
+    case eGUGUGAGA_Key_1: appleKeyCode = kVK_ANSI_1; break;
+    case eGUGUGAGA_Key_2: appleKeyCode = kVK_ANSI_2; break;
+    case eGUGUGAGA_Key_3: appleKeyCode = kVK_ANSI_3; break;
+    case eGUGUGAGA_Key_4: appleKeyCode = kVK_ANSI_4; break;
+    case eGUGUGAGA_Key_5: appleKeyCode = kVK_ANSI_5; break;
+    case eGUGUGAGA_Key_6: appleKeyCode = kVK_ANSI_6; break;
+    case eGUGUGAGA_Key_7: appleKeyCode = kVK_ANSI_7; break;
+    case eGUGUGAGA_Key_8: appleKeyCode = kVK_ANSI_8; break;
+    case eGUGUGAGA_Key_9: appleKeyCode = kVK_ANSI_9; break;
 
-    case eRENDERDOC_Key_Divide: appleKeyCode = kVK_ANSI_KeypadDivide; break;
-    case eRENDERDOC_Key_Multiply: appleKeyCode = kVK_ANSI_KeypadMultiply; break;
-    case eRENDERDOC_Key_Subtract: appleKeyCode = kVK_ANSI_KeypadMinus; break;
-    case eRENDERDOC_Key_Plus: appleKeyCode = kVK_ANSI_KeypadPlus; break;
+    case eGUGUGAGA_Key_Divide: appleKeyCode = kVK_ANSI_KeypadDivide; break;
+    case eGUGUGAGA_Key_Multiply: appleKeyCode = kVK_ANSI_KeypadMultiply; break;
+    case eGUGUGAGA_Key_Subtract: appleKeyCode = kVK_ANSI_KeypadMinus; break;
+    case eGUGUGAGA_Key_Plus: appleKeyCode = kVK_ANSI_KeypadPlus; break;
 
-    case eRENDERDOC_Key_F1: appleKeyCode = kVK_F1; break;
-    case eRENDERDOC_Key_F2: appleKeyCode = kVK_F2; break;
-    case eRENDERDOC_Key_F3: appleKeyCode = kVK_F3; break;
-    case eRENDERDOC_Key_F4: appleKeyCode = kVK_F4; break;
-    case eRENDERDOC_Key_F5: appleKeyCode = kVK_F5; break;
-    case eRENDERDOC_Key_F6: appleKeyCode = kVK_F6; break;
-    case eRENDERDOC_Key_F7: appleKeyCode = kVK_F7; break;
-    case eRENDERDOC_Key_F8: appleKeyCode = kVK_F8; break;
-    case eRENDERDOC_Key_F9: appleKeyCode = kVK_F9; break;
-    case eRENDERDOC_Key_F10: appleKeyCode = kVK_F10; break;
-    case eRENDERDOC_Key_F11: appleKeyCode = kVK_F11; break;
-    case eRENDERDOC_Key_F12: appleKeyCode = kVK_F12; break;
+    case eGUGUGAGA_Key_F1: appleKeyCode = kVK_F1; break;
+    case eGUGUGAGA_Key_F2: appleKeyCode = kVK_F2; break;
+    case eGUGUGAGA_Key_F3: appleKeyCode = kVK_F3; break;
+    case eGUGUGAGA_Key_F4: appleKeyCode = kVK_F4; break;
+    case eGUGUGAGA_Key_F5: appleKeyCode = kVK_F5; break;
+    case eGUGUGAGA_Key_F6: appleKeyCode = kVK_F6; break;
+    case eGUGUGAGA_Key_F7: appleKeyCode = kVK_F7; break;
+    case eGUGUGAGA_Key_F8: appleKeyCode = kVK_F8; break;
+    case eGUGUGAGA_Key_F9: appleKeyCode = kVK_F9; break;
+    case eGUGUGAGA_Key_F10: appleKeyCode = kVK_F10; break;
+    case eGUGUGAGA_Key_F11: appleKeyCode = kVK_F11; break;
+    case eGUGUGAGA_Key_F12: appleKeyCode = kVK_F12; break;
 
-    case eRENDERDOC_Key_Home: appleKeyCode = kVK_Home; break;
-    case eRENDERDOC_Key_End: appleKeyCode = kVK_End; break;
-    case eRENDERDOC_Key_Insert: appleKeyCode = kVK_Help; break;
-    case eRENDERDOC_Key_Delete: appleKeyCode = kVK_ForwardDelete; break;
-    case eRENDERDOC_Key_PageUp: appleKeyCode = kVK_PageUp; break;
-    case eRENDERDOC_Key_PageDn: appleKeyCode = kVK_PageDown; break;
-    case eRENDERDOC_Key_Backspace: appleKeyCode = kVK_Delete; break;
-    case eRENDERDOC_Key_Tab: appleKeyCode = kVK_Tab; break;
-    case eRENDERDOC_Key_PrtScrn: appleKeyCode = kVK_F13; break;
-    case eRENDERDOC_Key_Pause: appleKeyCode = kVK_F16; break;
+    case eGUGUGAGA_Key_Home: appleKeyCode = kVK_Home; break;
+    case eGUGUGAGA_Key_End: appleKeyCode = kVK_End; break;
+    case eGUGUGAGA_Key_Insert: appleKeyCode = kVK_Help; break;
+    case eGUGUGAGA_Key_Delete: appleKeyCode = kVK_ForwardDelete; break;
+    case eGUGUGAGA_Key_PageUp: appleKeyCode = kVK_PageUp; break;
+    case eGUGUGAGA_Key_PageDn: appleKeyCode = kVK_PageDown; break;
+    case eGUGUGAGA_Key_Backspace: appleKeyCode = kVK_Delete; break;
+    case eGUGUGAGA_Key_Tab: appleKeyCode = kVK_Tab; break;
+    case eGUGUGAGA_Key_PrtScrn: appleKeyCode = kVK_F13; break;
+    case eGUGUGAGA_Key_Pause: appleKeyCode = kVK_F16; break;
     default: return false;
   }
   return apple_IsKeyPressed(appleKeyCode);
@@ -152,7 +152,7 @@ rdcstr GetAppFolderFilename(const rdcstr &filename)
   passwd *pw = getpwuid(getuid());
   const char *homedir = pw->pw_dir;
 
-  rdcstr ret = rdcstr(homedir) + "/.renderdoc/";
+  rdcstr ret = rdcstr(homedir) + "/.gugugaga/";
 
   mkdir(ret.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 

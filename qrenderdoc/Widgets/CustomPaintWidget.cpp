@@ -248,7 +248,7 @@ void CustomPaintWidgetInternal::paintEvent(QPaintEvent *e)
     m_Custom.paintInternal(e);
 }
 
-#if defined(RENDERDOC_PLATFORM_APPLE)
+#if defined(GUGUGAGA_PLATFORM_APPLE)
 bool CustomPaintWidgetInternal::event(QEvent *e)
 {
   if(m_Rendering && e->type() == QEvent::UpdateRequest)

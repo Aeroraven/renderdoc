@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 // currently breakpad crash-handler is only available on windows
-#if ENABLED(RDOC_RELEASE) && ENABLED(RDOC_WIN32) && RENDERDOC_OFFICIAL_BUILD
+#if ENABLED(RDOC_RELEASE) && ENABLED(RDOC_WIN32) && GUGUGAGA_OFFICIAL_BUILD
 
 #define RDOC_CRASH_HANDLER OPTION_ON
 
@@ -71,7 +71,7 @@ public:
         google_breakpad::CustomInfoEntry(L"logpath", L""),
         google_breakpad::CustomInfoEntry(L"gitcommit", L""),
         google_breakpad::CustomInfoEntry(L"replaycrash",
-                                         RenderDoc::Inst().IsReplayApp() ? L"1" : L"0"),
+                                         GuguGaga::Inst().IsReplayApp() ? L"1" : L"0"),
     };
 
     rdcwstr wideStr = StringFormat::UTF82Wide(rdcstr(FULL_VERSION_STRING));

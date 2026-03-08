@@ -35,7 +35,7 @@ std::map<WrappedID3D12PipelineState::DXBCKey, WrappedID3D12Shader *> WrappedID3D
 bool WrappedID3D12Shader::m_InternalResources = false;
 int32_t WrappedID3D12CommandAllocator::m_ResetEnabled = 1;
 
-const GUID RENDERDOC_ID3D12ShaderGUID_ShaderDebugMagicValue = RENDERDOC_ShaderDebugMagicValue_struct;
+const GUID GUGUGAGA_ID3D12ShaderGUID_ShaderDebugMagicValue = GUGUGAGA_ShaderDebugMagicValue_struct;
 
 #undef D3D12_TYPE_MACRO
 #define D3D12_TYPE_MACRO(iface) WRAPPED_POOL_INST(CONCAT(Wrapped, iface));

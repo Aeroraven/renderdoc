@@ -1,6 +1,6 @@
 import struct
 from typing import List
-import renderdoc as rd
+import gugugaga as rd
 import rdtest
 
 

@@ -610,7 +610,7 @@ WGLDispatchTable WGL = {};
 
 bool WGLDispatchTable::PopulateForReplay()
 {
-  RDCASSERT(RenderDoc::Inst().IsReplayApp());
+  RDCASSERT(GuguGaga::Inst().IsReplayApp());
 
   RDCDEBUG("Initialising WGL function pointers");
 

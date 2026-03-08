@@ -138,8 +138,8 @@ int GetIdentPort(pid_t childPid)
                        &hexip, &hexport, &inode);
 
       // find open listen socket on 0.0.0.0:port
-      if(num == 4 && hexip == 0 && hexport >= RenderDoc_FirstTargetControlPort &&
-         hexport <= RenderDoc_LastTargetControlPort && sockets.contains(inode))
+      if(num == 4 && hexip == 0 && hexport >= GuguGaga_FirstTargetControlPort &&
+         hexport <= GuguGaga_LastTargetControlPort && sockets.contains(inode))
       {
         ret = hexport;
       }
@@ -150,8 +150,8 @@ int GetIdentPort(pid_t childPid)
 
   if(ret == 0)
   {
-    RDCWARN("Couldn't locate renderdoc target control listening port between %u and %u in %s",
-            (uint32_t)RenderDoc_FirstTargetControlPort, (uint32_t)RenderDoc_LastTargetControlPort,
+    RDCWARN("Couldn't locate gugugaga target control listening port between %u and %u in %s",
+            (uint32_t)GuguGaga_FirstTargetControlPort, (uint32_t)GuguGaga_LastTargetControlPort,
             procfile.c_str());
 
     if(!FileIO::exists(procfile))
@@ -177,7 +177,7 @@ static bool ptrace_scope_ok()
     int ptrace_scope = atoi(contents.c_str());
     if(ptrace_scope > 1)
     {
-      if(RenderDoc::Inst().IsReplayApp())
+      if(GuguGaga::Inst().IsReplayApp())
       {
         static bool warned = false;
         if(!warned)
@@ -730,7 +730,7 @@ void CacheDebuggerPresent()
       else
       {
         // this is REALLY ugly. There's no better way to communicate when we have a real debugger
-        // attached and when it's a parent renderdoc process injecting hooks. So we look up the
+        // attached and when it's a parent gugugaga process injecting hooks. So we look up the
         // parent PID and see if it has any executable pages mapped from our library (a real
         // debugger could have read-only pages, sadly).
         rdcstr tracermaps;
@@ -743,22 +743,22 @@ void CacheDebuggerPresent()
           rdcarray<rdcstr> lines;
           split(tracermaps, lines, '\n');
 
-          // remove any lines that don't reference librenderdoc.so
+          // remove any lines that don't reference libgugugaga.so
           lines.removeIf(
               [](const rdcstr &l) { return !l.contains("/lib" STRINGIZE(RDOC_BASE_NAME) ".so"); });
           merge(lines, tracermaps, '\n');
 
           if(tracermaps.contains("r-x"))
           {
-            // if the tracer has librenderdoc.so loaded for execute assume that we're detecting
-            // RenderDoc's ptrace usage. Don't treat it as a debugger but don't cache this result,
+            // if the tracer has libgugugaga.so loaded for execute assume that we're detecting
+            // GuguGaga's ptrace usage. Don't treat it as a debugger but don't cache this result,
             // we'll check again soon and hopefully get a better result
             debuggerPresent = false;
             debuggerCached = false;
           }
           else
           {
-            // tracer is present and doesn't have librenderdoc.so loaded (or only has it loaded
+            // tracer is present and doesn't have libgugugaga.so loaded (or only has it loaded
             // read-only), it must be a real debugger.
             debuggerPresent = true;
             debuggerCached = true;
@@ -766,7 +766,7 @@ void CacheDebuggerPresent()
         }
         else
         {
-          // can't read the tracer maps entry? Maybe a privilege issue, assume this isn't RenderDoc
+          // can't read the tracer maps entry? Maybe a privilege issue, assume this isn't GuguGaga
           // and cache it as a debugger
           RDCWARN("Couldn't read /proc/%d/maps entry for tracer, assuming valid debugger", tracerpid);
           debuggerPresent = true;

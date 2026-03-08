@@ -52,16 +52,16 @@ rdcstr DoStringise(const ResultCode &el)
     STRINGISE_ENUM_CLASS_NAMED(UnknownError, "Unknown error");
     STRINGISE_ENUM_CLASS_NAMED(InternalError, "Internal error");
     STRINGISE_ENUM_CLASS_NAMED(FileNotFound, "File not found");
-    STRINGISE_ENUM_CLASS_NAMED(InjectionFailed, "RenderDoc injection failed");
+    STRINGISE_ENUM_CLASS_NAMED(InjectionFailed, "GuguGaga injection failed");
     STRINGISE_ENUM_CLASS_NAMED(IncompatibleProcess,
-                               "Process is incompatible with this build of RenderDoc");
+                               "Process is incompatible with this build of GuguGaga");
     STRINGISE_ENUM_CLASS_NAMED(NetworkIOFailed, "Network I/O operation failed");
     STRINGISE_ENUM_CLASS_NAMED(NetworkRemoteBusy, "Remote side of network connection is busy");
     STRINGISE_ENUM_CLASS_NAMED(NetworkVersionMismatch, "Incompatible version");
     STRINGISE_ENUM_CLASS_NAMED(FileIOFailed, "File I/O failed");
     STRINGISE_ENUM_CLASS_NAMED(
         FileIncompatibleVersion,
-        "Capture file incompatible due to being made on an different major version of RenderDoc");
+        "Capture file incompatible due to being made on an different major version of GuguGaga");
     STRINGISE_ENUM_CLASS_NAMED(FileCorrupted, "File is corrupted");
     STRINGISE_ENUM_CLASS_NAMED(FileUnrecognised, "File format is unrecognised");
     STRINGISE_ENUM_CLASS_NAMED(
@@ -71,7 +71,7 @@ rdcstr DoStringise(const ResultCode &el)
                                "API initialisation failed while loading the capture");
     STRINGISE_ENUM_CLASS_NAMED(
         APIIncompatibleVersion,
-        "Captured API data was made on a newer incompatible version of RenderDoc");
+        "Captured API data was made on a newer incompatible version of GuguGaga");
     STRINGISE_ENUM_CLASS_NAMED(
         APIHardwareUnsupported,
         "Current replaying hardware unsupported or incompatible with captured hardware");
@@ -96,9 +96,9 @@ rdcstr DoStringise(const ResultCode &el)
     STRINGISE_ENUM_CLASS_NAMED(OutOfMemory, "Encountered an out of memory error");
     STRINGISE_ENUM_CLASS_NAMED(DeviceLost, "Encountered a GPU device lost error");
     STRINGISE_ENUM_CLASS_NAMED(DataNotAvailable,
-                               "Data was requested through RenderDoc's API which is not available");
+                               "Data was requested through GuguGaga's API which is not available");
     STRINGISE_ENUM_CLASS_NAMED(InvalidParameter,
-                               "An invalid parameter was passed to RenderDoc's API");
+                               "An invalid parameter was passed to GuguGaga's API");
     STRINGISE_ENUM_CLASS_NAMED(CompressionFailed, "Compression or decompression failed");
     STRINGISE_ENUM_CLASS_NAMED(AndroidLayerConfFailed,
                                "Debug layer configuration failed on Android");
@@ -1117,18 +1117,18 @@ rdcstr DoStringise(const SectionType &el)
 {
   BEGIN_ENUM_STRINGISE(SectionType);
   {
-    STRINGISE_ENUM_CLASS_NAMED(FrameCapture, "renderdoc/internal/framecapture");
-    STRINGISE_ENUM_CLASS_NAMED(ResolveDatabase, "renderdoc/internal/resolvedb");
-    STRINGISE_ENUM_CLASS_NAMED(Bookmarks, "renderdoc/ui/bookmarks");
-    STRINGISE_ENUM_CLASS_NAMED(Notes, "renderdoc/ui/notes");
-    STRINGISE_ENUM_CLASS_NAMED(ResourceRenames, "renderdoc/ui/resrenames");
+    STRINGISE_ENUM_CLASS_NAMED(FrameCapture, "gugugaga/internal/framecapture");
+    STRINGISE_ENUM_CLASS_NAMED(ResolveDatabase, "gugugaga/internal/resolvedb");
+    STRINGISE_ENUM_CLASS_NAMED(Bookmarks, "gugugaga/ui/bookmarks");
+    STRINGISE_ENUM_CLASS_NAMED(Notes, "gugugaga/ui/notes");
+    STRINGISE_ENUM_CLASS_NAMED(ResourceRenames, "gugugaga/ui/resrenames");
     STRINGISE_ENUM_CLASS_NAMED(AMDRGPProfile, "amd/rgp/profile");
-    STRINGISE_ENUM_CLASS_NAMED(ExtendedThumbnail, "renderdoc/internal/exthumb");
-    STRINGISE_ENUM_CLASS_NAMED(EmbeddedLogfile, "renderdoc/internal/logfile");
-    STRINGISE_ENUM_CLASS_NAMED(EditedShaders, "renderdoc/ui/edits");
-    STRINGISE_ENUM_CLASS_NAMED(D3D12Core, "renderdoc/internal/d3d12core");
-    STRINGISE_ENUM_CLASS_NAMED(D3D12SDKLayers, "renderdoc/internal/d3d12sdklayers");
-    STRINGISE_ENUM_CLASS_NAMED(EmbeddedExternalFiles, "renderdoc/internal/embeddedexternalfiles");
+    STRINGISE_ENUM_CLASS_NAMED(ExtendedThumbnail, "gugugaga/internal/exthumb");
+    STRINGISE_ENUM_CLASS_NAMED(EmbeddedLogfile, "gugugaga/internal/logfile");
+    STRINGISE_ENUM_CLASS_NAMED(EditedShaders, "gugugaga/ui/edits");
+    STRINGISE_ENUM_CLASS_NAMED(D3D12Core, "gugugaga/internal/d3d12core");
+    STRINGISE_ENUM_CLASS_NAMED(D3D12SDKLayers, "gugugaga/internal/d3d12sdklayers");
+    STRINGISE_ENUM_CLASS_NAMED(EmbeddedExternalFiles, "gugugaga/internal/embeddedexternalfiles");
   }
   END_ENUM_STRINGISE();
 }

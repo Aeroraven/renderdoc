@@ -205,14 +205,14 @@ void *HookedGetProcAddress(const char *func, void *realFunc)
   {                                                       \
     if(GL.function == NULL)                               \
       GL.function = (decltype(GL.function))realFunc;      \
-    return (void *)&CONCAT(aliasName, _renderdoc_hooked); \
+    return (void *)&CONCAT(aliasName, _gugugaga_hooked); \
   }
 
 #define CheckUnsupported(function)                                               \
   if(!strcmp(func, STRINGIZE(function)))                                         \
   {                                                                              \
     CONCAT(unsupported_real_, function) = (CONCAT(function, _hooktype))realFunc; \
-    return (void *)&CONCAT(function, _renderdoc_hooked);                         \
+    return (void *)&CONCAT(function, _gugugaga_hooked);                         \
   }
 
   ForEachSupported(CheckFunction);
@@ -308,7 +308,7 @@ void GLHook::RegisterHooks()
   {                                                           \
     tmphook.function = STRINGIZE(name);                       \
     tmphook.orig = (void **)&GL.func;                         \
-    tmphook.hook = (void *)&CONCAT(func, _renderdoc_hooked);  \
+    tmphook.hook = (void *)&CONCAT(func, _gugugaga_hooked);  \
     LibraryHooks::RegisterFunctionHook(libraryName, tmphook); \
   }
 
@@ -316,7 +316,7 @@ void GLHook::RegisterHooks()
   {                                                           \
     tmphook.function = STRINGIZE(name);                       \
     tmphook.orig = NULL;                                      \
-    tmphook.hook = (void *)&CONCAT(name, _renderdoc_hooked);  \
+    tmphook.hook = (void *)&CONCAT(name, _gugugaga_hooked);  \
     LibraryHooks::RegisterFunctionHook(libraryName, tmphook); \
   }
 

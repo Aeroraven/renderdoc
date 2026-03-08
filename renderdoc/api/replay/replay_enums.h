@@ -32,7 +32,7 @@ DOCUMENT(R"(The types of several pre-defined and known sections. This allows con
 to recognise and understand the contents of the section.
 
 Note that sections above the highest value here may be encountered if they were written in a new
-version of RenderDoc that addes a new section type. They should be considered equal to
+version of GuguGaga that addes a new section type. They should be considered equal to
 :data:`Unknown` by any processing.
 
 .. data:: Unknown
@@ -41,23 +41,23 @@ version of RenderDoc that addes a new section type. They should be considered eq
 
 .. data:: FrameCapture
 
-  This section contains the actual captured frame, in RenderDoc's internal chunked representation.
+  This section contains the actual captured frame, in GuguGaga's internal chunked representation.
   The contents can be fetched as structured data with or without replaying the frame.
 
-  The name for this section will be "renderdoc/internal/framecapture".
+  The name for this section will be "gugugaga/internal/framecapture".
 
 .. data:: ResolveDatabase
 
   This section contains platform-specific data used to resolve callstacks.
 
-  The name for this section will be "renderdoc/internal/resolvedb".
+  The name for this section will be "gugugaga/internal/resolvedb".
 
 .. data:: Bookmarks
 
   This section contains a JSON document with bookmarks added to the capture to highlight important
   events.
 
-  The name for this section will be "renderdoc/ui/bookmarks".
+  The name for this section will be "gugugaga/ui/bookmarks".
 
 .. data:: Notes
 
@@ -65,14 +65,14 @@ version of RenderDoc that addes a new section type. They should be considered eq
   details about how the capture was obtained with repro steps in the original program, or with
   driver and machine info.
 
-  The name for this section will be "renderdoc/ui/notes".
+  The name for this section will be "gugugaga/ui/notes".
 
 .. data:: ResourceRenames
 
   This section contains a JSON document with custom names applied to resources in the UI, over and
   above any friendly names specified in the capture itself.
 
-  The name for this section will be "renderdoc/ui/resrenames".
+  The name for this section will be "gugugaga/ui/resrenames".
 
 .. data:: AMDRGPProfile
 
@@ -85,37 +85,37 @@ version of RenderDoc that addes a new section type. They should be considered eq
   This section contains a thumbnail in format other than JPEG. For example, when it needs to be
   lossless.
 
-  The name for this section will be "renderdoc/internal/exthumb".
+  The name for this section will be "gugugaga/internal/exthumb".
 
 .. data:: EmbeddedLogfile
 
   This section contains the log file at the time of capture, for debugging.
 
-  The name for this section will be "renderdoc/internal/logfile".
+  The name for this section will be "gugugaga/internal/logfile".
 
 .. data:: EditedShaders
 
   This section contains any edited shaders.
 
-  The name for this section will be "renderdoc/ui/edits".
+  The name for this section will be "gugugaga/ui/edits".
 
 .. data:: D3D12Core
 
   This section contains an internal copy of D3D12Core for replaying.
 
-  The name for this section will be "renderdoc/internal/d3d12core".
+  The name for this section will be "gugugaga/internal/d3d12core".
 
 .. data:: D3D12SDKLayers
 
   This section contains an internal copy of D3D12SDKLayers for replaying.
 
-  The name for this section will be "renderdoc/internal/d3d12sdklayers".
+  The name for this section will be "gugugaga/internal/d3d12sdklayers".
 
 .. data:: EmbeddedExternalFiles
 
   This section contains externally referenced files that have been embedded into the capture.
 
-  The name for this section will be "renderdoc/internal/embeddedexternalfiles".
+  The name for this section will be "gugugaga/internal/embeddedexternalfiles".
 )");
 enum class SectionType : uint32_t
 {
@@ -2196,13 +2196,13 @@ constexpr inline const char *ToolExecutable(KnownShaderTool tool)
                                                                 : "";
 }
 
-DOCUMENT(R"(Returns the expected default input :class:`~renderdoc.ShaderEncoding` that a
+DOCUMENT(R"(Returns the expected default input :class:`~gugugaga.ShaderEncoding` that a
 :class:`KnownShaderTool` expects. This may not be accurate and may be configurable depending on the
 tool.
 
 :param KnownShaderTool tool: The tool to get the input encoding for.
 :return: The encoding that this tool expects as an input by default.
-:rtype: renderdoc.ShaderEncoding
+:rtype: gugugaga.ShaderEncoding
 )");
 constexpr inline ShaderEncoding ToolInput(KnownShaderTool tool)
 {
@@ -2223,13 +2223,13 @@ constexpr inline ShaderEncoding ToolInput(KnownShaderTool tool)
                                                                 : ShaderEncoding::Unknown;
 }
 
-DOCUMENT(R"(Returns the expected default output :class:`~renderdoc.ShaderEncoding` that a
+DOCUMENT(R"(Returns the expected default output :class:`~gugugaga.ShaderEncoding` that a
 :class:`KnownShaderTool` produces. This may not be accurate and may be configurable depending on the
 tool.
 
 :param KnownShaderTool tool: The tool to get the output encoding for.
 :return: The encoding that this tool produces as an output by default.
-:rtype: renderdoc.ShaderEncoding
+:rtype: gugugaga.ShaderEncoding
 )");
 constexpr inline ShaderEncoding ToolOutput(KnownShaderTool tool)
 {
@@ -4214,11 +4214,11 @@ a remote server.
 
 .. data:: DataNotAvailable
 
-  Data was requested through RenderDoc's API which is not available.
+  Data was requested through GuguGaga's API which is not available.
 
 .. data:: InvalidParameter
 
-  An invalid parameter was passed to RenderDoc's API.
+  An invalid parameter was passed to GuguGaga's API.
 
 .. data:: CompressionFailed
 
@@ -4572,7 +4572,7 @@ enum class PathProperty : uint32_t
 BITMASK_OPERATORS(PathProperty);
 DECLARE_REFLECTION_ENUM(PathProperty);
 
-DOCUMENT(R"(A set of flags describing the properties of a section in a renderdoc capture.
+DOCUMENT(R"(A set of flags describing the properties of a section in a gugugaga capture.
 
 .. data:: NoFlags
 
@@ -4911,7 +4911,7 @@ displayed
 
 .. data:: RowMajorMatrix
 
-  This matrix is stored in row-major order in memory, instead of column-major. In RenderDoc values
+  This matrix is stored in row-major order in memory, instead of column-major. In GuguGaga values
   are always provided row-major regardless, for consistency of access, but if this flag is not
   present then the original values were in column order in memory, so the data has been transposed.
 
@@ -5175,7 +5175,7 @@ registration.
 
 .. data:: Unsupported
 
-  Vulkan is not supported by this build of RenderDoc and the layer cannot be registered.
+  Vulkan is not supported by this build of GuguGaga and the layer cannot be registered.
 )");
 enum class VulkanLayerFlags : uint32_t
 {

@@ -37,9 +37,9 @@ void library_loaded()
   {
     RDCDEBUG("Not creating hooks - in replay app");
 
-    RenderDoc::Inst().SetReplayApp(true);
+    GuguGaga::Inst().SetReplayApp(true);
 
-    RenderDoc::Inst().Initialise();
+    GuguGaga::Inst().Initialise();
 
     LibraryHooks::ReplayInitialise();
 
@@ -47,12 +47,12 @@ void library_loaded()
   }
   else
   {
-    RenderDoc::Inst().Initialise();
+    GuguGaga::Inst().Initialise();
 
     ResetHookingEnvVars();
 
-    rdcstr capturefile = Process::GetEnvVariable("RENDERDOC_CAPFILE");
-    rdcstr opts = Process::GetEnvVariable("RENDERDOC_CAPOPTS");
+    rdcstr capturefile = Process::GetEnvVariable("GUGUGAGA_CAPFILE");
+    rdcstr opts = Process::GetEnvVariable("GUGUGAGA_CAPOPTS");
 
     if(!opts.empty())
     {
@@ -61,12 +61,12 @@ void library_loaded()
 
       RDCLOG("Using delay for debugger %u", optstruct.delayForDebugger);
 
-      RenderDoc::Inst().SetCaptureOptions(optstruct);
+      GuguGaga::Inst().SetCaptureOptions(optstruct);
     }
 
     if(!capturefile.empty())
     {
-      RenderDoc::Inst().SetCaptureFileTemplate(capturefile);
+      GuguGaga::Inst().SetCaptureFileTemplate(capturefile);
     }
 
     rdcstr curfile;

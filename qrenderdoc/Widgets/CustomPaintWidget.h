@@ -51,7 +51,7 @@ protected:
   void wheelEvent(QWheelEvent *e) override;
   void resizeEvent(QResizeEvent *e) override;
 
-#if defined(RENDERDOC_PLATFORM_APPLE)
+#if defined(GUGUGAGA_PLATFORM_APPLE)
   bool event(QEvent *event) override;
 #endif
 

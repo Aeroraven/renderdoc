@@ -31,9 +31,9 @@
 #include <initializer_list>
 #include <type_traits>
 
-#ifdef RENDERDOC_EXPORTS
+#ifdef GUGUGAGA_EXPORTS
 #include <stdlib.h>    // for malloc/free
-void RENDERDOC_OutOfMemory(uint64_t sz);
+void GUGUGAGA_OutOfMemory(uint64_t sz);
 #endif
 
 template <typename T, bool isStd = std::is_trivial<T>::value>
@@ -126,21 +126,21 @@ protected:
   static T *allocate(size_t count)
   {
     T *ret = NULL;
-#ifdef RENDERDOC_EXPORTS
+#ifdef GUGUGAGA_EXPORTS
     ret = (T *)malloc(count * sizeof(T));
     if(ret == NULL)
-      RENDERDOC_OutOfMemory(count * sizeof(T));
+      GUGUGAGA_OutOfMemory(count * sizeof(T));
 #else
-    ret = (T *)RENDERDOC_AllocArrayMem(count * sizeof(T));
+    ret = (T *)GUGUGAGA_AllocArrayMem(count * sizeof(T));
 #endif
     return ret;
   }
   static void deallocate(T *p)
   {
-#ifdef RENDERDOC_EXPORTS
+#ifdef GUGUGAGA_EXPORTS
     free((void *)p);
 #else
-    RENDERDOC_FreeArrayMem((void *)p);
+    GUGUGAGA_FreeArrayMem((void *)p);
 #endif
   }
 
@@ -816,7 +816,7 @@ public:
     ItemCopyHelper<T>::copyRange(elems, in, usedCount);
   }
 
-#if defined(RENDERDOC_QT_COMPAT)
+#if defined(GUGUGAGA_QT_COMPAT)
   rdcarray(const QList<T> &in)
   {
     elems = NULL;
@@ -978,7 +978,7 @@ struct bytebuf : public rdcarray<byte>
   bytebuf() : rdcarray<byte>() {}
   bytebuf(const std::initializer_list<byte> &in) : rdcarray<byte>(in) {}
   bytebuf(const byte *in, size_t size) : rdcarray<byte>(in, size) {}
-#if defined(RENDERDOC_QT_COMPAT)
+#if defined(GUGUGAGA_QT_COMPAT)
   bytebuf(const QByteArray &in)
   {
     resize(in.size());

@@ -9217,7 +9217,7 @@ GLAPI GLsync APIENTRY glImportSyncEXT (GLenum external_sync_type, GLintptr exter
 #endif /* GL_EXT_x11_sync_object */
 
 // Manually added for ease of running scripts on this header to generate
-// prototypes/enum etc. https://renderdoc.org/debug_tool.txt
+// prototypes/enum etc. https://gugugaga.org/debug_tool.txt
 #ifndef GL_EXT_debug_tool
 #define GL_EXT_debug_tool 1
 #define GL_DEBUG_TOOL_EXT                 0x6789

@@ -103,7 +103,7 @@ void VulkanReplay::convertKhrCounterResult(CounterResult &rdcResult,
     default: value = 0; RDCERR("Wrong counter storage type %d", khrStorage);
   }
 
-  // Special case for time units, renderdoc only has a Seconds type.
+  // Special case for time units, gugugaga only has a Seconds type.
   if(khrUnit == VK_PERFORMANCE_COUNTER_UNIT_NANOSECONDS_KHR)
   {
     if((khrStorage == VK_PERFORMANCE_COUNTER_STORAGE_FLOAT64_KHR) ||

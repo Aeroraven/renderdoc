@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2017-2026 Baldur Karlsson
+ * Copyright (c) 2017-2026 GuguGaga Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 
 #include "amd_isa.h"
 #include <ctype.h>
-#include "api/replay/renderdoc_replay.h"
+#include "api/replay/gugugaga_replay.h"
 #include "common/common.h"
 #include "common/formatting.h"
 #include "core/plugins.h"
@@ -254,7 +254,7 @@ rdcstr DisassembleSPIRV(ShaderStage stage, const bytebuf &shaderBytes, const rdc
 ; download the plugins package.
 ;
 ; To see instructions on how to download and configure the plugins on your system, go to:
-; https://github.com/baldurk/renderdoc/wiki/GCN-ISA)";
+; https://github.com/GuguGaga/GuguGaga/wiki/GCN-ISA)";
   }
 
   rdcstr cmdLine = "-Dall -l";
@@ -376,7 +376,7 @@ rdcstr DisassembleGLSL(ShaderStage stage, const bytebuf &shaderBytes, const rdcs
 ; *older* than 22.7.1, where support for this method of disassembly stopped.
 ;
 ; To see instructions on how to download and configure the plugins on your system, go to:
-; https://github.com/baldurk/renderdoc/wiki/GCN-ISA)";
+; https://github.com/GuguGaga/GuguGaga/wiki/GCN-ISA)";
   }
 
   const char *stageName = "unk";

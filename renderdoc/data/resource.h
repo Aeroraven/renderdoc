@@ -1,7 +1,7 @@
 // clang-format off
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by renderdoc.rc
+// Used by gugugaga.rc
 //
 #define TYPE_EMBED          256
 

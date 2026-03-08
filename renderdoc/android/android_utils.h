@@ -70,7 +70,7 @@ enum class ABI
 ABI GetABI(const rdcstr &abiName);
 rdcstr GetPlainABIName(ABI abi);
 rdcarray<ABI> GetSupportedABIs(const rdcstr &deviceID);
-rdcstr GetRenderDocPackageForABI(ABI abi);
+rdcstr GetGuguGagaPackageForABI(ABI abi);
 rdcstr GetPathForPackage(const rdcstr &deviceID, const rdcstr &packageName);
 rdcstr GetFolderName(const rdcstr &deviceID);
 };

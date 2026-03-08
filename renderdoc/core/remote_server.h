@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "api/replay/renderdoc_replay.h"
+#include "api/replay/gugugaga_replay.h"
 #include "os/os_specific.h"
 
 namespace Network
@@ -65,16 +65,16 @@ public:
                                          const CaptureOptions &opts);
 
   virtual void CopyCaptureFromRemote(const rdcstr &remotepath, const rdcstr &localpath,
-                                     RENDERDOC_ProgressCallback progress);
+                                     GUGUGAGA_ProgressCallback progress);
 
-  virtual rdcstr CopyCaptureToRemote(const rdcstr &filename, RENDERDOC_ProgressCallback progress);
+  virtual rdcstr CopyCaptureToRemote(const rdcstr &filename, GUGUGAGA_ProgressCallback progress);
 
   virtual void TakeOwnershipCapture(const rdcstr &filename);
 
   virtual rdcpair<ResultDetails, IReplayController *> OpenCapture(uint32_t proxyid,
                                                                   const rdcstr &filename,
                                                                   const ReplayOptions &opts,
-                                                                  RENDERDOC_ProgressCallback progress);
+                                                                  GUGUGAGA_ProgressCallback progress);
 
   virtual void CloseCapture(IReplayController *rend);
 
@@ -96,7 +96,7 @@ public:
 
   virtual bool HasCallstacks();
 
-  virtual ResultDetails InitResolver(bool interactive, RENDERDOC_ProgressCallback progress);
+  virtual ResultDetails InitResolver(bool interactive, GUGUGAGA_ProgressCallback progress);
 
   virtual rdcarray<rdcstr> GetResolve(const rdcarray<uint64_t> &callstack);
 

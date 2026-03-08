@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-// in this file we define the shell extension that renderdoc sets up to be able to
+// in this file we define the shell extension that gugugaga sets up to be able to
 // display thumbnails of captures in windows explorer. We register as a thumbnail
 // provider and either the installer or the UI installs the appropriate registry keys.
 

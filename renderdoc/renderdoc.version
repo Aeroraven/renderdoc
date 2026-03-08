@@ -17,8 +17,8 @@
                 execve;
                 execvpe;
                 _exit;
-                RENDERDOC_*;
-                VK_LAYER_RENDERDOC_*;
+                GUGUGAGA_*;
+                VK_LAYER_GUGUGAGA_*;
         local:
                 *;
 };

@@ -3344,8 +3344,8 @@ void WrappedID3D12GraphicsCommandList::EndEvent()
 
 template <typename SerialiserType>
 bool WrappedID3D12GraphicsCommandList::Serialise_SetCommandAnnotation(
-    SerialiserType &ser, rdcstr key, RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-    RENDERDOC_AnnotationValue value)
+    SerialiserType &ser, rdcstr key, GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+    GUGUGAGA_AnnotationValue value)
 {
   ID3D12GraphicsCommandList *pCommandList = this;
   SERIALISE_ELEMENT(pCommandList).Unimportant();
@@ -5872,8 +5872,8 @@ INSTANTIATE_FUNCTION_SERIALISED(void, WrappedID3D12GraphicsCommandList, BeginEve
                                 const void *pData, UINT Size);
 INSTANTIATE_FUNCTION_SERIALISED(void, WrappedID3D12GraphicsCommandList, EndEvent);
 INSTANTIATE_FUNCTION_SERIALISED(void, WrappedID3D12GraphicsCommandList, SetCommandAnnotation,
-                                rdcstr key, RENDERDOC_AnnotationType valueType,
-                                uint32_t valueVectorWidth, RENDERDOC_AnnotationValue value);
+                                rdcstr key, GUGUGAGA_AnnotationType valueType,
+                                uint32_t valueVectorWidth, GUGUGAGA_AnnotationValue value);
 INSTANTIATE_FUNCTION_SERIALISED(void, WrappedID3D12GraphicsCommandList, DrawInstanced,
                                 UINT VertexCountPerInstance, UINT InstanceCount,
                                 UINT StartVertexLocation, UINT StartInstanceLocation);

@@ -76,9 +76,9 @@ inline bool checkname(rdcstr &log, const char *baseType, rdcstr name, NameType n
     return false;
 
   // remove the module prefix, if this is a type name we're checking
-  if(name.beginsWith("renderdoc."))
+  if(name.beginsWith("gugugaga."))
     name.erase(0, 10);
-  if(name.beginsWith("qrenderdoc."))
+  if(name.beginsWith("qgugugaga."))
     name.erase(0, 11);
 
   // skip a few well-known members
@@ -163,7 +163,7 @@ inline bool check_interface(rdcstr &log, swig_type_info **swig_types, size_t num
     }
 
     rdcstr typeName = typeobj->tp_name;
-    errors_found |= checkname(log, "renderdoc", typeName, NameType::Type, "");
+    errors_found |= checkname(log, "gugugaga", typeName, NameType::Type, "");
 
     PyObject *dict = typeobj->tp_dict;
 

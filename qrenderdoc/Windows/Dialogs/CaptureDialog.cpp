@@ -197,7 +197,7 @@ CaptureDialog::CaptureDialog(ICaptureContext &ctx, OnCaptureMethod captureCallba
 
   // Set up warning for host layer config
   initWarning(ui->vulkanLayerWarn);
-  ui->vulkanLayerWarn->setVisible(RENDERDOC_NeedVulkanLayerRegistration(NULL));
+  ui->vulkanLayerWarn->setVisible(GUGUGAGA_NeedVulkanLayerRegistration(NULL));
   QObject::connect(ui->vulkanLayerWarn, &RDLabel::clicked, this,
                    &CaptureDialog::vulkanLayerWarn_mouseClick);
 
@@ -340,7 +340,7 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
 
   VulkanLayerRegistrationInfo info;
 
-  RENDERDOC_NeedVulkanLayerRegistration(&info);
+  GUGUGAGA_NeedVulkanLayerRegistration(&info);
 
   const bool hasOtherJSON = bool(info.flags & VulkanLayerFlags::OtherInstallsRegistered);
   const bool thisRegistered = bool(info.flags & VulkanLayerFlags::ThisInstallRegistered);
@@ -353,9 +353,9 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
   {
     QString msg =
         tr("There is an unfixable problem with your vulkan layer configuration.\n\n"
-           "This is most commonly caused by having a distribution-provided package of RenderDoc "
-           "installed, which cannot be modified by another build of RenderDoc.\n\n"
-           "Please consult the RenderDoc documentation, or package/distribution documentation on "
+           "This is most commonly caused by having a distribution-provided package of GuguGaga "
+           "installed, which cannot be modified by another build of GuguGaga.\n\n"
+           "Please consult the GuguGaga documentation, or package/distribution documentation on "
            "linux. ");
 
     if(info.otherJSONs.size() > 1)
@@ -371,17 +371,17 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
   }
 
   QString msg =
-      tr("Vulkan capture happens through the API's layer mechanism. RenderDoc has detected that ");
+      tr("Vulkan capture happens through the API's layer mechanism. GuguGaga has detected that ");
 
   if(hasOtherJSON)
   {
     if(info.otherJSONs.size() > 1)
       msg +=
-          tr("there are other conflicting RenderDoc builds registered already. They must be "
+          tr("there are other conflicting GuguGaga builds registered already. They must be "
              "disabled so that vulkan programs can be captured without crashes.");
     else
       msg +=
-          tr("there is another conflicting RenderDoc build registered already. It must be disabled "
+          tr("there is another conflicting GuguGaga build registered already. It must be disabled "
              "so that vulkan programs can be captured without crashes.");
 
     if(!thisRegistered)
@@ -425,7 +425,7 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
 
   if(needElevation)
     msg +=
-        tr("Due to some builds being in privileged locations, RenderDoc must elevate permissions "
+        tr("Due to some builds being in privileged locations, GuguGaga must elevate permissions "
            "to update them.\n\n");
 
   msg += tr("This is a one-off change, it won't be needed again unless the installation moves.");
@@ -447,11 +447,11 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
 
       if(needElevation)
         msg +=
-            tr("\n\nNote that RenderDoc needs to elevate permissions to update the registration "
+            tr("\n\nNote that GuguGaga needs to elevate permissions to update the registration "
                "regardless.");
       else
         msg +=
-            tr("\n\nNote that RenderDoc will need to elevate permissions to register at system "
+            tr("\n\nNote that GuguGaga will need to elevate permissions to register at system "
                "level.");
 
       QMessageBox::StandardButton elevate =
@@ -468,7 +468,7 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
     if(run)
     {
       auto regComplete = [this, admin]() {
-        bool needReg = RENDERDOC_NeedVulkanLayerRegistration(NULL);
+        bool needReg = GUGUGAGA_NeedVulkanLayerRegistration(NULL);
         ui->vulkanLayerWarn->setVisible(needReg);
 
 #if !defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
@@ -488,12 +488,12 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
 
       if(admin)
       {
-// linux sometimes can't run GUI apps as root, so we have to run renderdoccmd. Check that it's
+// linux sometimes can't run GUI apps as root, so we have to run gugugagacmd. Check that it's
 // installed, error if not, then invoke it.
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
         QDir binDir = QFileInfo(qApp->applicationFilePath()).absoluteDir();
 
-        QString cmd = lit("renderdoccmd");
+        QString cmd = lit("gugugagacmd");
 
         if(binDir.exists(cmd))
         {
@@ -507,10 +507,10 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
           if(inPath.isEmpty())
           {
             RDDialog::critical(
-                this, tr("Can't locate renderdoccmd"),
-                tr("On linux we must run renderdoccmd as root to register the layer, because "
-                   "graphical applications like qrenderdoc may fail to launch.\n\n"
-                   "renderdoccmd could not be located either next to this qrenderdoc executable or "
+                this, tr("Can't locate gugugagacmd"),
+                tr("On linux we must run gugugagacmd as root to register the layer, because "
+                   "graphical applications like qgugugaga may fail to launch.\n\n"
+                   "gugugagacmd could not be located either next to this qgugugaga executable or "
                    "in PATH."));
             return;
           }
@@ -518,25 +518,25 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
           // it's in the path, we can continue
         }
 
-        QStringList renderdoccmdParams;
+        QStringList gugugagacmdParams;
 
-        renderdoccmdParams << lit("vulkanlayer");
-        renderdoccmdParams << lit("--register");
+        gugugagacmdParams << lit("vulkanlayer");
+        gugugagacmdParams << lit("--register");
         if(system)
-          renderdoccmdParams << lit("--system");
+          gugugagacmdParams << lit("--system");
         else
-          renderdoccmdParams << lit("--user");
+          gugugagacmdParams << lit("--user");
 
-        if(!RunProcessAsAdmin(cmd, renderdoccmdParams, this, true, regComplete))
+        if(!RunProcessAsAdmin(cmd, gugugagacmdParams, this, true, regComplete))
           regComplete();
 #else
-        QStringList qrenderdocParams;
+        QStringList qgugugagaParams;
 
-        qrenderdocParams << lit("--install_vulkan_layer");
+        qgugugagaParams << lit("--install_vulkan_layer");
         if(system)
-          qrenderdocParams << lit("root");
+          qgugugagaParams << lit("root");
 
-        if(!RunProcessAsAdmin(qApp->applicationFilePath(), qrenderdocParams, this, false, regComplete))
+        if(!RunProcessAsAdmin(qApp->applicationFilePath(), qgugugagaParams, this, false, regComplete))
           regComplete();
 #endif
         return;
@@ -558,7 +558,7 @@ void CaptureDialog::vulkanLayerWarn_mouseClick()
       }
     }
 
-    ui->vulkanLayerWarn->setVisible(RENDERDOC_NeedVulkanLayerRegistration(NULL));
+    ui->vulkanLayerWarn->setVisible(GUGUGAGA_NeedVulkanLayerRegistration(NULL));
   }
 }
 
@@ -569,7 +569,7 @@ void CaptureDialog::CheckAndroidSetup(QString &filename)
 
   LambdaThread *scan = new LambdaThread([this, filename]() {
     rdcstr host = m_Ctx.Replay().CurrentRemote().Hostname();
-    RENDERDOC_CheckAndroidPackage(host, filename, &m_AndroidFlags);
+    GUGUGAGA_CheckAndroidPackage(host, filename, &m_AndroidFlags);
 
     const bool debuggable = bool(m_AndroidFlags & AndroidFlags::Debuggable);
     const bool hasroot = bool(m_AndroidFlags & AndroidFlags::RootAccess);
@@ -639,7 +639,7 @@ void CaptureDialog::on_processRefesh_clicked()
 
 bool CaptureDialog::checkAllowClose()
 {
-  if(RENDERDOC_IsGlobalHookActive())
+  if(GUGUGAGA_IsGlobalHookActive())
   {
     RDDialog::critical(this, tr("Global hook active"),
                        tr("Cannot close this window while global hook is active."));
@@ -777,7 +777,7 @@ void CaptureDialog::on_toggleGlobal_clicked()
     {
       QMessageBox::StandardButton res = RDDialog::question(
           this, tr("Restart as admin?"),
-          tr("RenderDoc needs to restart with administrator privileges. Restart?"),
+          tr("GuguGaga needs to restart with administrator privileges. Restart?"),
           RDDialog::YesNoCancel);
 
       if(res == QMessageBox::Yes)
@@ -822,14 +822,14 @@ void CaptureDialog::on_toggleGlobal_clicked()
 
     ui->toggleGlobal->setText(tr("Disable Global Hook"));
 
-    if(RENDERDOC_IsGlobalHookActive())
-      RENDERDOC_StopGlobalHook();
+    if(GUGUGAGA_IsGlobalHookActive())
+      GUGUGAGA_StopGlobalHook();
 
     QString exe = ui->exePath->text();
 
     QString capturefile = m_Ctx.TempCaptureFilename(QFileInfo(exe).baseName());
 
-    ResultDetails success = RENDERDOC_StartGlobalHook(exe, capturefile, Settings().options);
+    ResultDetails success = GUGUGAGA_StartGlobalHook(exe, capturefile, Settings().options);
 
     if(!success.OK())
     {
@@ -851,8 +851,8 @@ void CaptureDialog::on_toggleGlobal_clicked()
   else
   {
     // not checked
-    if(RENDERDOC_IsGlobalHookActive())
-      RENDERDOC_StopGlobalHook();
+    if(GUGUGAGA_IsGlobalHookActive())
+      GUGUGAGA_StopGlobalHook();
 
     setEnabledMultiple(enableDisableWidgets, true);
 
@@ -1123,7 +1123,7 @@ CaptureSettings CaptureDialog::LoadSettingsFromDisk(const rdcstr &filename)
 void CaptureDialog::UpdateGlobalHook()
 {
   ui->globalGroup->setVisible(!IsInjectMode() && m_Ctx.Config().AllowGlobalHook &&
-                              RENDERDOC_CanGlobalHook());
+                              GUGUGAGA_CanGlobalHook());
 
   if(ui->exePath->text().length() >= 4)
   {
@@ -1131,7 +1131,7 @@ void CaptureDialog::UpdateGlobalHook()
     QString text = tr("Global hooking is risky!\nBe sure you know what you're doing.");
 
     if(ui->toggleGlobal->isChecked())
-      text += tr("\nEmergency restore @ %TEMP%\\RenderDoc_RestoreGlobalHook.reg");
+      text += tr("\nEmergency restore @ %TEMP%\\GuguGaga_RestoreGlobalHook.reg");
 
     ui->globalLabel->setText(text);
   }

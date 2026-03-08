@@ -22,7 +22,7 @@
     <ProjectGuid>{6DEE3F12-F2F8-42CA-865A-578D0FD11387}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>gugugagashim</RootNamespace>
-    <WindowsTargetPlatformVersion>$(RenderDocLatestWin10SDKVersion)</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>$(GuguGagaLatestWin10SDKVersion)</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\util\WindowsSDKTarget.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -196,10 +196,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="renderdocshim.cpp" />
+    <ClCompile Include="gugugagashim.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="renderdocshim.h" />
+    <ClInclude Include="gugugagashim.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

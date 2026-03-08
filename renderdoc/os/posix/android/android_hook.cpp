@@ -222,10 +222,10 @@ void *intercept_dlopen(const char *filename, int flag)
     // We need to intercept requests for our own library, because the android loader makes the
     // completely ridiculous decision to load multiple copies of the same library into a process if
     // it's dlopen'd with different paths. This obviously breaks with our hook install.
-    if(strstr(filename, RENDERDOC_ANDROID_LIBRARY) || GetHookInfo().IsLibHook(rdcstr(filename)))
+    if(strstr(filename, GUGUGAGA_ANDROID_LIBRARY) || GetHookInfo().IsLibHook(rdcstr(filename)))
     {
       HOOK_DEBUG_PRINT("Intercepting dlopen for %s", filename);
-      return dlopen(RENDERDOC_ANDROID_LIBRARY, flag);
+      return dlopen(GUGUGAGA_ANDROID_LIBRARY, flag);
     }
   }
 
@@ -527,7 +527,7 @@ static void InstallHooksCommon()
   suppressTLS = Threading::AllocateTLSSlot();
 
   // blacklist hooking certain system libraries or ourselves
-  GetHookInfo().SetHooked(RENDERDOC_ANDROID_LIBRARY);
+  GetHookInfo().SetHooked(GUGUGAGA_ANDROID_LIBRARY);
   GetHookInfo().SetHooked("libc.so");
   GetHookInfo().SetHooked("libvndksupport.so");
 
@@ -549,7 +549,7 @@ static void InstallHooksCommon()
       "", FunctionHook("android_dlopen_ext", NULL, (void *)&hooked_android_dlopen_ext));
 }
 
-#if defined(RENDERDOC_HAVE_INTERCEPTOR_LIB)
+#if defined(GUGUGAGA_HAVE_INTERCEPTOR_LIB)
 
 void intercept_error(void *, const char *error_msg)
 {

@@ -86,7 +86,7 @@ WrappedID3D11DeviceContext::WrappedID3D11DeviceContext(WrappedID3D11Device *real
       m_pRealContext(context),
       m_ScratchSerialiser(new StreamWriter(1024), Ownership::Stream)
 {
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(WrappedID3D11DeviceContext));
+  GuguGaga::Inst().RegisterMemoryRegion(this, sizeof(WrappedID3D11DeviceContext));
 
   for(int i = 0; i < D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT; i++)
   {
@@ -146,7 +146,7 @@ WrappedID3D11DeviceContext::WrappedID3D11DeviceContext(WrappedID3D11Device *real
       m_NeedUpdateSubWorkaround = true;
   }
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     m_State = CaptureState::LoadingReplaying;
 
@@ -163,7 +163,7 @@ WrappedID3D11DeviceContext::WrappedID3D11DeviceContext(WrappedID3D11Device *real
 
   m_ContextRecord = NULL;
 
-  if(!RenderDoc::Inst().IsReplayApp())
+  if(!GuguGaga::Inst().IsReplayApp())
   {
     m_ContextRecord = m_pDevice->GetResourceManager()->AddResourceRecord(m_ResourceID);
     m_ContextRecord->DataInSerialiser = false;
@@ -214,7 +214,7 @@ WrappedID3D11DeviceContext::WrappedID3D11DeviceContext(WrappedID3D11Device *real
     m_MarkedActive = true;
 
     // deferred contexts are only successful if they were active capturing when they started
-    if(IsCaptureMode(m_State) && RenderDoc::Inst().GetCaptureOptions().captureAllCmdLists)
+    if(IsCaptureMode(m_State) && GuguGaga::Inst().GetCaptureOptions().captureAllCmdLists)
     {
       m_State = CaptureState::ActiveCapturing;
       m_SuccessfulCapture = true;
@@ -266,7 +266,7 @@ WrappedID3D11DeviceContext::~WrappedID3D11DeviceContext()
 
   m_pDevice = NULL;
 
-  RenderDoc::Inst().UnregisterMemoryRegion(this);
+  GuguGaga::Inst().UnregisterMemoryRegion(this);
 }
 
 void WrappedID3D11DeviceContext::GetDevice(ID3D11Device **ppDevice)
@@ -612,7 +612,7 @@ void WrappedID3D11DeviceContext::AttemptCapture()
 void WrappedID3D11DeviceContext::FinishCapture()
 {
   if(GetType() != D3D11_DEVICE_CONTEXT_DEFERRED ||
-     !RenderDoc::Inst().GetCaptureOptions().captureAllCmdLists)
+     !GuguGaga::Inst().GetCaptureOptions().captureAllCmdLists)
   {
     m_State = CaptureState::BackgroundCapturing;
 
@@ -710,7 +710,7 @@ void WrappedID3D11DeviceContext::CleanupCapture()
 
     m_MapResourceRecordAllocs.clear();
 
-    if(RenderDoc::Inst().GetCaptureOptions().captureAllCmdLists || IsActiveCapturing(m_State))
+    if(GuguGaga::Inst().GetCaptureOptions().captureAllCmdLists || IsActiveCapturing(m_State))
       return;
 
     m_SuccessfulCapture = false;
@@ -941,8 +941,8 @@ bool WrappedID3D11DeviceContext::ProcessChunk(ReadSerialiser &ser, D3D11Chunk ch
     case D3D11Chunk::PopMarker: ret = Serialise_PopMarker(ser); break;
 
     case D3D11Chunk::SetCommandAnnotation:
-      ret = Serialise_SetCommandAnnotation(ser, rdcstr(), eRENDERDOC_AnnotationMax, 0,
-                                           RENDERDOC_AnnotationValue());
+      ret = Serialise_SetCommandAnnotation(ser, rdcstr(), eGUGUGAGA_AnnotationMax, 0,
+                                           GUGUGAGA_AnnotationValue());
       break;
 
     case D3D11Chunk::DiscardResource: ret = Serialise_DiscardResource(ser, NULL); break;
@@ -1432,7 +1432,7 @@ RDResult WrappedID3D11DeviceContext::ReplayLog(CaptureState readType, uint32_t s
       return m_FailedReplayResult;
     }
 
-    RenderDoc::Inst().SetProgress(
+    GuguGaga::Inst().SetProgress(
         LoadProgress::FrameEventsRead,
         float(m_CurChunkOffset - startOffset) / float(ser.GetReader()->GetSize()));
 

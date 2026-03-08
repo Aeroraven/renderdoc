@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Development|Win32">
@@ -21,9 +21,9 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A8998B2D-652A-47F8-955B-5654B222B4EB}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>pyrenderdoc_module</RootNamespace>
-    <ProjectName>pyrenderdoc_module</ProjectName>
-    <WindowsTargetPlatformVersion>$(RenderDocLatestWin10SDKVersion)</WindowsTargetPlatformVersion>
+    <RootNamespace>pygugugaga_module</RootNamespace>
+    <ProjectName>pygugugaga_module</ProjectName>
+    <WindowsTargetPlatformVersion>$(GuguGagaLatestWin10SDKVersion)</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\util\WindowsSDKTarget.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -83,7 +83,7 @@
   <PropertyGroup>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\pymodules\</OutDir>
-    <TargetName>renderdoc</TargetName>
+    <TargetName>gugugaga</TargetName>
     <TargetExt>.pyd</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup>
@@ -92,7 +92,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>RENDERDOC_PLATFORM_WIN32;WIN32;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GUGUGAGA_PLATFORM_WIN32;WIN32;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -141,7 +141,7 @@
     <CustomBuild Include="renderdoc.i">
       <FileType>Document</FileType>
       <AdditionalInputs>%(Fullpath);$(SwigInterfaces);$(SwigHeaders);$(CoreReplayHeaders);%(AdditionalInputs)</AdditionalInputs>
-      <Command>"$(ProjectDir)..\..\3rdparty\swig\swig.exe" -v -Wextra -Werror -O -c++ -interface %(Filename) -python -modern -modernargs -enumclass -fastunpack -py3 -builtin -I"$(SolutionDir)renderdoc\api\replay" -outdir "$(IntDir)generated" -o "$(IntDir)generated\%(Filename)_module_python.cxx" "%(FullPath)"</Command>
+      <Command>"$(ProjectDir)..\..\3rdparty\swig\swig.exe" -v -Wextra -Werror -O -c++ -interface gugugaga -python -modern -modernargs -enumclass -fastunpack -py3 -builtin -I"$(SolutionDir)renderdoc\api\replay" -outdir "$(IntDir)generated" -o "$(IntDir)generated\%(Filename)_module_python.cxx" "%(FullPath)"</Command>
       <Message>Compiling SWIG interface</Message>
       <Outputs>$(IntDir)generated\%(Filename).py;$(IntDir)generated\%(Filename)_module_python.cxx;%(Outputs)</Outputs>
       <LinkObjects>false</LinkObjects>
@@ -166,3 +166,5 @@
   </ItemGroup>
   <Import Project="$(SolutionDir)\qrenderdoc\Code\pyrenderdoc\python.props" />
 </Project>
+
+

@@ -25,7 +25,7 @@
 #pragma once
 
 #include <set>
-#include "api/replay/renderdoc_replay.h"
+#include "api/replay/gugugaga_replay.h"
 
 struct ID3D12Device;
 struct ID3D12Device5;

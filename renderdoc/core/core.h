@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <map>
-#include "api/app/renderdoc_app.h"
+#include "api/app/gugugaga_app.h"
 #include "api/replay/apidefs.h"
 #include "api/replay/capture_options.h"
 #include "api/replay/control_types.h"
@@ -36,24 +36,24 @@
 #include "common/timing.h"
 #include "os/os_specific.h"
 
-DECLARE_REFLECTION_ENUM(RENDERDOC_AnnotationType);
-DECLARE_REFLECTION_STRUCT(RENDERDOC_AnnotationValue);
+DECLARE_REFLECTION_ENUM(GUGUGAGA_AnnotationType);
+DECLARE_REFLECTION_STRUCT(GUGUGAGA_AnnotationValue);
 
 class Chunk;
 struct RDCThumb;
 struct ReplayOptions;
 struct SDObject;
 
-void WriteAnnotation(SDObject *obj, RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                     RENDERDOC_AnnotationValue value);
+void WriteAnnotation(SDObject *obj, GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+                     GUGUGAGA_AnnotationValue value);
 
 struct PendingAnnotation
 {
   uint32_t eventId;
   rdcstr key;
-  RENDERDOC_AnnotationType valueType;
+  GUGUGAGA_AnnotationType valueType;
   uint32_t valueVectorWidth;
-  RENDERDOC_AnnotationValue value;
+  GUGUGAGA_AnnotationValue value;
 };
 
 // not provided by tinyexr, just do by hand
@@ -120,11 +120,11 @@ struct IFrameCapturer
   virtual bool DiscardFrameCapture(DeviceOwnedWindow devWnd) = 0;
 
   virtual uint32_t SetObjectAnnotation(void *object, const char *key,
-                                       RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                       const RENDERDOC_AnnotationValue *value) = 0;
+                                       GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+                                       const GUGUGAGA_AnnotationValue *value) = 0;
   virtual uint32_t SetCommandAnnotation(void *queueOrCommandBuffer, const char *key,
-                                        RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                        const RENDERDOC_AnnotationValue *value) = 0;
+                                        GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+                                        const GUGUGAGA_AnnotationValue *value) = 0;
 };
 
 struct IDeviceProtocolHandler;
@@ -391,9 +391,9 @@ typedef RDResult (*ReplayDriverProvider)(RDCFile *rdc, const ReplayOptions &opts
 typedef RDResult (*StructuredProcessor)(RDCFile *rdc, SDFile &structData);
 
 typedef RDResult (*CaptureImporter)(const rdcstr &filename, StreamReader &reader, RDCFile *rdc,
-                                    SDFile &structData, RENDERDOC_ProgressCallback progress);
+                                    SDFile &structData, GUGUGAGA_ProgressCallback progress);
 typedef RDResult (*CaptureExporter)(const rdcstr &filename, const RDCFile &rdc,
-                                    const SDFile &structData, RENDERDOC_ProgressCallback progress);
+                                    const SDFile &structData, GUGUGAGA_ProgressCallback progress);
 typedef IDeviceProtocolHandler *(*ProtocolHandler)();
 
 typedef bool (*VulkanLayerCheck)(VulkanLayerFlags &flags, rdcarray<rdcstr> &myJSONs,
@@ -406,7 +406,7 @@ typedef void (*ShutdownFunction)();
 //
 // It acts as a central hub that registers any driver providers and can be asked to create one
 // for a given logfile or type.
-class RenderDoc
+class GuguGaga
 {
 public:
   struct FramePixels
@@ -429,10 +429,10 @@ public:
     ~FramePixels() { SAFE_DELETE_ARRAY(data); }
   };
 
-  static RenderDoc &Inst();
+  static GuguGaga &Inst();
 
   template <typename ProgressType>
-  void SetProgressCallback(RENDERDOC_ProgressCallback progress)
+  void SetProgressCallback(GUGUGAGA_ProgressCallback progress)
   {
     m_ProgressCallbacks[TypeName<ProgressType>()] = progress;
   }
@@ -440,7 +440,7 @@ public:
   template <typename ProgressType>
   void SetProgress(ProgressType section, float delta)
   {
-    RENDERDOC_ProgressCallback cb = m_ProgressCallbacks[TypeName<ProgressType>()];
+    GUGUGAGA_ProgressCallback cb = m_ProgressCallbacks[TypeName<ProgressType>()];
     if(!cb || section < ProgressType::First || section >= ProgressType::Count)
       return;
 
@@ -477,8 +477,8 @@ public:
   void RegisterShutdownFunction(ShutdownFunction func);
   void SetReplayApp(bool replay) { m_Replay = replay; }
   bool IsReplayApp() const { return m_Replay; }
-  void BecomeRemoteServer(const rdcstr &listenhost, uint16_t port, RENDERDOC_KillCallback killReplay,
-                          RENDERDOC_PreviewWindowCallback previewWindow);
+  void BecomeRemoteServer(const rdcstr &listenhost, uint16_t port, GUGUGAGA_KillCallback killReplay,
+                          GUGUGAGA_PreviewWindowCallback previewWindow);
 
   const SDObject *GetConfigSetting(const rdcstr &name);
   SDObject *SetConfigSetting(const rdcstr &name);
@@ -590,7 +590,7 @@ public:
   bool HasActiveFrameCapturer(RDCDriver driver);
 
   // add window-less frame capturers for use via users capturing
-  // manually through the renderdoc API with NULL device/window handles
+  // manually through the gugugaga API with NULL device/window handles
   void AddDeviceFrameCapturer(void *dev, IFrameCapturer *cap);
   void RemoveDeviceFrameCapturer(void *dev);
 
@@ -611,21 +611,21 @@ public:
   uint32_t GetOverlayBits() { return m_Overlay; }
   void MaskOverlayBits(uint32_t And, uint32_t Or) { m_Overlay = (m_Overlay & And) | Or; }
   void QueueCapture(uint32_t frameNumber);
-  void SetFocusKeys(RENDERDOC_InputButton *keys, int num)
+  void SetFocusKeys(GUGUGAGA_InputButton *keys, int num)
   {
     m_FocusKeys.resize(num);
     for(int i = 0; i < num && keys; i++)
       m_FocusKeys[i] = keys[i];
   }
-  void SetCaptureKeys(RENDERDOC_InputButton *keys, int num)
+  void SetCaptureKeys(GUGUGAGA_InputButton *keys, int num)
   {
     m_CaptureKeys.resize(num);
     for(int i = 0; i < num && keys; i++)
       m_CaptureKeys[i] = keys[i];
   }
 
-  const rdcarray<RENDERDOC_InputButton> &GetFocusKeys() { return m_FocusKeys; }
-  const rdcarray<RENDERDOC_InputButton> &GetCaptureKeys() { return m_CaptureKeys; }
+  const rdcarray<GUGUGAGA_InputButton> &GetFocusKeys() { return m_FocusKeys; }
+  const rdcarray<GUGUGAGA_InputButton> &GetCaptureKeys() { return m_CaptureKeys; }
   bool ShouldTriggerCapture(uint32_t frameNumber);
 
   enum
@@ -650,8 +650,8 @@ public:
   RDResult ReadExternalFiles(RDCFile *rdc);
 
 private:
-  RenderDoc();
-  ~RenderDoc();
+  GuguGaga();
+  ~GuguGaga();
 
   struct TrackedFile
   {
@@ -681,8 +681,8 @@ private:
   bool m_PrevFocus = false;
   bool m_PrevCap = false;
 
-  rdcarray<RENDERDOC_InputButton> m_FocusKeys;
-  rdcarray<RENDERDOC_InputButton> m_CaptureKeys;
+  rdcarray<GUGUGAGA_InputButton> m_FocusKeys;
+  rdcarray<GUGUGAGA_InputButton> m_CaptureKeys;
 
   GlobalEnvironment m_GlobalEnv;
 
@@ -712,7 +712,7 @@ private:
   Threading::ThreadHandle m_AvailableGPUThread = 0;
   rdcarray<GPUDevice> m_AvailableGPUs;
 
-  std::map<rdcstr, RENDERDOC_ProgressCallback> m_ProgressCallbacks;
+  std::map<rdcstr, GUGUGAGA_ProgressCallback> m_ProgressCallbacks;
 
   Threading::CriticalSection m_CaptureLock;
   rdcarray<CaptureData> m_Captures;
@@ -786,11 +786,11 @@ struct DriverRegistration
 {
   DriverRegistration(RDCDriver driver, ReplayDriverProvider provider)
   {
-    RenderDoc::Inst().RegisterReplayProvider(driver, provider);
+    GuguGaga::Inst().RegisterReplayProvider(driver, provider);
   }
   DriverRegistration(RDCDriver driver, RemoteDriverProvider provider)
   {
-    RenderDoc::Inst().RegisterRemoteProvider(driver, provider);
+    GuguGaga::Inst().RegisterRemoteProvider(driver, provider);
   }
 };
 
@@ -798,7 +798,7 @@ struct StructuredProcessRegistration
 {
   StructuredProcessRegistration(RDCDriver driver, StructuredProcessor provider)
   {
-    RenderDoc::Inst().RegisterStructuredProcessor(driver, provider);
+    GuguGaga::Inst().RegisterStructuredProcessor(driver, provider);
   }
 };
 
@@ -807,11 +807,11 @@ struct ConversionRegistration
   ConversionRegistration(CaptureImporter importer, CaptureExporter exporter,
                          CaptureFileFormat description)
   {
-    RenderDoc::Inst().RegisterCaptureImportExporter(importer, exporter, description);
+    GuguGaga::Inst().RegisterCaptureImportExporter(importer, exporter, description);
   }
   ConversionRegistration(CaptureExporter exporter, CaptureFileFormat description)
   {
-    RenderDoc::Inst().RegisterCaptureExporter(exporter, description);
+    GuguGaga::Inst().RegisterCaptureExporter(exporter, description);
   }
 };
 
@@ -819,6 +819,6 @@ struct DeviceProtocolRegistration
 {
   DeviceProtocolRegistration(const rdcstr &protocol, ProtocolHandler handler)
   {
-    RenderDoc::Inst().RegisterDeviceProtocol(protocol, handler);
+    GuguGaga::Inst().RegisterDeviceProtocol(protocol, handler);
   }
 };

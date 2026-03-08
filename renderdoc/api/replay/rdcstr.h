@@ -28,9 +28,9 @@
 #include <string.h>     // for memcpy, etc
 #include <algorithm>    // for std::swap
 
-#ifdef RENDERDOC_EXPORTS
+#ifdef GUGUGAGA_EXPORTS
 #include <stdlib.h>    // for malloc/free
-void RENDERDOC_OutOfMemory(uint64_t sz);
+void GUGUGAGA_OutOfMemory(uint64_t sz);
 #endif
 
 class rdcinflexiblestr;
@@ -142,21 +142,21 @@ private:
   static char *allocate(size_t count)
   {
     char *ret = NULL;
-#ifdef RENDERDOC_EXPORTS
+#ifdef GUGUGAGA_EXPORTS
     ret = (char *)malloc(count);
     if(ret == NULL)
-      RENDERDOC_OutOfMemory(count);
+      GUGUGAGA_OutOfMemory(count);
 #else
-    ret = (char *)RENDERDOC_AllocArrayMem(count);
+    ret = (char *)GUGUGAGA_AllocArrayMem(count);
 #endif
     return ret;
   }
   static void deallocate(char *p)
   {
-#ifdef RENDERDOC_EXPORTS
+#ifdef GUGUGAGA_EXPORTS
     free((void *)p);
 #else
-    RENDERDOC_FreeArrayMem((void *)p);
+    GUGUGAGA_FreeArrayMem((void *)p);
 #endif
   }
 
@@ -874,7 +874,7 @@ public:
   bool operator<(const rdcstr &o) const { return strcmp(c_str(), o.c_str()) < 0; }
   bool operator>(const rdcstr &o) const { return strcmp(c_str(), o.c_str()) > 0; }
 // Qt compatibility
-#if defined(RENDERDOC_QT_COMPAT)
+#if defined(GUGUGAGA_QT_COMPAT)
   rdcstr(const QString &in)
   {
     QByteArray arr = in.toUtf8();
@@ -935,7 +935,7 @@ inline bool operator!=(const char *const left, const rdcstr &right)
   return right != left;
 }
 
-#if defined(RENDERDOC_QT_COMPAT)
+#if defined(GUGUGAGA_QT_COMPAT)
 inline rdcstr operator+(const QString &left, const rdcstr &right)
 {
   return rdcstr(left) += right;
@@ -961,21 +961,21 @@ class rdcinflexiblestr
   static char *allocate(size_t count)
   {
     char *ret = NULL;
-#ifdef RENDERDOC_EXPORTS
+#ifdef GUGUGAGA_EXPORTS
     ret = (char *)malloc(count);
     if(ret == NULL)
-      RENDERDOC_OutOfMemory(count);
+      GUGUGAGA_OutOfMemory(count);
 #else
-    ret = (char *)RENDERDOC_AllocArrayMem(count);
+    ret = (char *)GUGUGAGA_AllocArrayMem(count);
 #endif
     return ret;
   }
   static void deallocate(char *p)
   {
-#ifdef RENDERDOC_EXPORTS
+#ifdef GUGUGAGA_EXPORTS
     free((void *)p);
 #else
-    RENDERDOC_FreeArrayMem((void *)p);
+    GUGUGAGA_FreeArrayMem((void *)p);
 #endif
   }
 
@@ -1165,14 +1165,14 @@ public:
       return rdcstr(rdcliteral(c_str(), size()));
   }
 
-#if defined(RENDERDOC_QT_COMPAT)
+#if defined(GUGUGAGA_QT_COMPAT)
   operator QString() const { return QString::fromUtf8(c_str(), (int32_t)size()); }
   operator QVariant() const { return QVariant(QString::fromUtf8(c_str(), (int32_t)size())); }
 #endif
 };
 
 // add a std::hash overload so rdcstr can be used in hashmaps
-#ifdef RENDERDOC_EXPORTS
+#ifdef GUGUGAGA_EXPORTS
 
 #include <functional>
 

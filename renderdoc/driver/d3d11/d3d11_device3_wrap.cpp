@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2016-2026 Baldur Karlsson
+ * Copyright (c) 2016-2026 GuguGaga Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -949,7 +949,7 @@ void WrappedID3D11Device::WriteToSubresource(ID3D11Resource *pDstResource, UINT 
 
   RDCUNIMPLEMENTED(
       "WriteToSubresource is not supported. Please contact me if you have a working example! "
-      "https://github.com/baldurk/renderdoc/issues");
+      "https://github.com/GuguGaga/GuguGaga/issues");
 
   m_pDevice3->WriteToSubresource(pDstResource, DstSubresource, pDstBox, pSrcData, SrcRowPitch,
                                  SrcDepthPitch);
@@ -966,7 +966,7 @@ void WrappedID3D11Device::ReadFromSubresource(void *pDstData, UINT DstRowPitch, 
 
   RDCUNIMPLEMENTED(
       "ReadFromSubresource is not supported. Please contact me if you have a working example! "
-      "https://github.com/baldurk/renderdoc/issues");
+      "https://github.com/GuguGaga/GuguGaga/issues");
 
   m_pDevice3->ReadFromSubresource(pDstData, DstRowPitch, DstDepthPitch, pSrcResource,
                                   SrcSubresource, pSrcBox);

@@ -71,7 +71,7 @@ struct rdcdatetime
     return false;
   }
 
-#if defined(RENDERDOC_QT_COMPAT)
+#if defined(GUGUGAGA_QT_COMPAT)
   rdcdatetime(const QDateTime &in)
   {
     year = in.date().year();

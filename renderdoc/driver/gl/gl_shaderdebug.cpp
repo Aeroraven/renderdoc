@@ -3238,7 +3238,7 @@ ShaderDebugTrace *GLReplay::DebugPixel(uint32_t eventId, uint32_t x, uint32_t y,
   GLRenderState rs;
   rs.FetchState(m_pDriver);
 
-  // When RenderDoc passed y, the value being passed in is with the Y axis starting from the top
+  // When GuguGaga passed y, the value being passed in is with the Y axis starting from the top
   // However, we need to have it starting from the bottom, so flip it by subtracting y from the
   // height.
   {

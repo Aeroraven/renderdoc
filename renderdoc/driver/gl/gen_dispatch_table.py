@@ -218,18 +218,18 @@ for key in OrderedDict(sorted(typedefs.items())):
 f.write('''
 
         
-// the _renderdoc_hooked variants are to make sure we always have a function symbol exported that we
+// the _gugugaga_hooked variants are to make sure we always have a function symbol exported that we
 // can return from GetProcAddress. On posix systems if another library (or the application itself)
 // creates a symbol called 'glEnable' we'll return the address of that, and break badly. Instead we
 // leave the 'naked' versions for applications trying to import those symbols, and declare the
-// _renderdoc_hooked for returning as a func pointer. The raw version calls directly into the hooked
+// _gugugaga_hooked for returning as a func pointer. The raw version calls directly into the hooked
 // version to hopefully allow the linker to tail-call optimise and reduce the overhead.
 
 ''')
 
 template = '''
 #define FuncWrapper{num}(ret, function{macroargs}) \\
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)({argdecl}) \\
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)({argdecl}) \\
   {{ \\
     SCOPED_GLCALL(function); \\
     UNINIT_CALL(function, {argpass}); \\
@@ -237,12 +237,12 @@ template = '''
   }} \\
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)({argdecl}) \\
   {{ \\
-    return CONCAT(function, _renderdoc_hooked)({argpass}); \\
+    return CONCAT(function, _gugugaga_hooked)({argpass}); \\
   }} \\
   HOOK_EXPORT ret HOOK_CC function({argdecl});
 
 #define AliasWrapper{num}(ret, function, realfunc{macroargs}) \\
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)({argdecl}) \\
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)({argdecl}) \\
   {{ \\
     SCOPED_GLCALL(function); \\
     UNINIT_CALL(realfunc, {argpass}); \\
@@ -250,14 +250,14 @@ template = '''
   }} \\
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)({argdecl}) \\
   {{ \\
-    return CONCAT(function, _renderdoc_hooked)({argpass}); \\
+    return CONCAT(function, _gugugaga_hooked)({argpass}); \\
   }} \\
   HOOK_EXPORT ret HOOK_CC function({argdecl});
 
 #define UnsupportedWrapper{num}(ret, function{macroargs}) \\
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))({argdecl}); \\
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \\
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)({argdecl}) \\
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)({argdecl}) \\
   {{ \\
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \\
     if(!CONCAT(unsupported_real_, function)) \\
@@ -267,7 +267,7 @@ template = '''
   }} \\
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)({argdecl}) \\
   {{ \\
-    return CONCAT(function, _renderdoc_hooked)({argpass}); \\
+    return CONCAT(function, _gugugaga_hooked)({argpass}); \\
   }} \\
   HOOK_EXPORT ret HOOK_CC function({argdecl});
 

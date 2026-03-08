@@ -1,4 +1,4 @@
-package @RENDERDOC_ANDROID_PACKAGE_NAME@;
+package @GUGUGAGA_ANDROID_PACKAGE_NAME@;
 import android.os.Build;
 import android.app.Activity;
 import android.view.WindowManager;
@@ -9,7 +9,7 @@ public class Loader extends android.app.NativeActivity
 {
     /* load our native library */
     static {
-        System.loadLibrary("renderdoccmd"); // this will load VkLayer_GLES_RenderDoc as well
+        System.loadLibrary("gugugagacmd"); // this will load VkLayer_GLES_GuguGaga as well
     }
 
     @Override

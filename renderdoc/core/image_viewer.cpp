@@ -562,7 +562,7 @@ RDResult IMG_CreateReplayDevice(RDCFile *rdc, IReplayDriver **driver)
     FileIO::fclose(f);
 
   IReplayDriver *proxy = NULL;
-  RDResult result = RenderDoc::Inst().CreateProxyReplayDriver(RDCDriver::Unknown, &proxy);
+  RDResult result = GuguGaga::Inst().CreateProxyReplayDriver(RDCDriver::Unknown, &proxy);
 
   if(result != ResultCode::Succeeded || !proxy)
   {

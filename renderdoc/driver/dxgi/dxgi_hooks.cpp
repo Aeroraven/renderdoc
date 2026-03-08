@@ -39,7 +39,7 @@ IDXGraphicsAnalysis : public IUnknown
   virtual void STDMETHODCALLTYPE EndCapture() = 0;
 };
 
-struct RenderDocAnalysis : IDXGraphicsAnalysis
+struct GuguGagaAnalysis : IDXGraphicsAnalysis
 {
   // IUnknown boilerplate
   HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) { return E_NOINTERFACE; }
@@ -55,17 +55,17 @@ struct RenderDocAnalysis : IDXGraphicsAnalysis
   void STDMETHODCALLTYPE BeginCapture()
   {
     DeviceOwnedWindow devWnd;
-    RenderDoc::Inst().GetActiveWindow(devWnd);
+    GuguGaga::Inst().GetActiveWindow(devWnd);
 
-    RenderDoc::Inst().StartFrameCapture(devWnd);
+    GuguGaga::Inst().StartFrameCapture(devWnd);
   }
 
   void STDMETHODCALLTYPE EndCapture()
   {
     DeviceOwnedWindow devWnd;
-    RenderDoc::Inst().GetActiveWindow(devWnd);
+    GuguGaga::Inst().GetActiveWindow(devWnd);
 
-    RenderDoc::Inst().EndFrameCapture(devWnd);
+    GuguGaga::Inst().EndFrameCapture(devWnd);
   }
 };
 
@@ -261,7 +261,7 @@ public:
 private:
   static DXGIHook dxgihooks;
 
-  RenderDocAnalysis m_RenderDocAnalysis;
+  GuguGagaAnalysis m_GuguGagaAnalysis;
   DummyDXGIInfoQueue m_DummyInfoQueue;
 
   HookedFunction<PFN_CREATE_DXGI_FACTORY> CreateDXGIFactory;
@@ -313,15 +313,15 @@ private:
 
     if(riid == __uuidof(IDXGraphicsAnalysis))
     {
-      dxgihooks.m_RenderDocAnalysis.AddRef();
+      dxgihooks.m_GuguGagaAnalysis.AddRef();
       if(ppDebug)
-        *ppDebug = &dxgihooks.m_RenderDocAnalysis;
+        *ppDebug = &dxgihooks.m_GuguGagaAnalysis;
       return S_OK;
     }
     if(riid == __uuidof(IDXGIInfoQueue))
     {
       RDCWARN(
-          "Returning a dummy IDXGIInfoQueue that does nothing. RenderDoc takes control of the "
+          "Returning a dummy IDXGIInfoQueue that does nothing. GuguGaga takes control of the "
           "debug layer.");
       dxgihooks.m_DummyInfoQueue.AddRef();
       if(ppDebug)
@@ -344,15 +344,15 @@ private:
 
     if(riid == __uuidof(IDXGraphicsAnalysis))
     {
-      dxgihooks.m_RenderDocAnalysis.AddRef();
+      dxgihooks.m_GuguGagaAnalysis.AddRef();
       if(ppDebug)
-        *ppDebug = &dxgihooks.m_RenderDocAnalysis;
+        *ppDebug = &dxgihooks.m_GuguGagaAnalysis;
       return S_OK;
     }
     if(riid == __uuidof(IDXGIInfoQueue))
     {
       RDCWARN(
-          "Returning a dummy IDXGIInfoQueue that does nothing. RenderDoc takes control of the "
+          "Returning a dummy IDXGIInfoQueue that does nothing. GuguGaga takes control of the "
           "debug layer.");
       dxgihooks.m_DummyInfoQueue.AddRef();
       if(ppDebug)

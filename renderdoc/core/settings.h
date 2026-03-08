@@ -65,7 +65,7 @@ CONFIG_SUPPORT_TYPE(rdcarray<rdcstr>);
 
 // debug configs get set to constants in official stable builds, they will remain configurable
 // in nightly builds and of course in development builds
-#if RENDERDOC_STABLE_BUILD
+#if GUGUGAGA_STABLE_BUILD
 
 #define RDOC_DEBUG_CONFIG(type, name, defaultValue, description)                         \
   static ConfigVarRegistration<type> CONCAT(config, __LINE__)(                           \

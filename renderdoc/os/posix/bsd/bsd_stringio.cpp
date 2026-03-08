@@ -34,7 +34,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <set>
-#include "api/app/renderdoc_app.h"
+#include "api/app/gugugaga_app.h"
 #include "api/replay/replay_enums.h"
 #include "common/common.h"
 #include "common/threading.h"
@@ -94,39 +94,39 @@ bool GetXlibKeyState(int key)
 
   KeySym ks = 0;
 
-  if(key >= eRENDERDOC_Key_A && key <= eRENDERDOC_Key_Z)
+  if(key >= eGUGUGAGA_Key_A && key <= eGUGUGAGA_Key_Z)
     ks = key;
-  if(key >= eRENDERDOC_Key_0 && key <= eRENDERDOC_Key_9)
+  if(key >= eGUGUGAGA_Key_0 && key <= eGUGUGAGA_Key_9)
     ks = key;
 
   switch(key)
   {
-    case eRENDERDOC_Key_Divide: ks = XK_KP_Divide; break;
-    case eRENDERDOC_Key_Multiply: ks = XK_KP_Multiply; break;
-    case eRENDERDOC_Key_Subtract: ks = XK_KP_Subtract; break;
-    case eRENDERDOC_Key_Plus: ks = XK_KP_Add; break;
-    case eRENDERDOC_Key_F1: ks = XK_F1; break;
-    case eRENDERDOC_Key_F2: ks = XK_F2; break;
-    case eRENDERDOC_Key_F3: ks = XK_F3; break;
-    case eRENDERDOC_Key_F4: ks = XK_F4; break;
-    case eRENDERDOC_Key_F5: ks = XK_F5; break;
-    case eRENDERDOC_Key_F6: ks = XK_F6; break;
-    case eRENDERDOC_Key_F7: ks = XK_F7; break;
-    case eRENDERDOC_Key_F8: ks = XK_F8; break;
-    case eRENDERDOC_Key_F9: ks = XK_F9; break;
-    case eRENDERDOC_Key_F10: ks = XK_F10; break;
-    case eRENDERDOC_Key_F11: ks = XK_F11; break;
-    case eRENDERDOC_Key_F12: ks = XK_F12; break;
-    case eRENDERDOC_Key_Home: ks = XK_Home; break;
-    case eRENDERDOC_Key_End: ks = XK_End; break;
-    case eRENDERDOC_Key_Insert: ks = XK_Insert; break;
-    case eRENDERDOC_Key_Delete: ks = XK_Delete; break;
-    case eRENDERDOC_Key_PageUp: ks = XK_Prior; break;
-    case eRENDERDOC_Key_PageDn: ks = XK_Next; break;
-    case eRENDERDOC_Key_Backspace: ks = XK_BackSpace; break;
-    case eRENDERDOC_Key_Tab: ks = XK_Tab; break;
-    case eRENDERDOC_Key_PrtScrn: ks = XK_Print; break;
-    case eRENDERDOC_Key_Pause: ks = XK_Pause; break;
+    case eGUGUGAGA_Key_Divide: ks = XK_KP_Divide; break;
+    case eGUGUGAGA_Key_Multiply: ks = XK_KP_Multiply; break;
+    case eGUGUGAGA_Key_Subtract: ks = XK_KP_Subtract; break;
+    case eGUGUGAGA_Key_Plus: ks = XK_KP_Add; break;
+    case eGUGUGAGA_Key_F1: ks = XK_F1; break;
+    case eGUGUGAGA_Key_F2: ks = XK_F2; break;
+    case eGUGUGAGA_Key_F3: ks = XK_F3; break;
+    case eGUGUGAGA_Key_F4: ks = XK_F4; break;
+    case eGUGUGAGA_Key_F5: ks = XK_F5; break;
+    case eGUGUGAGA_Key_F6: ks = XK_F6; break;
+    case eGUGUGAGA_Key_F7: ks = XK_F7; break;
+    case eGUGUGAGA_Key_F8: ks = XK_F8; break;
+    case eGUGUGAGA_Key_F9: ks = XK_F9; break;
+    case eGUGUGAGA_Key_F10: ks = XK_F10; break;
+    case eGUGUGAGA_Key_F11: ks = XK_F11; break;
+    case eGUGUGAGA_Key_F12: ks = XK_F12; break;
+    case eGUGUGAGA_Key_Home: ks = XK_Home; break;
+    case eGUGUGAGA_Key_End: ks = XK_End; break;
+    case eGUGUGAGA_Key_Insert: ks = XK_Insert; break;
+    case eGUGUGAGA_Key_Delete: ks = XK_Delete; break;
+    case eGUGUGAGA_Key_PageUp: ks = XK_Prior; break;
+    case eGUGUGAGA_Key_PageDn: ks = XK_Next; break;
+    case eGUGUGAGA_Key_Backspace: ks = XK_BackSpace; break;
+    case eGUGUGAGA_Key_Tab: ks = XK_Tab; break;
+    case eGUGUGAGA_Key_PrtScrn: ks = XK_Print; break;
+    case eGUGUGAGA_Key_Pause: ks = XK_Pause; break;
     default: break;
   }
 
@@ -148,7 +148,7 @@ bool GetXlibKeyState(int key)
 
 #else
 
-// if RENDERDOC_WINDOWING_XLIB is not enabled
+// if GUGUGAGA_WINDOWING_XLIB is not enabled
 
 void UseXlibDisplay(Display *dpy)
 {
@@ -189,39 +189,39 @@ bool GetXCBKeyState(int key)
 
   xcb_keysym_t ks = 0;
 
-  if(key >= eRENDERDOC_Key_A && key <= eRENDERDOC_Key_Z)
+  if(key >= eGUGUGAGA_Key_A && key <= eGUGUGAGA_Key_Z)
     ks = key;
-  if(key >= eRENDERDOC_Key_0 && key <= eRENDERDOC_Key_9)
+  if(key >= eGUGUGAGA_Key_0 && key <= eGUGUGAGA_Key_9)
     ks = key;
 
   switch(key)
   {
-    case eRENDERDOC_Key_Divide: ks = XK_KP_Divide; break;
-    case eRENDERDOC_Key_Multiply: ks = XK_KP_Multiply; break;
-    case eRENDERDOC_Key_Subtract: ks = XK_KP_Subtract; break;
-    case eRENDERDOC_Key_Plus: ks = XK_KP_Add; break;
-    case eRENDERDOC_Key_F1: ks = XK_F1; break;
-    case eRENDERDOC_Key_F2: ks = XK_F2; break;
-    case eRENDERDOC_Key_F3: ks = XK_F3; break;
-    case eRENDERDOC_Key_F4: ks = XK_F4; break;
-    case eRENDERDOC_Key_F5: ks = XK_F5; break;
-    case eRENDERDOC_Key_F6: ks = XK_F6; break;
-    case eRENDERDOC_Key_F7: ks = XK_F7; break;
-    case eRENDERDOC_Key_F8: ks = XK_F8; break;
-    case eRENDERDOC_Key_F9: ks = XK_F9; break;
-    case eRENDERDOC_Key_F10: ks = XK_F10; break;
-    case eRENDERDOC_Key_F11: ks = XK_F11; break;
-    case eRENDERDOC_Key_F12: ks = XK_F12; break;
-    case eRENDERDOC_Key_Home: ks = XK_Home; break;
-    case eRENDERDOC_Key_End: ks = XK_End; break;
-    case eRENDERDOC_Key_Insert: ks = XK_Insert; break;
-    case eRENDERDOC_Key_Delete: ks = XK_Delete; break;
-    case eRENDERDOC_Key_PageUp: ks = XK_Prior; break;
-    case eRENDERDOC_Key_PageDn: ks = XK_Next; break;
-    case eRENDERDOC_Key_Backspace: ks = XK_BackSpace; break;
-    case eRENDERDOC_Key_Tab: ks = XK_Tab; break;
-    case eRENDERDOC_Key_PrtScrn: ks = XK_Print; break;
-    case eRENDERDOC_Key_Pause: ks = XK_Pause; break;
+    case eGUGUGAGA_Key_Divide: ks = XK_KP_Divide; break;
+    case eGUGUGAGA_Key_Multiply: ks = XK_KP_Multiply; break;
+    case eGUGUGAGA_Key_Subtract: ks = XK_KP_Subtract; break;
+    case eGUGUGAGA_Key_Plus: ks = XK_KP_Add; break;
+    case eGUGUGAGA_Key_F1: ks = XK_F1; break;
+    case eGUGUGAGA_Key_F2: ks = XK_F2; break;
+    case eGUGUGAGA_Key_F3: ks = XK_F3; break;
+    case eGUGUGAGA_Key_F4: ks = XK_F4; break;
+    case eGUGUGAGA_Key_F5: ks = XK_F5; break;
+    case eGUGUGAGA_Key_F6: ks = XK_F6; break;
+    case eGUGUGAGA_Key_F7: ks = XK_F7; break;
+    case eGUGUGAGA_Key_F8: ks = XK_F8; break;
+    case eGUGUGAGA_Key_F9: ks = XK_F9; break;
+    case eGUGUGAGA_Key_F10: ks = XK_F10; break;
+    case eGUGUGAGA_Key_F11: ks = XK_F11; break;
+    case eGUGUGAGA_Key_F12: ks = XK_F12; break;
+    case eGUGUGAGA_Key_Home: ks = XK_Home; break;
+    case eGUGUGAGA_Key_End: ks = XK_End; break;
+    case eGUGUGAGA_Key_Insert: ks = XK_Insert; break;
+    case eGUGUGAGA_Key_Delete: ks = XK_Delete; break;
+    case eGUGUGAGA_Key_PageUp: ks = XK_Prior; break;
+    case eGUGUGAGA_Key_PageDn: ks = XK_Next; break;
+    case eGUGUGAGA_Key_Backspace: ks = XK_BackSpace; break;
+    case eGUGUGAGA_Key_Tab: ks = XK_Tab; break;
+    case eGUGUGAGA_Key_PrtScrn: ks = XK_Print; break;
+    case eGUGUGAGA_Key_Pause: ks = XK_Pause; break;
     default: break;
   }
 
@@ -254,7 +254,7 @@ bool GetXCBKeyState(int key)
 
 #else
 
-// if RENDERDOC_WINDOWING_XCB is not enabled
+// if GUGUGAGA_WINDOWING_XCB is not enabled
 
 void UseXcbConnection(xcb_connection_t *conn)
 {
@@ -283,7 +283,7 @@ std::map<wl_seat *, wl_keyboard *> seatKeyboard;
 bool inFocus = false;
 Threading::CriticalSection waylandLock;
 
-bool keyState[eRENDERDOC_Key_Max] = {};
+bool keyState[eGUGUGAGA_Key_Max] = {};
 
 void WaylandKeymapDummy(void *data, wl_keyboard *keyboard, uint32_t format, int fd, uint32_t size)
 {
@@ -319,72 +319,72 @@ void WaylandKeypress(void *data, wl_keyboard *keyboard, uint32_t serial, uint32_
   int keyIdx = -1;
   switch(key)
   {
-    case KEY_0: keyIdx = eRENDERDOC_Key_0; break;
-    case KEY_1: keyIdx = eRENDERDOC_Key_1; break;
-    case KEY_2: keyIdx = eRENDERDOC_Key_2; break;
-    case KEY_3: keyIdx = eRENDERDOC_Key_3; break;
-    case KEY_4: keyIdx = eRENDERDOC_Key_4; break;
-    case KEY_5: keyIdx = eRENDERDOC_Key_5; break;
-    case KEY_6: keyIdx = eRENDERDOC_Key_6; break;
-    case KEY_7: keyIdx = eRENDERDOC_Key_7; break;
-    case KEY_8: keyIdx = eRENDERDOC_Key_8; break;
-    case KEY_9: keyIdx = eRENDERDOC_Key_9; break;
-    case KEY_A: keyIdx = eRENDERDOC_Key_A; break;
-    case KEY_B: keyIdx = eRENDERDOC_Key_B; break;
-    case KEY_C: keyIdx = eRENDERDOC_Key_C; break;
-    case KEY_D: keyIdx = eRENDERDOC_Key_D; break;
-    case KEY_E: keyIdx = eRENDERDOC_Key_E; break;
-    case KEY_F: keyIdx = eRENDERDOC_Key_F; break;
-    case KEY_G: keyIdx = eRENDERDOC_Key_G; break;
-    case KEY_H: keyIdx = eRENDERDOC_Key_H; break;
-    case KEY_I: keyIdx = eRENDERDOC_Key_I; break;
-    case KEY_J: keyIdx = eRENDERDOC_Key_J; break;
-    case KEY_K: keyIdx = eRENDERDOC_Key_K; break;
-    case KEY_L: keyIdx = eRENDERDOC_Key_L; break;
-    case KEY_M: keyIdx = eRENDERDOC_Key_M; break;
-    case KEY_N: keyIdx = eRENDERDOC_Key_N; break;
-    case KEY_O: keyIdx = eRENDERDOC_Key_O; break;
-    case KEY_P: keyIdx = eRENDERDOC_Key_P; break;
-    case KEY_Q: keyIdx = eRENDERDOC_Key_Q; break;
-    case KEY_R: keyIdx = eRENDERDOC_Key_R; break;
-    case KEY_S: keyIdx = eRENDERDOC_Key_S; break;
-    case KEY_T: keyIdx = eRENDERDOC_Key_T; break;
-    case KEY_U: keyIdx = eRENDERDOC_Key_U; break;
-    case KEY_V: keyIdx = eRENDERDOC_Key_V; break;
-    case KEY_W: keyIdx = eRENDERDOC_Key_W; break;
-    case KEY_X: keyIdx = eRENDERDOC_Key_X; break;
-    case KEY_Y: keyIdx = eRENDERDOC_Key_Y; break;
-    case KEY_Z: keyIdx = eRENDERDOC_Key_Z; break;
+    case KEY_0: keyIdx = eGUGUGAGA_Key_0; break;
+    case KEY_1: keyIdx = eGUGUGAGA_Key_1; break;
+    case KEY_2: keyIdx = eGUGUGAGA_Key_2; break;
+    case KEY_3: keyIdx = eGUGUGAGA_Key_3; break;
+    case KEY_4: keyIdx = eGUGUGAGA_Key_4; break;
+    case KEY_5: keyIdx = eGUGUGAGA_Key_5; break;
+    case KEY_6: keyIdx = eGUGUGAGA_Key_6; break;
+    case KEY_7: keyIdx = eGUGUGAGA_Key_7; break;
+    case KEY_8: keyIdx = eGUGUGAGA_Key_8; break;
+    case KEY_9: keyIdx = eGUGUGAGA_Key_9; break;
+    case KEY_A: keyIdx = eGUGUGAGA_Key_A; break;
+    case KEY_B: keyIdx = eGUGUGAGA_Key_B; break;
+    case KEY_C: keyIdx = eGUGUGAGA_Key_C; break;
+    case KEY_D: keyIdx = eGUGUGAGA_Key_D; break;
+    case KEY_E: keyIdx = eGUGUGAGA_Key_E; break;
+    case KEY_F: keyIdx = eGUGUGAGA_Key_F; break;
+    case KEY_G: keyIdx = eGUGUGAGA_Key_G; break;
+    case KEY_H: keyIdx = eGUGUGAGA_Key_H; break;
+    case KEY_I: keyIdx = eGUGUGAGA_Key_I; break;
+    case KEY_J: keyIdx = eGUGUGAGA_Key_J; break;
+    case KEY_K: keyIdx = eGUGUGAGA_Key_K; break;
+    case KEY_L: keyIdx = eGUGUGAGA_Key_L; break;
+    case KEY_M: keyIdx = eGUGUGAGA_Key_M; break;
+    case KEY_N: keyIdx = eGUGUGAGA_Key_N; break;
+    case KEY_O: keyIdx = eGUGUGAGA_Key_O; break;
+    case KEY_P: keyIdx = eGUGUGAGA_Key_P; break;
+    case KEY_Q: keyIdx = eGUGUGAGA_Key_Q; break;
+    case KEY_R: keyIdx = eGUGUGAGA_Key_R; break;
+    case KEY_S: keyIdx = eGUGUGAGA_Key_S; break;
+    case KEY_T: keyIdx = eGUGUGAGA_Key_T; break;
+    case KEY_U: keyIdx = eGUGUGAGA_Key_U; break;
+    case KEY_V: keyIdx = eGUGUGAGA_Key_V; break;
+    case KEY_W: keyIdx = eGUGUGAGA_Key_W; break;
+    case KEY_X: keyIdx = eGUGUGAGA_Key_X; break;
+    case KEY_Y: keyIdx = eGUGUGAGA_Key_Y; break;
+    case KEY_Z: keyIdx = eGUGUGAGA_Key_Z; break;
 
-    case KEY_KPSLASH: keyIdx = eRENDERDOC_Key_Divide; break;
-    case KEY_KPASTERISK: keyIdx = eRENDERDOC_Key_Multiply; break;
-    case KEY_KPMINUS: keyIdx = eRENDERDOC_Key_Subtract; break;
-    case KEY_KPPLUS: keyIdx = eRENDERDOC_Key_Plus; break;
+    case KEY_KPSLASH: keyIdx = eGUGUGAGA_Key_Divide; break;
+    case KEY_KPASTERISK: keyIdx = eGUGUGAGA_Key_Multiply; break;
+    case KEY_KPMINUS: keyIdx = eGUGUGAGA_Key_Subtract; break;
+    case KEY_KPPLUS: keyIdx = eGUGUGAGA_Key_Plus; break;
 
-    case KEY_F1: keyIdx = eRENDERDOC_Key_F1; break;
-    case KEY_F2: keyIdx = eRENDERDOC_Key_F2; break;
-    case KEY_F3: keyIdx = eRENDERDOC_Key_F3; break;
-    case KEY_F4: keyIdx = eRENDERDOC_Key_F4; break;
-    case KEY_F5: keyIdx = eRENDERDOC_Key_F5; break;
-    case KEY_F6: keyIdx = eRENDERDOC_Key_F6; break;
-    case KEY_F7: keyIdx = eRENDERDOC_Key_F7; break;
-    case KEY_F8: keyIdx = eRENDERDOC_Key_F8; break;
-    case KEY_F9: keyIdx = eRENDERDOC_Key_F9; break;
-    case KEY_F10: keyIdx = eRENDERDOC_Key_F10; break;
-    case KEY_F11: keyIdx = eRENDERDOC_Key_F11; break;
-    case KEY_F12: keyIdx = eRENDERDOC_Key_F12; break;
+    case KEY_F1: keyIdx = eGUGUGAGA_Key_F1; break;
+    case KEY_F2: keyIdx = eGUGUGAGA_Key_F2; break;
+    case KEY_F3: keyIdx = eGUGUGAGA_Key_F3; break;
+    case KEY_F4: keyIdx = eGUGUGAGA_Key_F4; break;
+    case KEY_F5: keyIdx = eGUGUGAGA_Key_F5; break;
+    case KEY_F6: keyIdx = eGUGUGAGA_Key_F6; break;
+    case KEY_F7: keyIdx = eGUGUGAGA_Key_F7; break;
+    case KEY_F8: keyIdx = eGUGUGAGA_Key_F8; break;
+    case KEY_F9: keyIdx = eGUGUGAGA_Key_F9; break;
+    case KEY_F10: keyIdx = eGUGUGAGA_Key_F10; break;
+    case KEY_F11: keyIdx = eGUGUGAGA_Key_F11; break;
+    case KEY_F12: keyIdx = eGUGUGAGA_Key_F12; break;
 
-    case KEY_HOME: keyIdx = eRENDERDOC_Key_Home; break;
-    case KEY_END: keyIdx = eRENDERDOC_Key_End; break;
-    case KEY_INSERT: keyIdx = eRENDERDOC_Key_Insert; break;
-    case KEY_DELETE: keyIdx = eRENDERDOC_Key_Delete; break;
-    case KEY_PAGEUP: keyIdx = eRENDERDOC_Key_PageUp; break;
-    case KEY_PAGEDOWN: keyIdx = eRENDERDOC_Key_PageDn; break;
+    case KEY_HOME: keyIdx = eGUGUGAGA_Key_Home; break;
+    case KEY_END: keyIdx = eGUGUGAGA_Key_End; break;
+    case KEY_INSERT: keyIdx = eGUGUGAGA_Key_Insert; break;
+    case KEY_DELETE: keyIdx = eGUGUGAGA_Key_Delete; break;
+    case KEY_PAGEUP: keyIdx = eGUGUGAGA_Key_PageUp; break;
+    case KEY_PAGEDOWN: keyIdx = eGUGUGAGA_Key_PageDn; break;
 
-    case KEY_BACKSPACE: keyIdx = eRENDERDOC_Key_Backspace; break;
-    case KEY_TAB: keyIdx = eRENDERDOC_Key_Tab; break;
-    case KEY_SYSRQ: keyIdx = eRENDERDOC_Key_PrtScrn; break;
-    case KEY_PAUSE: keyIdx = eRENDERDOC_Key_Pause; break;
+    case KEY_BACKSPACE: keyIdx = eGUGUGAGA_Key_Backspace; break;
+    case KEY_TAB: keyIdx = eGUGUGAGA_Key_Tab; break;
+    case KEY_SYSRQ: keyIdx = eGUGUGAGA_Key_PrtScrn; break;
+    case KEY_PAUSE: keyIdx = eGUGUGAGA_Key_Pause; break;
   }
 
   if(keyIdx < 0)
@@ -607,7 +607,7 @@ rdcstr GetAppFolderFilename(const rdcstr &filename)
     homedir = "";
   }
 
-  rdcstr ret = homedir + "/.renderdoc/";
+  rdcstr ret = homedir + "/.gugugaga/";
 
   mkdir(ret.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 

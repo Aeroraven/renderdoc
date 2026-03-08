@@ -159,7 +159,7 @@ class EGLPlatform : public GLPlatform
 #elif ENABLED(RDOC_LINUX)
       case WindowingSystem::Xlib:
       {
-        Display *xlibDisplay = RenderDoc::Inst().GetGlobalEnvironment().xlibDisplay;
+        Display *xlibDisplay = GuguGaga::Inst().GetGlobalEnvironment().xlibDisplay;
 
         display = (EGLNativeDisplayType)window.xlib.display;
         win = (EGLNativeWindowType)window.xlib.window;
@@ -172,7 +172,7 @@ class EGLPlatform : public GLPlatform
       }
       case WindowingSystem::Wayland:
       {
-        wl_display *waylandDisplay = RenderDoc::Inst().GetGlobalEnvironment().waylandDisplay;
+        wl_display *waylandDisplay = GuguGaga::Inst().GetGlobalEnvironment().waylandDisplay;
 
         display = (EGLNativeDisplayType)window.wayland.display;
         win = (EGLNativeWindowType)window.wayland.window;
@@ -373,8 +373,8 @@ class EGLPlatform : public GLPlatform
   void SetDriverType(RDCDriver api) { m_API = api; }
   RDResult InitialiseAPI(GLWindowingData &replayContext, RDCDriver api, bool debug)
   {
-    Display *xlibDisplay = RenderDoc::Inst().GetGlobalEnvironment().xlibDisplay;
-    wl_display *waylandDisplay = RenderDoc::Inst().GetGlobalEnvironment().waylandDisplay;
+    Display *xlibDisplay = GuguGaga::Inst().GetGlobalEnvironment().xlibDisplay;
+    wl_display *waylandDisplay = GuguGaga::Inst().GetGlobalEnvironment().waylandDisplay;
 
     // we support replaying both GLES and GL through EGL
     RDCASSERT(api == RDCDriver::OpenGLES || api == RDCDriver::OpenGL);
@@ -461,7 +461,7 @@ EGLDispatchTable EGL = {};
 
 bool EGLDispatchTable::PopulateForReplay()
 {
-  RDCASSERT(RenderDoc::Inst().IsReplayApp());
+  RDCASSERT(GuguGaga::Inst().IsReplayApp());
 
   void *handle = GetEGLHandle();
 

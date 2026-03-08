@@ -93,14 +93,14 @@ D3D11ShaderCache::D3D11ShaderCache(WrappedID3D11Device *wrapper)
 
   m_CompileFlags = D3DCOMPILE_WARNINGS_ARE_ERRORS;
 
-  static const GUID IRenderDoc_uuid = {
+  static const GUID IGuguGaga_uuid = {
       0xa7aa6116, 0x9c8d, 0x4bba, {0x90, 0x83, 0xb4, 0xd8, 0x16, 0xb7, 0x1b, 0x78}};
 
-  // if we're being self-captured, the 'real' device will respond to renderdoc's UUID. Enable debug
+  // if we're being self-captured, the 'real' device will respond to gugugaga's UUID. Enable debug
   // shaders
   IUnknown *dummy = NULL;
   if(wrapper->GetReal())
-    wrapper->GetReal()->QueryInterface(IRenderDoc_uuid, (void **)&dummy);
+    wrapper->GetReal()->QueryInterface(IGuguGaga_uuid, (void **)&dummy);
 
   if(dummy)
   {

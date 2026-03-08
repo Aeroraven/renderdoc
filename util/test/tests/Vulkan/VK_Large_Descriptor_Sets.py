@@ -1,4 +1,4 @@
-import renderdoc as rd
+import gugugaga as rd
 import os
 import datetime
 import rdtest

@@ -6379,16 +6379,16 @@
 
 
         
-// the _renderdoc_hooked variants are to make sure we always have a function symbol exported that we
+// the _gugugaga_hooked variants are to make sure we always have a function symbol exported that we
 // can return from GetProcAddress. On posix systems if another library (or the application itself)
 // creates a symbol called 'glEnable' we'll return the address of that, and break badly. Instead we
 // leave the 'naked' versions for applications trying to import those symbols, and declare the
-// _renderdoc_hooked for returning as a func pointer. The raw version calls directly into the hooked
+// _gugugaga_hooked for returning as a func pointer. The raw version calls directly into the hooked
 // version to hopefully allow the linker to tail-call optimise and reduce the overhead.
 
 
 #define FuncWrapper0(ret, function) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)() \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)() \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, ); \
@@ -6396,12 +6396,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)() \
   { \
-    return CONCAT(function, _renderdoc_hooked)(); \
+    return CONCAT(function, _gugugaga_hooked)(); \
   } \
   HOOK_EXPORT ret HOOK_CC function();
 
 #define AliasWrapper0(ret, function, realfunc) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)() \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)() \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, ); \
@@ -6409,14 +6409,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)() \
   { \
-    return CONCAT(function, _renderdoc_hooked)(); \
+    return CONCAT(function, _gugugaga_hooked)(); \
   } \
   HOOK_EXPORT ret HOOK_CC function();
 
 #define UnsupportedWrapper0(ret, function) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)() \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)() \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6426,13 +6426,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)() \
   { \
-    return CONCAT(function, _renderdoc_hooked)(); \
+    return CONCAT(function, _gugugaga_hooked)(); \
   } \
   HOOK_EXPORT ret HOOK_CC function();
 
 
 #define FuncWrapper1(ret, function, t1, p1) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1); \
@@ -6440,12 +6440,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1); \
+    return CONCAT(function, _gugugaga_hooked)(p1); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1);
 
 #define AliasWrapper1(ret, function, realfunc, t1, p1) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1); \
@@ -6453,14 +6453,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1); \
+    return CONCAT(function, _gugugaga_hooked)(p1); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1);
 
 #define UnsupportedWrapper1(ret, function, t1, p1) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6470,13 +6470,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1); \
+    return CONCAT(function, _gugugaga_hooked)(p1); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1);
 
 
 #define FuncWrapper2(ret, function, t1, p1, t2, p2) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2); \
@@ -6484,12 +6484,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2);
 
 #define AliasWrapper2(ret, function, realfunc, t1, p1, t2, p2) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2); \
@@ -6497,14 +6497,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2);
 
 #define UnsupportedWrapper2(ret, function, t1, p1, t2, p2) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6514,13 +6514,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2);
 
 
 #define FuncWrapper3(ret, function, t1, p1, t2, p2, t3, p3) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3); \
@@ -6528,12 +6528,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3);
 
 #define AliasWrapper3(ret, function, realfunc, t1, p1, t2, p2, t3, p3) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3); \
@@ -6541,14 +6541,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3);
 
 #define UnsupportedWrapper3(ret, function, t1, p1, t2, p2, t3, p3) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6558,13 +6558,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3);
 
 
 #define FuncWrapper4(ret, function, t1, p1, t2, p2, t3, p3, t4, p4) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4); \
@@ -6572,12 +6572,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4);
 
 #define AliasWrapper4(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4); \
@@ -6585,14 +6585,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4);
 
 #define UnsupportedWrapper4(ret, function, t1, p1, t2, p2, t3, p3, t4, p4) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6602,13 +6602,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4);
 
 
 #define FuncWrapper5(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5); \
@@ -6616,12 +6616,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5);
 
 #define AliasWrapper5(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5); \
@@ -6629,14 +6629,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5);
 
 #define UnsupportedWrapper5(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6646,13 +6646,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5);
 
 
 #define FuncWrapper6(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6); \
@@ -6660,12 +6660,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6);
 
 #define AliasWrapper6(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6); \
@@ -6673,14 +6673,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6);
 
 #define UnsupportedWrapper6(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6690,13 +6690,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6);
 
 
 #define FuncWrapper7(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6, p7); \
@@ -6704,12 +6704,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7);
 
 #define AliasWrapper7(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6, p7); \
@@ -6717,14 +6717,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7);
 
 #define UnsupportedWrapper7(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6734,13 +6734,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7);
 
 
 #define FuncWrapper8(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6, p7, p8); \
@@ -6748,12 +6748,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8);
 
 #define AliasWrapper8(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6, p7, p8); \
@@ -6761,14 +6761,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8);
 
 #define UnsupportedWrapper8(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6778,13 +6778,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8);
 
 
 #define FuncWrapper9(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6, p7, p8, p9); \
@@ -6792,12 +6792,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9);
 
 #define AliasWrapper9(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6, p7, p8, p9); \
@@ -6805,14 +6805,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9);
 
 #define UnsupportedWrapper9(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6822,13 +6822,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9);
 
 
 #define FuncWrapper10(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); \
@@ -6836,12 +6836,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10);
 
 #define AliasWrapper10(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); \
@@ -6849,14 +6849,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10);
 
 #define UnsupportedWrapper10(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6866,13 +6866,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10);
 
 
 #define FuncWrapper11(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11); \
@@ -6880,12 +6880,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11);
 
 #define AliasWrapper11(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11); \
@@ -6893,14 +6893,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11);
 
 #define UnsupportedWrapper11(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6910,13 +6910,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11);
 
 
 #define FuncWrapper12(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12); \
@@ -6924,12 +6924,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12);
 
 #define AliasWrapper12(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12); \
@@ -6937,14 +6937,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12);
 
 #define UnsupportedWrapper12(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6954,13 +6954,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12);
 
 
 #define FuncWrapper13(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13); \
@@ -6968,12 +6968,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13);
 
 #define AliasWrapper13(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13); \
@@ -6981,14 +6981,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13);
 
 #define UnsupportedWrapper13(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -6998,13 +6998,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13);
 
 
 #define FuncWrapper14(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14); \
@@ -7012,12 +7012,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14);
 
 #define AliasWrapper14(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14); \
@@ -7025,14 +7025,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14);
 
 #define UnsupportedWrapper14(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -7042,13 +7042,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14);
 
 
 #define FuncWrapper15(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14, t15, p15) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15); \
@@ -7056,12 +7056,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15);
 
 #define AliasWrapper15(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14, t15, p15) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15); \
@@ -7069,14 +7069,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15);
 
 #define UnsupportedWrapper15(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14, t15, p15) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -7086,13 +7086,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15);
 
 
 #define FuncWrapper16(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14, t15, p15, t16, p16) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16); \
@@ -7100,12 +7100,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16);
 
 #define AliasWrapper16(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14, t15, p15, t16, p16) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16); \
@@ -7113,14 +7113,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16);
 
 #define UnsupportedWrapper16(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14, t15, p15, t16, p16) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -7130,13 +7130,13 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16);
 
 
 #define FuncWrapper17(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14, t15, p15, t16, p16, t17, p17) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(function, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17); \
@@ -7144,12 +7144,12 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17);
 
 #define AliasWrapper17(ret, function, realfunc, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14, t15, p15, t16, p16, t17, p17) \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17) \
   { \
     SCOPED_GLCALL(function); \
     UNINIT_CALL(realfunc, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17); \
@@ -7157,14 +7157,14 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17);
 
 #define UnsupportedWrapper17(ret, function, t1, p1, t2, p2, t3, p3, t4, p4, t5, p5, t6, p6, t7, p7, t8, p8, t9, p9, t10, p10, t11, p11, t12, p12, t13, p13, t14, p14, t15, p15, t16, p16, t17, p17) \
   typedef ret(HOOK_CC *CONCAT(function, _hooktype))(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17); \
   CONCAT(function, _hooktype) CONCAT(unsupported_real_, function) = NULL; \
-  ret HOOK_CC CONCAT(function, _renderdoc_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17) \
+  ret HOOK_CC CONCAT(function, _gugugaga_hooked)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17) \
   { \
     glhook.UseUnusedSupportedFunction(STRINGIZE(function)); \
     if(!CONCAT(unsupported_real_, function)) \
@@ -7174,7 +7174,7 @@
   } \
   HOOK_EXPORT ret HOOK_CC GL_EXPORT_NAME(function)(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17) \
   { \
-    return CONCAT(function, _renderdoc_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17); \
+    return CONCAT(function, _gugugaga_hooked)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17); \
   } \
   HOOK_EXPORT ret HOOK_CC function(t1 p1, t2 p2, t3 p3, t4 p4, t5 p5, t6 p6, t7 p7, t8 p8, t9 p9, t10 p10, t11 p11, t12 p12, t13 p13, t14 p14, t15 p15, t16 p16, t17 p17);
 

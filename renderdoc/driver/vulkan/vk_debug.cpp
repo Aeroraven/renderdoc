@@ -493,7 +493,7 @@ static void GetDiscardPatternCopyRegions(const VulkanCreationInfo::Image &imInfo
 
 VulkanDebugManager::VulkanDebugManager(WrappedVulkan *driver)
 {
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(VulkanDebugManager));
+  GuguGaga::Inst().RegisterMemoryRegion(this, sizeof(VulkanDebugManager));
 
   m_pDriver = driver;
 
@@ -849,7 +849,7 @@ VulkanDebugManager::VulkanDebugManager(WrappedVulkan *driver)
     }
   }
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     CREATE_OBJECT(m_DummyPipelineLayout, VK_NULL_HANDLE, 0);
 
@@ -949,7 +949,7 @@ VulkanDebugManager::VulkanDebugManager(WrappedVulkan *driver)
   }
 
   // we only need this during replay, so don't create otherwise.
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     m_ReadbackWindow.Create(driver, dev, STAGE_BUFFER_BYTE_SIZE, 1, GPUBuffer::eGPUBufferReadback);
     m_ReadbackWindow.Name("m_ReadbackWindow");
@@ -3852,43 +3852,43 @@ void VulkanReplay::CreateResources()
 {
   m_Device = m_pDriver->GetDev();
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.0f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.0f);
 
   m_General.Init(m_pDriver, VK_NULL_HANDLE);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.1f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.1f);
 
   m_TexRender.Init(m_pDriver, m_General.DescriptorPool);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.3f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.3f);
 
   m_Overlay.Init(m_pDriver, m_General.DescriptorPool);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.4f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.4f);
 
   m_MeshRender.Init(m_pDriver, m_General.DescriptorPool);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.6f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.6f);
 
   m_VertexPick.Init(m_pDriver, m_General.DescriptorPool);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.7f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.7f);
 
   m_PixelPick.Init(m_pDriver, m_General.DescriptorPool);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.75f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.75f);
 
   m_PixelHistory.Init(m_pDriver, m_General.DescriptorPool);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.8f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.8f);
 
   m_Histogram.Init(m_pDriver, m_General.DescriptorPool);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.9f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.9f);
 
   m_ShaderDebugData.Init(m_pDriver, m_General.DescriptorPool);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 1.0f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 1.0f);
 
   m_StorageMode = BufferStorageMode::Descriptor;
 

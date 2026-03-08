@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2017-2026 Baldur Karlsson
+ * Copyright (c) 2017-2026 GuguGaga Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -106,7 +106,7 @@ void UpdateDialog::closeEvent(QCloseEvent *e)
 void UpdateDialog::on_releaseNotes_clicked()
 {
   QDesktopServices::openUrl(
-      QUrl(lit("https://github.com/baldurk/renderdoc/releases/tag/v%1").arg(m_NewVer)));
+      QUrl(lit("https://github.com/GuguGaga/GuguGaga/releases/tag/v%1").arg(m_NewVer)));
 }
 
 void UpdateDialog::on_close_clicked()
@@ -125,8 +125,8 @@ void UpdateDialog::on_close_clicked()
 void UpdateDialog::on_update_clicked()
 {
   QMessageBox::StandardButton res =
-      RDDialog::question(this, tr("RenderDoc Update"),
-                         tr("This will close RenderDoc immediately - if you have any "
+      RDDialog::question(this, tr("GuguGaga Update"),
+                         tr("This will close GuguGaga immediately - if you have any "
                             "unsaved work, save it first!\n"
                             "Continue?"),
                          QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
@@ -145,14 +145,14 @@ void UpdateDialog::on_update_clicked()
       // just a sanity check to make sure we don't hit some unexpected case and infinite loop
       uint32_t prevIdent = nextIdent;
 
-      nextIdent = RENDERDOC_EnumerateRemoteTargets("localhost", nextIdent);
+      nextIdent = GUGUGAGA_EnumerateRemoteTargets("localhost", nextIdent);
 
       if(nextIdent == 0 || prevIdent >= nextIdent)
         break;
 
       running++;
 
-      ITargetControl *conn = RENDERDOC_CreateTargetControl("localhost", nextIdent, "updater", false);
+      ITargetControl *conn = GUGUGAGA_CreateTargetControl("localhost", nextIdent, "updater", false);
 
       if(conn)
       {
@@ -168,8 +168,8 @@ void UpdateDialog::on_update_clicked()
     if(running > 0)
     {
       RDDialog::critical(
-          this, tr("RenderDoc in use"),
-          tr("RenderDoc is currently capturing, cannot update until the program%1 closed:\n\n")
+          this, tr("GuguGaga in use"),
+          tr("GuguGaga is currently capturing, cannot update until the program%1 closed:\n\n")
                   .arg(running > 1 ? lit("s are") : lit(" is")) +
               runningPrograms);
       return;
@@ -229,8 +229,8 @@ void UpdateDialog::on_update_clicked()
 
       QDir dir(QDir::tempPath());
 
-      dir.mkdir(lit("RenderDocUpdate"));
-      dir.cd(lit("RenderDocUpdate"));
+      dir.mkdir(lit("GuguGagaUpdate"));
+      dir.cd(lit("GuguGagaUpdate"));
 
       QString path = dir.absoluteFilePath(lit("update.zip"));
 

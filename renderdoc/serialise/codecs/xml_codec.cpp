@@ -322,7 +322,7 @@ static bool Obj2XML(pugi::xml_node &parent, SDObject &child)
 }
 
 static RDResult Structured2XML(const rdcstr &filename, const RDCFile &file, uint64_t version,
-                               const StructuredChunkList &chunks, RENDERDOC_ProgressCallback progress)
+                               const StructuredChunkList &chunks, GUGUGAGA_ProgressCallback progress)
 {
   pugi::xml_document doc;
 
@@ -646,7 +646,7 @@ static RDResult XML2Structured(const rdcstr &xml, const ThumbTypeAndData &thumb,
                                const ThumbTypeAndData &extThumb,
                                const std::map<SectionType, bytebuf> &literalFiles,
                                const StructuredBufferList &buffers, RDCFile *rdc, uint64_t &version,
-                               StructuredChunkList &chunks, RENDERDOC_ProgressCallback progress)
+                               StructuredChunkList &chunks, GUGUGAGA_ProgressCallback progress)
 {
   pugi::xml_document doc;
   doc.load_string(xml.c_str());
@@ -933,7 +933,7 @@ static RDResult XML2Structured(const rdcstr &xml, const ThumbTypeAndData &thumb,
 }
 
 static RDResult Buffers2ZIP(const rdcstr &filename, const RDCFile &file,
-                            const StructuredBufferList &buffers, RENDERDOC_ProgressCallback progress)
+                            const StructuredBufferList &buffers, GUGUGAGA_ProgressCallback progress)
 {
   rdcstr zipFile = strip_extension(filename);
 
@@ -1037,7 +1037,7 @@ static RDResult Buffers2ZIP(const rdcstr &filename, const RDCFile &file,
 
 static RDResult ZIP2Buffers(const rdcstr &filename, ThumbTypeAndData &thumb,
                             ThumbTypeAndData &extThumb, std::map<SectionType, bytebuf> &literalFiles,
-                            StructuredBufferList &buffers, RENDERDOC_ProgressCallback progress)
+                            StructuredBufferList &buffers, GUGUGAGA_ProgressCallback progress)
 {
   rdcstr zipFile = strip_extension(filename);
 
@@ -1120,7 +1120,7 @@ static RDResult ZIP2Buffers(const rdcstr &filename, ThumbTypeAndData &thumb,
 }
 
 RDResult importXMLZ(const rdcstr &filename, StreamReader &reader, RDCFile *rdc, SDFile &structData,
-                    RENDERDOC_ProgressCallback progress)
+                    GUGUGAGA_ProgressCallback progress)
 {
   ThumbTypeAndData thumb, extThumb;
   std::map<SectionType, bytebuf> literalFiles;
@@ -1140,7 +1140,7 @@ RDResult importXMLZ(const rdcstr &filename, StreamReader &reader, RDCFile *rdc, 
 }
 
 RDResult exportXMLZ(const rdcstr &filename, const RDCFile &rdc, const SDFile &structData,
-                    RENDERDOC_ProgressCallback progress)
+                    GUGUGAGA_ProgressCallback progress)
 {
   RDResult ret = Buffers2ZIP(filename, rdc, structData.buffers, progress);
 
@@ -1151,7 +1151,7 @@ RDResult exportXMLZ(const rdcstr &filename, const RDCFile &rdc, const SDFile &st
 }
 
 RDResult exportXMLOnly(const rdcstr &filename, const RDCFile &rdc, const SDFile &structData,
-                       RENDERDOC_ProgressCallback progress)
+                       GUGUGAGA_ProgressCallback progress)
 {
   return Structured2XML(filename, rdc, structData.version, structData.chunks, progress);
 }

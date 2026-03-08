@@ -795,7 +795,7 @@ template <typename Configuration>
 ResourceManager<Configuration>::ResourceManager(CaptureState &state) : m_State(state)
 {
   m_Capturing = IsCaptureMode(state);
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(ResourceManager));
+  GuguGaga::Inst().RegisterMemoryRegion(this, sizeof(ResourceManager));
 }
 
 template <typename Configuration>
@@ -827,7 +827,7 @@ ResourceManager<Configuration>::~ResourceManager()
   RDCASSERT(m_InitialContents.empty());
   RDCASSERT(m_ResourceRecords.empty());
 
-  RenderDoc::Inst().UnregisterMemoryRegion(this);
+  GuguGaga::Inst().UnregisterMemoryRegion(this);
 }
 
 template <typename Configuration>
@@ -1080,7 +1080,7 @@ void ResourceManager<Configuration>::Serialise_InitialContentsNeeded(WriteSerial
   // (unless we have ref all resources on)
   for(auto it = m_InitialContents.begin(); it != m_InitialContents.end(); ++it)
   {
-    bool include = RenderDoc::Inst().GetCaptureOptions().refAllResources;
+    bool include = GuguGaga::Inst().GetCaptureOptions().refAllResources;
 
     ResourceId id = it->first;
     if(m_FrameReferencedResources.find(id) != m_FrameReferencedResources.end())
@@ -1400,7 +1400,7 @@ void ResourceManager<Configuration>::InsertReferencedChunks(WriteSerialiser &ser
 
   RDCDEBUG("%u frame resource records", (uint32_t)m_FrameReferencedResources.size());
 
-  if(RenderDoc::Inst().GetCaptureOptions().refAllResources)
+  if(GuguGaga::Inst().GetCaptureOptions().refAllResources)
   {
     SCOPED_READLOCK(m_ResourceRecordLock);
 
@@ -1409,7 +1409,7 @@ void ResourceManager<Configuration>::InsertReferencedChunks(WriteSerialiser &ser
 
     for(auto it = m_ResourceRecords.begin(); it != m_ResourceRecords.end(); ++it)
     {
-      RenderDoc::Inst().SetProgress(CaptureProgress::AddReferencedResources, idx / num);
+      GuguGaga::Inst().SetProgress(CaptureProgress::AddReferencedResources, idx / num);
       idx += 1.0f;
 
       if(m_FrameReferencedResources.find(it->first) == m_FrameReferencedResources.end() &&
@@ -1426,7 +1426,7 @@ void ResourceManager<Configuration>::InsertReferencedChunks(WriteSerialiser &ser
 
     for(auto it = m_FrameReferencedResources.begin(); it != m_FrameReferencedResources.end(); ++it)
     {
-      RenderDoc::Inst().SetProgress(CaptureProgress::AddReferencedResources, idx / num);
+      GuguGaga::Inst().SetProgress(CaptureProgress::AddReferencedResources, idx / num);
       idx += 1.0f;
 
       RecordType *record = GetResourceRecord(it->first);
@@ -1462,7 +1462,7 @@ void ResourceManager<Configuration>::PrepareInitialContents()
   {
     ResourceId id = *it;
 
-    RenderDoc::Inst().SetProgress(CaptureProgress::PrepareInitialStates, idx / num);
+    GuguGaga::Inst().SetProgress(CaptureProgress::PrepareInitialStates, idx / num);
     idx += 1.0f;
 
     // if somehow this resource has been deleted but is still dirty, we can't prepare it. Resources
@@ -1529,7 +1529,7 @@ void ResourceManager<Configuration>::InsertInitialContentsChunks(WriteSerialiser
     ResourceId id = it->first;
 
     if(m_FrameReferencedResources.find(id) == m_FrameReferencedResources.end() &&
-       !RenderDoc::Inst().GetCaptureOptions().refAllResources)
+       !GuguGaga::Inst().GetCaptureOptions().refAllResources)
     {
       continue;
     }
@@ -1553,11 +1553,11 @@ void ResourceManager<Configuration>::InsertInitialContentsChunks(WriteSerialiser
   {
     ResourceId id = *it;
 
-    RenderDoc::Inst().SetProgress(CaptureProgress::SerialiseInitialStates, idx / num);
+    GuguGaga::Inst().SetProgress(CaptureProgress::SerialiseInitialStates, idx / num);
     idx += 1.0f;
 
     if(m_FrameReferencedResources.find(id) == m_FrameReferencedResources.end() &&
-       !RenderDoc::Inst().GetCaptureOptions().refAllResources)
+       !GuguGaga::Inst().GetCaptureOptions().refAllResources)
     {
 #if ENABLED(VERBOSE_DIRTY_RESOURCES)
       RDCDEBUG("Dirty resource %s is GPU dirty but not referenced - skipping", ToStr(id).c_str());
@@ -1637,7 +1637,7 @@ void ResourceManager<Configuration>::ApplyInitialContentsNonChunks(WriteSerialis
     ResourceId id = it->first;
 
     if(m_FrameReferencedResources.find(id) == m_FrameReferencedResources.end() &&
-       !RenderDoc::Inst().GetCaptureOptions().refAllResources)
+       !GuguGaga::Inst().GetCaptureOptions().refAllResources)
     {
       continue;
     }

@@ -2103,7 +2103,7 @@ void VulkanPipelineStateViewer::setState()
           iformat = lit("uint");
 
         iformat +=
-            lit(" indices[%1]").arg(RENDERDOC_NumVerticesPerPrimitive(state.inputAssembly.topology));
+            lit(" indices[%1]").arg(GUGUGAGA_NumVerticesPerPrimitive(state.inputAssembly.topology));
 
         node->setTag(QVariant::fromValue(VulkanVBIBTag(
             state.inputAssembly.indexBuffer.resourceId,
@@ -2141,7 +2141,7 @@ void VulkanPipelineStateViewer::setState()
           iformat = lit("uint");
 
         iformat +=
-            lit(" indices[%1]").arg(RENDERDOC_NumVerticesPerPrimitive(state.inputAssembly.topology));
+            lit(" indices[%1]").arg(GUGUGAGA_NumVerticesPerPrimitive(state.inputAssembly.topology));
 
         node->setTag(QVariant::fromValue(VulkanVBIBTag(
             state.inputAssembly.indexBuffer.resourceId,
@@ -2796,7 +2796,7 @@ void VulkanPipelineStateViewer::setState()
 
           // With dynamic rendering, the API references the framebuffer index everywhere, for
           // example when specifying blend state for attachments or with vkCmdClearAttachments. As
-          // such, RenderDoc shows the same index in Color attachments (i.e. fbIdx == localIdx) to
+          // such, GuguGaga shows the same index in Color attachments (i.e. fbIdx == localIdx) to
           // avoid confusion, even when VK_KHR_dynamic_rendering_local_read maps these attachments
           // to different "locations" used by the shader.  In that case, the mapped location is
           // shown besides the attachment index.

@@ -23,8 +23,8 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-#include "renderdoccmd.h"
-#include <app/renderdoc_app.h>
+#include "gugugagacmd.h"
+#include <app/gugugaga_app.h>
 #include <replay/version.h>
 #include <string>
 
@@ -40,7 +40,7 @@ std::string conv(const rdcstr &s)
 
 static int command_usage(std::string command = "");
 
-// normally this is in the renderdoc core library, but it's needed for the 'unknown enum' path,
+// normally this is in the gugugaga core library, but it's needed for the 'unknown enum' path,
 // so we implement it here using ostringstream. It's not great, but this is a very uncommon path -
 // either for invalid values or for when a new enum is added and the code isn't updated
 template <>
@@ -56,7 +56,7 @@ inline std::ostream &operator<<(std::ostream &os, rdcstr const &str)
   return os << str.c_str();
 }
 
-#include <replay/renderdoc_tostr.inl>
+#include <replay/gugugaga_tostr.inl>
 
 bool usingKillSignal = false;
 volatile bool killSignal = false;
@@ -137,7 +137,7 @@ struct VersionCommand : public Command
   virtual int Execute(const CaptureOptions &)
   {
     std::cout << "gugugagacmd " << (sizeof(uintptr_t) == sizeof(uint64_t) ? "x64" : "x86")
-              << " v" MAJOR_MINOR_VERSION_STRING << " built from " << RENDERDOC_GetCommitHash()
+              << " v" MAJOR_MINOR_VERSION_STRING << " built from " << GUGUGAGA_GetCommitHash()
               << std::endl;
 
 #if defined(DISTRIBUTION_VERSION)
@@ -235,7 +235,7 @@ public:
 
     rdcarray<EnvironmentModification> env;
 
-    ExecuteResult res = RENDERDOC_ExecuteAndInject(
+    ExecuteResult res = GUGUGAGA_ExecuteAndInject(
         conv(executable), conv(workingDir), conv(cmdLine), env, conv(logFile), opts, wait_for_exit);
 
     if(res.result.code != ResultCode::Succeeded)
@@ -291,7 +291,7 @@ public:
   {
     parser.add<uint32_t>("PID", 0, "The process ID of the process to inject.", true);
   }
-  virtual const char *Description() { return "Injects RenderDoc into a given running process."; }
+  virtual const char *Description() { return "Injects GuguGaga into a given running process."; }
   virtual bool IsInternalOnly() { return false; }
   virtual bool IsCaptureCommand() { return true; }
   virtual bool Parse(cmdline::parser &parser, GlobalEnvironment &)
@@ -307,7 +307,7 @@ public:
 
     rdcarray<EnvironmentModification> env;
 
-    ExecuteResult res = RENDERDOC_InjectIntoProcess(PID, env, conv(captureFile), opts, wait_for_exit);
+    ExecuteResult res = GUGUGAGA_InjectIntoProcess(PID, env, conv(captureFile), opts, wait_for_exit);
 
     if(res.result.code != ResultCode::Succeeded)
     {
@@ -415,7 +415,7 @@ public:
 
     bytebuf buf;
 
-    ICaptureFile *file = RENDERDOC_OpenCaptureFile();
+    ICaptureFile *file = GUGUGAGA_OpenCaptureFile();
     ResultDetails st = file->OpenFile(conv(infile), "rdc", NULL);
     if(st.OK())
     {
@@ -470,7 +470,7 @@ public:
     parser.add("preview", 'v', "Display a preview window when a replay is active.");
     parser.add<uint32_t>(
         "port", 'p',
-        "The port to listen on. Default is 0, which listens on RenderDoc's default port.", false, 0);
+        "The port to listen on. Default is 0, which listens on GuguGaga's default port.", false, 0);
   }
   virtual const char *Description()
   {
@@ -503,7 +503,7 @@ public:
     usingKillSignal = true;
 
     // by default have a do-nothing callback that creates no windows
-    RENDERDOC_PreviewWindowCallback previewWindow;
+    GUGUGAGA_PreviewWindowCallback previewWindow;
 
     // if the user asked for a preview, then call to the platform-specific preview function
     if(preview)
@@ -513,7 +513,7 @@ public:
     if(DisplayRemoteServerPreview(false, {}).system != WindowingSystem::Unknown)
       previewWindow = &DisplayRemoteServerPreview;
 
-    RENDERDOC_BecomeRemoteServer(conv(host), port, []() { return killSignal; }, previewWindow);
+    GUGUGAGA_BecomeRemoteServer(conv(host), port, []() { return killSignal; }, previewWindow);
 
     std::cerr << std::endl << "Cleaning up from replay hosting." << std::endl;
 
@@ -582,13 +582,13 @@ public:
       std::cout << "Replaying '" << filename << "' on " << remote_host << "." << std::endl;
 
       IRemoteServer *remote = NULL;
-      ResultDetails result = RENDERDOC_CreateRemoteServerConnection(conv(remote_host), &remote);
+      ResultDetails result = GUGUGAGA_CreateRemoteServerConnection(conv(remote_host), &remote);
 
       if(remote == NULL || result.code != ResultCode::Succeeded)
       {
         std::cerr << "Error: " << result.Message() << " - Couldn't connect to " << remote_host
                   << "." << std::endl;
-        std::cerr << "       Have you run renderdoccmd remoteserver on '" << remote_host << "'?"
+        std::cerr << "       Have you run gugugagacmd remoteserver on '" << remote_host << "'?"
                   << std::endl;
         return 1;
       }
@@ -618,7 +618,7 @@ public:
     {
       std::cout << "Replaying '" << filename << "' locally.." << std::endl;
 
-      ICaptureFile *file = RENDERDOC_OpenCaptureFile();
+      ICaptureFile *file = GUGUGAGA_OpenCaptureFile();
 
       ResultDetails res = file->OpenFile(conv(filename), "rdc", NULL);
 
@@ -655,7 +655,7 @@ struct formats_reader
 {
   formats_reader(bool input)
   {
-    ICaptureFile *tmp = RENDERDOC_OpenCaptureFile();
+    ICaptureFile *tmp = GUGUGAGA_OpenCaptureFile();
 
     for(const CaptureFileFormat &f : tmp->GetCaptureFileFormats())
     {
@@ -745,7 +745,7 @@ public:
 
   virtual int Execute(const CaptureOptions &)
   {
-    ICaptureFile *tmp = RENDERDOC_OpenCaptureFile();
+    ICaptureFile *tmp = GUGUGAGA_OpenCaptureFile();
 
     m_Formats = tmp->GetCaptureFileFormats();
 
@@ -808,7 +808,7 @@ public:
       return 1;
     }
 
-    ICaptureFile *file = RENDERDOC_OpenCaptureFile();
+    ICaptureFile *file = GUGUGAGA_OpenCaptureFile();
 
     ResultDetails st = file->OpenFile(conv(infile), conv(infmt), NULL);
 
@@ -896,10 +896,10 @@ public:
   virtual int Execute(const CaptureOptions &)
   {
     if(mode == "unit")
-      return RENDERDOC_RunUnitTests("renderdoccmd test unit", args);
+      return GUGUGAGA_RunUnitTests("gugugagacmd test unit", args);
 #if PYTHON_VERSION_MINOR > 0
     else if(mode == "functional")
-      return RENDERDOC_RunFunctionalTests(PYTHON_VERSION_MINOR, args);
+      return GUGUGAGA_RunFunctionalTests(PYTHON_VERSION_MINOR, args);
 #endif
 
     std::cerr << "Unsupported test frame work '" << mode << "'" << std::endl << std::endl;
@@ -1016,9 +1016,9 @@ public:
   }
   virtual int Execute(const CaptureOptions &)
   {
-    RENDERDOC_SetDebugLogFile(conv(debuglog));
+    GUGUGAGA_SetDebugLogFile(conv(debuglog));
 
-    ExecuteResult result = RENDERDOC_InjectIntoProcess(pid, env, conv(capfile), cmdopts, false);
+    ExecuteResult result = GUGUGAGA_InjectIntoProcess(pid, env, conv(capfile), cmdopts, false);
 
     if(result.result.OK())
       return result.ident;
@@ -1115,7 +1115,7 @@ public:
       lz4 = false;
     }
 
-    ICaptureFile *capfile = RENDERDOC_OpenCaptureFile();
+    ICaptureFile *capfile = GUGUGAGA_OpenCaptureFile();
 
     ResultDetails result = capfile->OpenFile(conv(rdc), "", NULL);
 
@@ -1277,13 +1277,13 @@ private:
 public:
   VulkanRegisterCommand() : Command()
   {
-    m_LayerNeedUpdate = RENDERDOC_NeedVulkanLayerRegistration(&m_Info);
+    m_LayerNeedUpdate = GUGUGAGA_NeedVulkanLayerRegistration(&m_Info);
   }
   virtual void AddOptions(cmdline::parser &parser)
   {
     parser.add("explain", '\0',
                "Explain what the status of the layer registration is, and how it can be resolved");
-    parser.add("register", '\0', "Register RenderDoc's vulkan layer");
+    parser.add("register", '\0', "Register GuguGaga's vulkan layer");
     parser.add("user", '\0',
                "Install layer registration at user-local level instead of system-wide");
     parser.add("system", '\0', "Install layer registration system-wide (requires admin privileges)");
@@ -1315,9 +1315,9 @@ public:
         {
           std::cerr << "** There is an unfixable problem with your vulkan layer configuration.\n\n"
                        "This is most commonly caused by having a distribution-provided package of "
-                       "RenderDoc "
-                       "installed, which cannot be modified by another build of RenderDoc.\n\n"
-                       "Please consult the RenderDoc documentation, or package/distribution "
+                       "GuguGaga "
+                       "installed, which cannot be modified by another build of GuguGaga.\n\n"
+                       "Please consult the GuguGaga documentation, or package/distribution "
                        "documentation on "
                        "linux."
                     << std::endl;
@@ -1340,10 +1340,10 @@ public:
         std::cerr << std::endl;
 
         if(m_Info.flags & VulkanLayerFlags::OtherInstallsRegistered)
-          std::cerr << " - Non-matching RenderDoc layer(s) are registered." << std::endl;
+          std::cerr << " - Non-matching GuguGaga layer(s) are registered." << std::endl;
 
         if(!(m_Info.flags & VulkanLayerFlags::ThisInstallRegistered))
-          std::cerr << " - This build's RenderDoc layer is not registered." << std::endl;
+          std::cerr << " - This build's GuguGaga layer is not registered." << std::endl;
 
         std::cerr << std::endl;
 
@@ -1413,7 +1413,7 @@ public:
       }
       else
       {
-        std::cerr << "The RenderDoc vulkan layer appears to be correctly registered." << std::endl;
+        std::cerr << "The GuguGaga vulkan layer appears to be correctly registered." << std::endl;
       }
 
       // don't do anything if we're just explaining the situation
@@ -1436,9 +1436,9 @@ public:
     }
     else if(user || system)
     {
-      RENDERDOC_UpdateVulkanLayerRegistration(system);
+      GUGUGAGA_UpdateVulkanLayerRegistration(system);
 
-      if(RENDERDOC_NeedVulkanLayerRegistration(NULL))
+      if(GUGUGAGA_NeedVulkanLayerRegistration(NULL))
       {
         std::cerr << "Vulkan layer registration not successful. ";
         if(system)
@@ -1492,8 +1492,8 @@ static int command_usage(std::string command)
               << std::endl
               << std::endl;
 
-  std::cerr << "Usage: renderdoccmd <command> [args ...]" << std::endl;
-  std::cerr << "Command line tool for capture & replay with RenderDoc." << std::endl << std::endl;
+  std::cerr << "Usage: gugugagacmd <command> [args ...]" << std::endl;
+  std::cerr << "Command line tool for capture & replay with GuguGaga." << std::endl << std::endl;
 
   std::cerr << "Command can be one of:" << std::endl;
 
@@ -1518,17 +1518,17 @@ static int command_usage(std::string command)
   }
   std::cerr << std::endl;
 
-  std::cerr << "To see details of any command, see 'renderdoccmd <command> --help'" << std::endl
+  std::cerr << "To see details of any command, see 'gugugagacmd <command> --help'" << std::endl
             << std::endl;
 
-  std::cerr << "For more information, see <https://renderdoc.org/>." << std::endl;
+  std::cerr << "For more information, see <https://gugugaga.org/>." << std::endl;
 
   return 2;
 }
 
-int renderdoccmd(GlobalEnvironment &env, std::vector<std::string> &argv)
+int gugugagacmd(GlobalEnvironment &env, std::vector<std::string> &argv)
 {
-  // we don't need this in renderdoccmd.
+  // we don't need this in gugugagacmd.
   env.enumerateGPUs = false;
 
   vulkan = new VulkanRegisterCommand();
@@ -1608,7 +1608,7 @@ int renderdoccmd(GlobalEnvironment &env, std::vector<std::string> &argv)
 
     cmdline::parser cmd;
 
-    cmd.set_program_name("renderdoccmd");
+    cmd.set_program_name("gugugagacmd");
     cmd.set_header(command);
 
     it->second->AddOptions(cmd);
@@ -1656,7 +1656,7 @@ int renderdoccmd(GlobalEnvironment &env, std::vector<std::string> &argv)
     cmd.parse_check(argv, true);
 
     CaptureOptions opts;
-    RENDERDOC_GetDefaultCaptureOptions(&opts);
+    GUGUGAGA_GetDefaultCaptureOptions(&opts);
 
     if(it->second->IsCaptureCommand())
     {
@@ -1702,11 +1702,11 @@ int renderdoccmd(GlobalEnvironment &env, std::vector<std::string> &argv)
 
     args.append(it->second->ReplayArgs());
 
-    RENDERDOC_InitialiseReplay(env, args);
+    GUGUGAGA_InitialiseReplay(env, args);
 
     int ret = it->second->Execute(opts);
 
-    RENDERDOC_ShutdownReplay();
+    GUGUGAGA_ShutdownReplay();
 
     clean_up();
     return ret;
@@ -1721,12 +1721,12 @@ int renderdoccmd(GlobalEnvironment &env, std::vector<std::string> &argv)
   }
 }
 
-int renderdoccmd(GlobalEnvironment &env, int argc, char **c_argv)
+int gugugagacmd(GlobalEnvironment &env, int argc, char **c_argv)
 {
   std::vector<std::string> argv;
   argv.resize(argc);
   for(int i = 0; i < argc; i++)
     argv[i] = c_argv[i];
 
-  return renderdoccmd(env, argv);
+  return gugugagacmd(env, argv);
 }

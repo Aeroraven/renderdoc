@@ -34,16 +34,16 @@ ReplayManager::ReplayManager()
   m_Running = false;
   m_Thread = NULL;
 
-  RENDERDOC_RegisterMemoryRegion(this, sizeof(ReplayManager));
+  GUGUGAGA_RegisterMemoryRegion(this, sizeof(ReplayManager));
 }
 
 ReplayManager::~ReplayManager()
 {
-  RENDERDOC_UnregisterMemoryRegion(this);
+  GUGUGAGA_UnregisterMemoryRegion(this);
 }
 
 void ReplayManager::OpenCapture(const QString &capturefile, const ReplayOptions &opts,
-                                RENDERDOC_ProgressCallback progress)
+                                GUGUGAGA_ProgressCallback progress)
 {
   if(m_Running)
     return;
@@ -397,7 +397,7 @@ void ReplayManager::PingRemote()
 void ReplayManager::ReopenCaptureFile(const QString &path)
 {
   if(!m_CaptureFile)
-    m_CaptureFile = RENDERDOC_OpenCaptureFile();
+    m_CaptureFile = GUGUGAGA_OpenCaptureFile();
   m_CaptureFile->OpenFile(path, "rdc", NULL);
 }
 
@@ -415,7 +415,7 @@ ExecuteResult ReplayManager::ExecuteAndInject(const rdcstr &exe, const rdcstr &w
   }
   else
   {
-    ret = RENDERDOC_ExecuteAndInject(exe, workingDir, cmdLine, env, capturefile, opts, false);
+    ret = GUGUGAGA_ExecuteAndInject(exe, workingDir, cmdLine, env, capturefile, opts, false);
   }
 
   return ret;
@@ -438,7 +438,7 @@ void ReplayManager::PushInvoke(ReplayManager::InvokeHandle *cmd)
 }
 
 void ReplayManager::run(int proxyRenderer, const QString &capturefile, const ReplayOptions &opts,
-                        RENDERDOC_ProgressCallback progress)
+                        GUGUGAGA_ProgressCallback progress)
 {
   m_Renderer = NULL;
 
@@ -449,7 +449,7 @@ void ReplayManager::run(int proxyRenderer, const QString &capturefile, const Rep
   }
   else
   {
-    m_CaptureFile = RENDERDOC_OpenCaptureFile();
+    m_CaptureFile = GUGUGAGA_OpenCaptureFile();
 
     m_CreateResult = m_CaptureFile->OpenFile(capturefile, "rdc", NULL);
 
@@ -466,7 +466,7 @@ void ReplayManager::run(int proxyRenderer, const QString &capturefile, const Rep
     return;
   }
 
-  qInfo() << "QRenderDoc - renderer created for" << capturefile;
+  qInfo() << "QGuguGaga - renderer created for" << capturefile;
 
   m_Running = true;
 

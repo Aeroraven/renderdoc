@@ -48,14 +48,14 @@ public:
   bool EndFrameCapture(DeviceOwnedWindow devWnd);
   bool DiscardFrameCapture(DeviceOwnedWindow devWnd);
 
-  uint32_t SetObjectAnnotation(void *object, const char *key, RENDERDOC_AnnotationType valueType,
-                               uint32_t valueVectorWidth, const RENDERDOC_AnnotationValue *value)
+  uint32_t SetObjectAnnotation(void *object, const char *key, GUGUGAGA_AnnotationType valueType,
+                               uint32_t valueVectorWidth, const GUGUGAGA_AnnotationValue *value)
   {
     return 2;
   }
   uint32_t SetCommandAnnotation(void *queueOrCommandBuffer, const char *key,
-                                RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                const RENDERDOC_AnnotationValue *value)
+                                GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+                                const GUGUGAGA_AnnotationValue *value)
   {
     return 2;
   }

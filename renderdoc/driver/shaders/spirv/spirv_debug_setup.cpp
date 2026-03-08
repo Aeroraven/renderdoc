@@ -3739,7 +3739,7 @@ DeviceOpResult Debugger::ReadFromPointer(const ShaderVariable &ptr, ShaderVariab
         copyComp(ret, row, tmp, row * ret.columns + scalar0);
 
       // it's a vector now, even if it was a matrix before.
-      // since we have the convention of row vectors in RenderDoc, adjust the size too
+      // since we have the convention of row vectors in GuguGaga, adjust the size too
       ret.columns = ret.rows;
       ret.rows = 1;
     }

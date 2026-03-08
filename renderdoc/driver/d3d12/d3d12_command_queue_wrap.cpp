@@ -830,7 +830,7 @@ void WrappedID3D12CommandQueue::ExecuteCommandListsInternal(UINT NumCommandLists
   if(!m_MarkedActive)
   {
     m_MarkedActive = true;
-    RenderDoc::Inst().AddActiveDriver(RDCDriver::D3D12, false);
+    GuguGaga::Inst().AddActiveDriver(RDCDriver::D3D12, false);
   }
 
   if(IsActiveCapturing(m_State))
@@ -1483,7 +1483,7 @@ HRESULT STDMETHODCALLTYPE WrappedID3D12CommandQueue::Present(
     _In_ HWND hWindow, D3D12_DOWNLEVEL_PRESENT_FLAGS Flags)
 {
   // D3D12 on windows 7
-  if(!RenderDoc::Inst().GetCaptureOptions().allowVSync)
+  if(!GuguGaga::Inst().GetCaptureOptions().allowVSync)
   {
     Flags = D3D12_DOWNLEVEL_PRESENT_FLAG_NONE;
   }
@@ -1531,13 +1531,13 @@ HRESULT STDMETHODCALLTYPE WrappedID3D12CommandQueue::Present(
     if(m_pPresentHWND != NULL)
     {
       Keyboard::RemoveInputWindow(WindowingSystem::Win32, m_pPresentHWND);
-      RenderDoc::Inst().RemoveFrameCapturer(
+      GuguGaga::Inst().RemoveFrameCapturer(
           DeviceOwnedWindow(m_pDevice->GetFrameCapturerDevice(), m_pPresentHWND));
     }
 
     Keyboard::AddInputWindow(WindowingSystem::Win32, hWindow);
 
-    RenderDoc::Inst().AddFrameCapturer(
+    GuguGaga::Inst().AddFrameCapturer(
         DeviceOwnedWindow(m_pDevice->GetFrameCapturerDevice(), hWindow),
         m_pDevice->GetFrameCapturer());
   }
@@ -1555,9 +1555,9 @@ HRESULT STDMETHODCALLTYPE WrappedID3D12CommandQueue::Present(
 
 template <typename SerialiserType>
 bool WrappedID3D12CommandQueue::Serialise_SetQueueAnnotation(SerialiserType &ser, rdcstr key,
-                                                             RENDERDOC_AnnotationType valueType,
+                                                             GUGUGAGA_AnnotationType valueType,
                                                              uint32_t valueVectorWidth,
-                                                             RENDERDOC_AnnotationValue value)
+                                                             GUGUGAGA_AnnotationValue value)
 {
   ID3D12CommandQueue *pQueue = this;
   SERIALISE_ELEMENT(pQueue);
@@ -1578,7 +1578,7 @@ bool WrappedID3D12CommandQueue::Serialise_SetQueueAnnotation(SerialiserType &ser
 
       SDObject *root = m_Cmd.m_RootAnnotation;
 
-      if(valueType == eRENDERDOC_Empty)
+      if(valueType == eGUGUGAGA_Empty)
       {
         root->EraseChildByKeyPath(key);
       }
@@ -1622,5 +1622,5 @@ INSTANTIATE_FUNCTION_SERIALISED(void, WrappedID3D12CommandQueue, Wait, ID3D12Fen
                                 UINT64 Value);
 
 INSTANTIATE_FUNCTION_SERIALISED(void, WrappedID3D12CommandQueue, SetQueueAnnotation, rdcstr key,
-                                RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                RENDERDOC_AnnotationValue value);
+                                GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+                                GUGUGAGA_AnnotationValue value);

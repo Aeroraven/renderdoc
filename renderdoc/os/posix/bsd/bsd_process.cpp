@@ -136,7 +136,7 @@ int GetIdentPort(pid_t childPid)
             i++;
 
           const int port = atoi(&result[tokenStart]);
-          if(port >= RenderDoc_FirstTargetControlPort && port <= RenderDoc_LastTargetControlPort)
+          if(port >= GuguGaga_FirstTargetControlPort && port <= GuguGaga_LastTargetControlPort)
           {
             return port;
           }

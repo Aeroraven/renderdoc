@@ -87,8 +87,8 @@ void KeepLayerAlive()
     PFN_vkCreateInstance create = (PFN_vkCreateInstance)dlsym(module, "vkCreateInstance");
     VkApplicationInfo app = {
         VK_STRUCTURE_TYPE_APPLICATION_INFO, NULL,
-        "RenderDoc forced instance",        VK_MAKE_VERSION(1, 0, 0),
-        "RenderDoc forced instance",        VK_MAKE_VERSION(1, 0, 0),
+        "GuguGaga forced instance",        VK_MAKE_VERSION(1, 0, 0),
+        "GuguGaga forced instance",        VK_MAKE_VERSION(1, 0, 0),
         VK_MAKE_VERSION(1, 0, 0),
     };
     VkInstanceCreateInfo info = {
@@ -123,7 +123,7 @@ class VulkanHook : LibraryHook
 
     // we assume the implicit layer is registered - the UI will prompt the user about installing it.
     Process::RegisterEnvironmentModification(
-        EnvironmentModification(EnvMod::Set, EnvSep::NoSep, RENDERDOC_VULKAN_LAYER_VAR, "1"));
+        EnvironmentModification(EnvMod::Set, EnvSep::NoSep, GUGUGAGA_VULKAN_LAYER_VAR, "1"));
 
     // RTSS layer is buggy, disable it to avoid bug reports that are caused by it
     Process::RegisterEnvironmentModification(
@@ -175,7 +175,7 @@ class VulkanHook : LibraryHook
         EnvironmentModification(EnvMod::Set, EnvSep::NoSep, "DISABLE_LAYER", "1"));
 
     // support self-hosted capture by checking our filename and tweaking the env var we set
-    if(VulkanLayerJSONBasename != "renderdoc")
+    if(VulkanLayerJSONBasename != "gugugaga")
     {
       Process::RegisterEnvironmentModification(EnvironmentModification(
           EnvMod::Set, EnvSep::NoSep, VulkanLayerEnableVar(), "1"));
@@ -189,10 +189,10 @@ class VulkanHook : LibraryHook
   {
     // unset the vulkan layer environment variable
     Process::RegisterEnvironmentModification(
-        EnvironmentModification(EnvMod::Set, EnvSep::NoSep, RENDERDOC_VULKAN_LAYER_VAR, "0"));
+        EnvironmentModification(EnvMod::Set, EnvSep::NoSep, GUGUGAGA_VULKAN_LAYER_VAR, "0"));
 
     // if self-hosted under a different basename, also unset that dynamic enable variable
-    if(VulkanLayerJSONBasename != "renderdoc")
+    if(VulkanLayerJSONBasename != "gugugaga")
     {
       Process::RegisterEnvironmentModification(
           EnvironmentModification(EnvMod::Set, EnvSep::NoSep, VulkanLayerEnableVar(), "0"));
@@ -203,7 +203,7 @@ class VulkanHook : LibraryHook
 
   void OptionsUpdated()
   {
-    if(RenderDoc::Inst().GetCaptureOptions().apiValidation)
+    if(GuguGaga::Inst().GetCaptureOptions().apiValidation)
     {
       Process::RegisterEnvironmentModification(EnvironmentModification(
           EnvMod::Append, EnvSep::Platform, "VK_INSTANCE_LAYERS", "VK_LAYER_KHRONOS_validation"));
@@ -223,9 +223,9 @@ class VulkanHook : LibraryHook
 
 VulkanHook VulkanHook::vkhooks;
 
-// RenderDoc State
+// GuguGaga State
 
-// RenderDoc Intercepts, these must all be entry points with a dispatchable object
+// GuguGaga Intercepts, these must all be entry points with a dispatchable object
 // as the first parameter
 
 #define HookDefine1(ret, function, t1, p1)                   \
@@ -322,24 +322,24 @@ VKAPI_ATTR void VKAPI_CALL hooked_vkDestroyInstance(VkInstance instance, const V
 
 #pragma comment( \
     linker,      \
-    "/EXPORT:VK_LAYER_RENDERDOC_CaptureEnumerateDeviceLayerProperties=_VK_LAYER_RENDERDOC_CaptureEnumerateDeviceLayerProperties@12")
+    "/EXPORT:VK_LAYER_GUGUGAGA_CaptureEnumerateDeviceLayerProperties=_VK_LAYER_GUGUGAGA_CaptureEnumerateDeviceLayerProperties@12")
 #pragma comment( \
     linker,      \
-    "/EXPORT:VK_LAYER_RENDERDOC_CaptureEnumerateDeviceExtensionProperties=_VK_LAYER_RENDERDOC_CaptureEnumerateDeviceExtensionProperties@16")
+    "/EXPORT:VK_LAYER_GUGUGAGA_CaptureEnumerateDeviceExtensionProperties=_VK_LAYER_GUGUGAGA_CaptureEnumerateDeviceExtensionProperties@16")
 #pragma comment( \
     linker,      \
-    "/EXPORT:VK_LAYER_RENDERDOC_CaptureEnumerateInstanceExtensionProperties=_VK_LAYER_RENDERDOC_CaptureEnumerateInstanceExtensionProperties@16")
+    "/EXPORT:VK_LAYER_GUGUGAGA_CaptureEnumerateInstanceExtensionProperties=_VK_LAYER_GUGUGAGA_CaptureEnumerateInstanceExtensionProperties@16")
 #pragma comment( \
     linker,      \
-    "/EXPORT:VK_LAYER_RENDERDOC_CaptureGetDeviceProcAddr=_VK_LAYER_RENDERDOC_CaptureGetDeviceProcAddr@8")
+    "/EXPORT:VK_LAYER_GUGUGAGA_CaptureGetDeviceProcAddr=_VK_LAYER_GUGUGAGA_CaptureGetDeviceProcAddr@8")
 #pragma comment( \
     linker,      \
-    "/EXPORT:VK_LAYER_RENDERDOC_CaptureGetInstanceProcAddr=_VK_LAYER_RENDERDOC_CaptureGetInstanceProcAddr@8")
+    "/EXPORT:VK_LAYER_GUGUGAGA_CaptureGetInstanceProcAddr=_VK_LAYER_GUGUGAGA_CaptureGetInstanceProcAddr@8")
 #endif
 
 extern "C" {
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL VK_LAYER_RENDERDOC_CaptureEnumerateDeviceLayerProperties(
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL VK_LAYER_GUGUGAGA_CaptureEnumerateDeviceLayerProperties(
     VkPhysicalDevice physicalDevice, uint32_t *pPropertyCount, VkLayerProperties *pProperties)
 {
   // must have a property count, either to fill out or use as a size
@@ -366,8 +366,8 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL VK_LAYER_RENDERDOC_CaptureEnumera
     memcpy(layerProperties.layerName, vulkanLayerName.c_str(), layerNameLen);
     layerProperties.specVersion = VK_API_VERSION_1_0;
     layerProperties.implementationVersion =
-        VK_MAKE_VERSION(RENDERDOC_VERSION_MAJOR, RENDERDOC_VERSION_MINOR, 0);
-    const char layerDesc[] = "Debugging capture layer for RenderDoc";
+        VK_MAKE_VERSION(GUGUGAGA_VERSION_MAJOR, GUGUGAGA_VERSION_MINOR, 0);
+    const char layerDesc[] = "Debugging capture layer for GuguGaga";
     size_t layerDescLen = sizeof(layerDesc) - 1;
     if(layerDescLen >= sizeof(layerProperties.description))
       layerDescLen = sizeof(layerProperties.description) - 1;
@@ -381,7 +381,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL VK_LAYER_RENDERDOC_CaptureEnumera
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-VK_LAYER_RENDERDOC_CaptureEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
+VK_LAYER_GUGUGAGA_CaptureEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
                                                              const char *pLayerName,
                                                              uint32_t *pPropertyCount,
                                                              VkExtensionProperties *pProperties)
@@ -398,7 +398,7 @@ VK_LAYER_RENDERDOC_CaptureEnumerateDeviceExtensionProperties(VkPhysicalDevice ph
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-VK_LAYER_RENDERDOC_CaptureEnumerateInstanceExtensionProperties(
+VK_LAYER_GUGUGAGA_CaptureEnumerateInstanceExtensionProperties(
     const VkEnumerateInstanceExtensionPropertiesChain *pChain, const char *pLayerName,
     uint32_t *pPropertyCount, VkExtensionProperties *pProperties)
 {
@@ -448,10 +448,10 @@ VK_LAYER_RENDERDOC_CaptureEnumerateInstanceExtensionProperties(
 // proc addr routines
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
-VK_LAYER_RENDERDOC_CaptureGetDeviceProcAddr(VkDevice device, const char *pName)
+VK_LAYER_GUGUGAGA_CaptureGetDeviceProcAddr(VkDevice device, const char *pName)
 {
   if(!strcmp("vkGetDeviceProcAddr", pName))
-    return (PFN_vkVoidFunction)&VK_LAYER_RENDERDOC_CaptureGetDeviceProcAddr;
+    return (PFN_vkVoidFunction)&VK_LAYER_GUGUGAGA_CaptureGetDeviceProcAddr;
   if(!strcmp("vkCreateDevice", pName))
     return (PFN_vkVoidFunction)&hooked_vkCreateDevice;
   if(!strcmp("vkDestroyDevice", pName))
@@ -482,10 +482,10 @@ VK_LAYER_RENDERDOC_CaptureGetDeviceProcAddr(VkDevice device, const char *pName)
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
-VK_LAYER_RENDERDOC_Capture_layerGetPhysicalDeviceProcAddr(VkInstance instance, const char *pName);
+VK_LAYER_GUGUGAGA_Capture_layerGetPhysicalDeviceProcAddr(VkInstance instance, const char *pName);
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
-VK_LAYER_RENDERDOC_CaptureGetInstanceProcAddr(VkInstance instance, const char *pName)
+VK_LAYER_GUGUGAGA_CaptureGetInstanceProcAddr(VkInstance instance, const char *pName)
 {
   // if name is NULL undefined is returned, let's return NULL
   if(pName == NULL)
@@ -494,11 +494,11 @@ VK_LAYER_RENDERDOC_CaptureGetInstanceProcAddr(VkInstance instance, const char *p
   // a NULL instance can return vkGetInstanceProcAddr or a global function, handle that here
 
   if(!strcmp("vkGetInstanceProcAddr", pName))
-    return (PFN_vkVoidFunction)&VK_LAYER_RENDERDOC_CaptureGetInstanceProcAddr;
+    return (PFN_vkVoidFunction)&VK_LAYER_GUGUGAGA_CaptureGetInstanceProcAddr;
   if(!strcmp("vkEnumerateInstanceExtensionProperties", pName))
-    return (PFN_vkVoidFunction)&VK_LAYER_RENDERDOC_CaptureEnumerateInstanceExtensionProperties;
+    return (PFN_vkVoidFunction)&VK_LAYER_GUGUGAGA_CaptureEnumerateInstanceExtensionProperties;
   if(!strcmp("vk_layerGetPhysicalDeviceProcAddr", pName))
-    return (PFN_vkVoidFunction)&VK_LAYER_RENDERDOC_Capture_layerGetPhysicalDeviceProcAddr;
+    return (PFN_vkVoidFunction)&VK_LAYER_GUGUGAGA_Capture_layerGetPhysicalDeviceProcAddr;
 
   // don't implement vkEnumerateInstanceLayerProperties or vkEnumerateInstanceVersion, the loader
   // will do that
@@ -509,11 +509,11 @@ VK_LAYER_RENDERDOC_CaptureGetInstanceProcAddr(VkInstance instance, const char *p
     return NULL;
 
   if(!strcmp("vkEnumerateDeviceLayerProperties", pName))
-    return (PFN_vkVoidFunction)&VK_LAYER_RENDERDOC_CaptureEnumerateDeviceLayerProperties;
+    return (PFN_vkVoidFunction)&VK_LAYER_GUGUGAGA_CaptureEnumerateDeviceLayerProperties;
   if(!strcmp("vkEnumerateDeviceExtensionProperties", pName))
-    return (PFN_vkVoidFunction)&VK_LAYER_RENDERDOC_CaptureEnumerateDeviceExtensionProperties;
+    return (PFN_vkVoidFunction)&VK_LAYER_GUGUGAGA_CaptureEnumerateDeviceExtensionProperties;
   if(!strcmp("vkGetDeviceProcAddr", pName))
-    return (PFN_vkVoidFunction)&VK_LAYER_RENDERDOC_CaptureGetDeviceProcAddr;
+    return (PFN_vkVoidFunction)&VK_LAYER_GUGUGAGA_CaptureGetDeviceProcAddr;
   if(!strcmp("vkCreateDevice", pName))
     return (PFN_vkVoidFunction)&hooked_vkCreateDevice;
   if(!strcmp("vkDestroyDevice", pName))
@@ -576,18 +576,18 @@ VK_LAYER_RENDERDOC_CaptureGetInstanceProcAddr(VkInstance instance, const char *p
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL
-VK_LAYER_RENDERDOC_Capture_layerGetPhysicalDeviceProcAddr(VkInstance instance, const char *pName)
+VK_LAYER_GUGUGAGA_Capture_layerGetPhysicalDeviceProcAddr(VkInstance instance, const char *pName)
 {
   // GetPhysicalDeviceProcAddr acts like GetInstanceProcAddr but it returns NULL for any functions
   // which are known but aren't physical device functions
   if(!strcmp("vkGetInstanceProcAddr", pName))
     return NULL;
   if(!strcmp("vk_layerGetPhysicalDeviceProcAddr", pName))
-    return (PFN_vkVoidFunction)&VK_LAYER_RENDERDOC_Capture_layerGetPhysicalDeviceProcAddr;
+    return (PFN_vkVoidFunction)&VK_LAYER_GUGUGAGA_Capture_layerGetPhysicalDeviceProcAddr;
   if(!strcmp("vkEnumerateDeviceLayerProperties", pName))
-    return (PFN_vkVoidFunction)&VK_LAYER_RENDERDOC_CaptureEnumerateDeviceLayerProperties;
+    return (PFN_vkVoidFunction)&VK_LAYER_GUGUGAGA_CaptureEnumerateDeviceLayerProperties;
   if(!strcmp("vkEnumerateDeviceExtensionProperties", pName))
-    return (PFN_vkVoidFunction)&VK_LAYER_RENDERDOC_CaptureEnumerateDeviceExtensionProperties;
+    return (PFN_vkVoidFunction)&VK_LAYER_GUGUGAGA_CaptureEnumerateDeviceExtensionProperties;
   if(!strcmp("vkEnumerateInstanceExtensionProperties", pName))
     return NULL;
   if(!strcmp("vkGetDeviceProcAddr", pName))
@@ -671,17 +671,17 @@ VK_LAYER_RENDERDOC_Capture_layerGetPhysicalDeviceProcAddr(VkInstance instance, c
 
 // layer interface negotation (new interface)
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-VK_LAYER_RENDERDOC_CaptureNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *pVersionStruct)
+VK_LAYER_GUGUGAGA_CaptureNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *pVersionStruct)
 {
   if(pVersionStruct->sType != LAYER_NEGOTIATE_INTERFACE_STRUCT)
     return VK_ERROR_INITIALIZATION_FAILED;
 
   if(pVersionStruct->loaderLayerInterfaceVersion >= 2)
   {
-    pVersionStruct->pfnGetInstanceProcAddr = VK_LAYER_RENDERDOC_CaptureGetInstanceProcAddr;
-    pVersionStruct->pfnGetDeviceProcAddr = VK_LAYER_RENDERDOC_CaptureGetDeviceProcAddr;
+    pVersionStruct->pfnGetInstanceProcAddr = VK_LAYER_GUGUGAGA_CaptureGetInstanceProcAddr;
+    pVersionStruct->pfnGetDeviceProcAddr = VK_LAYER_GUGUGAGA_CaptureGetDeviceProcAddr;
     pVersionStruct->pfnGetPhysicalDeviceProcAddr =
-        VK_LAYER_RENDERDOC_Capture_layerGetPhysicalDeviceProcAddr;
+        VK_LAYER_GUGUGAGA_Capture_layerGetPhysicalDeviceProcAddr;
   }
 
   // we only support the current version. Don't let updating the header silently make us report a

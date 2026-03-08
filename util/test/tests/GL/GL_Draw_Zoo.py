@@ -1,5 +1,5 @@
 import rdtest
-import renderdoc as rd
+import gugugaga as rd
 
 
 class GL_Draw_Zoo(rdtest.Draw_Zoo):

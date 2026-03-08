@@ -1,13 +1,13 @@
 [Desktop Entry]
 Version=1.0
-Name=RenderDoc
+Name=GuguGaga
 Comment=A stand-alone graphics API debugger
 GenericName=Graphics Debugger
-Exec=qrenderdoc %f
-Icon=application-x-renderdoc-capture
+Exec=qgugugaga %f
+Icon=application-x-gugugaga-capture
 Terminal=false
 Type=Application
 X-MultipleArgs=false
 Categories=Development;
 StartupNotify=true
-MimeType=application/x-renderdoc-capture;
+MimeType=application/x-gugugaga-capture;

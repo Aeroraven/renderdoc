@@ -496,7 +496,7 @@ void WrappedOpenGL::glNamedBufferStorageEXT(GLuint buffer, GLsizeiptr size, cons
   if(IsCaptureMode(m_State) && data == NULL)
   {
     dummy = new byte[size];
-    memset(dummy, RenderDoc::Inst().GetCaptureOptions().verifyBufferAccess ? 0xdd : 0x0, size);
+    memset(dummy, GuguGaga::Inst().GetCaptureOptions().verifyBufferAccess ? 0xdd : 0x0, size);
     data = dummy;
 
     GLResourceRecord *record = GetResourceManager()->GetResourceRecord(BufferRes(GetCtx(), buffer));
@@ -532,7 +532,7 @@ void WrappedOpenGL::glBufferStorage(GLenum target, GLsizeiptr size, const void *
   if(IsCaptureMode(m_State) && data == NULL)
   {
     dummy = new byte[size];
-    memset(dummy, RenderDoc::Inst().GetCaptureOptions().verifyBufferAccess ? 0xdd : 0x0, size);
+    memset(dummy, GuguGaga::Inst().GetCaptureOptions().verifyBufferAccess ? 0xdd : 0x0, size);
     data = dummy;
 
     GLResourceRecord *record = GetCtxData().m_BufferRecord[BufferIdx(target)];
@@ -634,7 +634,7 @@ void WrappedOpenGL::glNamedBufferDataEXT(GLuint buffer, GLsizeiptr size, const v
   if(IsCaptureMode(m_State) && data == NULL)
   {
     dummy = new byte[size];
-    memset(dummy, RenderDoc::Inst().GetCaptureOptions().verifyBufferAccess ? 0xdd : 0x0, size);
+    memset(dummy, GuguGaga::Inst().GetCaptureOptions().verifyBufferAccess ? 0xdd : 0x0, size);
     data = dummy;
 
     GLResourceRecord *record = GetResourceManager()->GetResourceRecord(BufferRes(GetCtx(), buffer));
@@ -795,7 +795,7 @@ void WrappedOpenGL::glBufferData(GLenum target, GLsizeiptr size, const void *dat
   if(IsCaptureMode(m_State) && data == NULL)
   {
     dummy = new byte[size];
-    memset(dummy, RenderDoc::Inst().GetCaptureOptions().verifyBufferAccess ? 0xdd : 0x0, size);
+    memset(dummy, GuguGaga::Inst().GetCaptureOptions().verifyBufferAccess ? 0xdd : 0x0, size);
     data = dummy;
 
     GLResourceRecord *record = GetCtxData().m_BufferRecord[idx];
@@ -2262,7 +2262,7 @@ void WrappedOpenGL::glInvalidateBufferSubData(GLuint buffer, GLintptr offset, GL
  *
  * Non-coherent maps are the 'easy' case, and in all cases should be recommended whenever users do
  * persistent mapping. Indeed because of the implementation details, coherent maps may come at a
- * performance penalty even when RenderDoc is not used and it is simply the user code using GL
+ * performance penalty even when GuguGaga is not used and it is simply the user code using GL
  * directly.
  *
  * Note also that non-coherent maps tend to go hand in hand with flush explicit maps (although this
@@ -2368,7 +2368,7 @@ void *WrappedOpenGL::glMapNamedBufferRangeEXT(GLuint buffer, GLintptr offset, GL
        IsBackgroundCapturing(m_State))
       directMap = true;
 
-    bool verifyWrite = RenderDoc::Inst().GetCaptureOptions().verifyBufferAccess;
+    bool verifyWrite = GuguGaga::Inst().GetCaptureOptions().verifyBufferAccess;
 
     bool persistent = false;
 

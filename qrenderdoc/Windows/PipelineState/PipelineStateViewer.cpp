@@ -273,7 +273,7 @@ void PipelineStateViewer::OnCaptureClosed()
 
 void PipelineStateViewer::OnEventChanged(uint32_t eventId)
 {
-  RENDERDOC_PROFILEFUNCTION();
+  GUGUGAGA_PROFILEFUNCTION();
 
   if(m_Ctx.APIProps().pipelineType == GraphicsAPI::D3D11)
     setToD3D11();

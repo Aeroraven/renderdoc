@@ -1500,10 +1500,10 @@ void PythonShell::helpSearch_keypress(QKeyEvent *e)
 
 QString PythonShell::scriptHeader()
 {
-  return tr(R"(RenderDoc Python console, powered by python %1.
-The 'pyrenderdoc' object is the current CaptureContext instance.
-The 'renderdoc' and 'qrenderdoc' modules are available.
-Documentation is available: https://renderdoc.org/docs/python_api/index.html)")
+  return tr(R"(GuguGaga Python console, powered by python %1.
+The 'pygugugaga' object is the current CaptureContext instance.
+The 'gugugaga' and 'qgugugaga' modules are available.
+Documentation is available: https://gugugaga.org/docs/python_api/index.html)")
       .arg(interactiveContext->versionString());
 }
 
@@ -1607,5 +1607,5 @@ PythonContext *PythonShell::newContext()
 
 void PythonShell::setGlobals(PythonContext *ret)
 {
-  ret->setGlobal("pyrenderdoc", (ICaptureContext *)m_ThreadCtx);
+  ret->setGlobal("pygugugaga", (ICaptureContext *)m_ThreadCtx);
 }

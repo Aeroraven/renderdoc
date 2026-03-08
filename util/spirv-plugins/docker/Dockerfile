@@ -1,4 +1,4 @@
-FROM renderdoc-build
+FROM gugugaga-build
 LABEL maintainer baldurk@baldurk.org
 COPY prepare.sh /
 RUN /prepare.sh

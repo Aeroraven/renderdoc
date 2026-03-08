@@ -32,16 +32,16 @@
 
 #if defined(RDOC_SELFCAPTURE_LIMITEDAPI)
 
-#define RENDERDOC_AllocArrayMem RDOCSELF_AllocArrayMem
-#define RENDERDOC_FreeArrayMem RDOCSELF_FreeArrayMem
-#define RENDERDOC_GetDefaultCaptureOptions RDOCSELF_GetDefaultCaptureOptions
-#define RENDERDOC_NeedVulkanLayerRegistration RDOCSELF_NeedVulkanLayerRegistration
-#define RENDERDOC_UpdateVulkanLayerRegistration RDOCSELF_UpdateVulkanLayerRegistration
-#define RENDERDOC_ExecuteAndInject RDOCSELF_ExecuteAndInject
-#define RENDERDOC_InjectIntoProcess RDOCSELF_InjectIntoProcess
-#define RENDERDOC_GetCommitHash RDOCSELF_GetCommitHash
-#define RENDERDOC_InitialiseReplay RDOCSELF_InitialiseReplay
-#define RENDERDOC_ShutdownReplay RDOCSELF_ShutdownReplay
+#define GUGUGAGA_AllocArrayMem RDOCSELF_AllocArrayMem
+#define GUGUGAGA_FreeArrayMem RDOCSELF_FreeArrayMem
+#define GUGUGAGA_GetDefaultCaptureOptions RDOCSELF_GetDefaultCaptureOptions
+#define GUGUGAGA_NeedVulkanLayerRegistration RDOCSELF_NeedVulkanLayerRegistration
+#define GUGUGAGA_UpdateVulkanLayerRegistration RDOCSELF_UpdateVulkanLayerRegistration
+#define GUGUGAGA_ExecuteAndInject RDOCSELF_ExecuteAndInject
+#define GUGUGAGA_InjectIntoProcess RDOCSELF_InjectIntoProcess
+#define GUGUGAGA_GetCommitHash RDOCSELF_GetCommitHash
+#define GUGUGAGA_InitialiseReplay RDOCSELF_InitialiseReplay
+#define GUGUGAGA_ShutdownReplay RDOCSELF_ShutdownReplay
 
 #endif
 
@@ -49,7 +49,7 @@
 // Any program used for such purpose must define and export this symbol in the main exe or one dll
 // that will be loaded before gugugaga.dll is loaded.
 #define REPLAY_PROGRAM_MARKER()                                                                \
-  extern "C" RENDERDOC_EXPORT_API void RENDERDOC_CC gugugaga__replay__marker__replay__marker() \
+  extern "C" GUGUGAGA_EXPORT_API void GUGUGAGA_CC gugugaga__replay__marker__replay__marker() \
   {                                                                                            \
   }
 // declare ResourceId extremely early so that it can be referenced in structured_data.h
@@ -59,11 +59,11 @@ typedef uint8_t byte;
 
 #if !defined(SWIG)
 // needs to be declared up here for reference in rdcarray/rdcstr
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_FreeArrayMem(void *mem);
-typedef void(RENDERDOC_CC *pRENDERDOC_FreeArrayMem)(void *mem);
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_FreeArrayMem(void *mem);
+typedef void(GUGUGAGA_CC *pGUGUGAGA_FreeArrayMem)(void *mem);
 
-extern "C" RENDERDOC_API void *RENDERDOC_CC RENDERDOC_AllocArrayMem(uint64_t sz);
-typedef void *(RENDERDOC_CC *pRENDERDOC_AllocArrayMem)(uint64_t sz);
+extern "C" GUGUGAGA_API void *GUGUGAGA_CC GUGUGAGA_AllocArrayMem(uint64_t sz);
+typedef void *(GUGUGAGA_CC *pGUGUGAGA_AllocArrayMem)(uint64_t sz);
 #endif
 
 // declare base types and stringise interface
@@ -1131,7 +1131,7 @@ protected:
 
 DECLARE_REFLECTION_STRUCT(IReplayController);
 
-DOCUMENT(R"(A connection to a running application with RenderDoc injected, which allows limited
+DOCUMENT(R"(A connection to a running application with GuguGaga injected, which allows limited
 control over the capture process as well as querying the current status.
 )");
 struct ITargetControl
@@ -1227,7 +1227,7 @@ The details of the types of messages that can be received are listed under
 :return: The message that was received.
 :rtype: TargetControlMessage
 )");
-  virtual TargetControlMessage ReceiveMessage(RENDERDOC_ProgressCallback progress) = 0;
+  virtual TargetControlMessage ReceiveMessage(GUGUGAGA_ProgressCallback progress) = 0;
 
   DOCUMENT("Cycle the currently active window if there are more windows to capture.");
   virtual void CycleActiveWindow() = 0;
@@ -1328,7 +1328,7 @@ separate thread.
 :return: The result of the operation.
 :rtype: ResultDetails
 )");
-  virtual ResultDetails InitResolver(bool interactive, RENDERDOC_ProgressCallback progress) = 0;
+  virtual ResultDetails InitResolver(bool interactive, GUGUGAGA_ProgressCallback progress) = 0;
 
   DOCUMENT(R"(Retrieve the details of each stackframe in the provided callstack.
 
@@ -1409,7 +1409,7 @@ protected:
   ~ICaptureAccess() = default;
 };
 
-DOCUMENT(R"(A connection to a running remote RenderDoc server on another machine. This allows the
+DOCUMENT(R"(A connection to a running remote GuguGaga server on another machine. This allows the
 transfer of captures to and from the local machine, as well as remotely replaying a capture with a
 local proxy renderer, so that captures that are not supported locally can still be debugged with as
 much work as possible happening on the local machine.
@@ -1517,7 +1517,7 @@ the capture must be available on the machine where the replay happens.
 :return: The path on the remote system where the capture was saved temporarily.
 :rtype: str
 )");
-  virtual rdcstr CopyCaptureToRemote(const rdcstr &filename, RENDERDOC_ProgressCallback progress) = 0;
+  virtual rdcstr CopyCaptureToRemote(const rdcstr &filename, GUGUGAGA_ProgressCallback progress) = 0;
 
   DOCUMENT(R"(Copy a capture file that is stored on the remote system to the local system.
 
@@ -1530,7 +1530,7 @@ This function will block until the copy is fully complete, or an error has occur
   Callback function signature must match :func:`ProgressCallback`.
 )");
   virtual void CopyCaptureFromRemote(const rdcstr &remotepath, const rdcstr &localpath,
-                                     RENDERDOC_ProgressCallback progress) = 0;
+                                     GUGUGAGA_ProgressCallback progress) = 0;
 
   DOCUMENT(R"(Open a capture file for remote capture and replay. The capture will be opened and
 replayed on the remote system, and proxied to the local system with a given renderer. As much work
@@ -1557,7 +1557,7 @@ or an error has occurred.
 )");
   virtual rdcpair<ResultDetails, IReplayController *> OpenCapture(
       uint32_t proxyid, const rdcstr &logfile, const ReplayOptions &opts,
-      RENDERDOC_ProgressCallback progress) = 0;
+      GUGUGAGA_ProgressCallback progress) = 0;
 
   DOCUMENT(R"(Close a capture analysis handle previously opened by :meth:`OpenCapture`.
 
@@ -1598,7 +1598,7 @@ empty or unrecognised.
 :rtype: ResultDetails
 )");
   virtual ResultDetails OpenFile(const rdcstr &filename, const rdcstr &filetype,
-                                 RENDERDOC_ProgressCallback progress) = 0;
+                                 GUGUGAGA_ProgressCallback progress) = 0;
 
   DOCUMENT(R"(Initialises the file handle from a raw memory buffer.
 
@@ -1615,7 +1615,7 @@ For the :paramref:`OpenBuffer.filetype` parameter, see :meth:`OpenFile`.
 :rtype: ResultDetails
 )");
   virtual ResultDetails OpenBuffer(const bytebuf &buffer, const rdcstr &filetype,
-                                   RENDERDOC_ProgressCallback progress) = 0;
+                                   GUGUGAGA_ProgressCallback progress) = 0;
 
   DOCUMENT(R"(When a capture file is opened, an exclusive lock is held on the file on disk. This
 makes it impossible to copy the file to another location at the user's request. Calling this
@@ -1649,7 +1649,7 @@ representation back to native RDC.
 :rtype: ResultDetails
 )");
   virtual ResultDetails Convert(const rdcstr &filename, const rdcstr &filetype, const SDFile *file,
-                                RENDERDOC_ProgressCallback progress) = 0;
+                                GUGUGAGA_ProgressCallback progress) = 0;
 
   DOCUMENT(R"(Returns the list of capture file formats.
 
@@ -1738,7 +1738,7 @@ by the :class:`ReplayController`.
 :rtype: Tuple[ResultDetails,ReplayController]
 )");
   virtual rdcpair<ResultDetails, IReplayController *> OpenCapture(
-      const ReplayOptions &opts, RENDERDOC_ProgressCallback progress) = 0;
+      const ReplayOptions &opts, GUGUGAGA_ProgressCallback progress) = 0;
 
   DOCUMENT(R"(Returns the structured data for this capture.
 
@@ -1883,7 +1883,7 @@ DOCUMENT(R"(Create a new camera of a given type.
 :return: The handle to the new camera.
 :rtype: Camera
 )");
-extern "C" RENDERDOC_API ICamera *RENDERDOC_CC RENDERDOC_InitCamera(CameraType type);
+extern "C" GUGUGAGA_API ICamera *GUGUGAGA_CC GUGUGAGA_InitCamera(CameraType type);
 
 //////////////////////////////////////////////////////////////////////////
 // Maths/format/misc related exports
@@ -1896,7 +1896,7 @@ float.
 :return: The floating point equivalent.
 :rtype: float
 )");
-extern "C" RENDERDOC_API float RENDERDOC_CC RENDERDOC_HalfToFloat(uint16_t half);
+extern "C" GUGUGAGA_API float GUGUGAGA_CC GUGUGAGA_HalfToFloat(uint16_t half);
 
 DOCUMENT(R"(A utility function that converts a float to a half (stored in a 16-bit unsigned
 integer).
@@ -1905,7 +1905,7 @@ integer).
 :return: The nearest half-float equivalent stored as an int.
 :rtype: int
 )");
-extern "C" RENDERDOC_API uint16_t RENDERDOC_CC RENDERDOC_FloatToHalf(float flt);
+extern "C" GUGUGAGA_API uint16_t GUGUGAGA_CC GUGUGAGA_FloatToHalf(float flt);
 
 DOCUMENT(R"(A utility function that returns the number of vertices in a primitive of a given
 topology.
@@ -1916,7 +1916,7 @@ topology.
 :return: The number of vertices in a single primitive.
 :rtype: int
 )");
-extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_NumVerticesPerPrimitive(Topology topology);
+extern "C" GUGUGAGA_API uint32_t GUGUGAGA_CC GUGUGAGA_NumVerticesPerPrimitive(Topology topology);
 
 DOCUMENT(R"(A utility function that returns the offset in the list of vertices of the first vertex
 in a particular primitive of a given topology. This calculation is simple but not trivial for the
@@ -1927,7 +1927,7 @@ case of strip topologies.
 :return: The vertex offset where the primitive starts.
 :rtype: int
 )");
-extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_VertexOffset(Topology topology,
+extern "C" GUGUGAGA_API uint32_t GUGUGAGA_CC GUGUGAGA_VertexOffset(Topology topology,
                                                                       uint32_t primitive);
 
 //////////////////////////////////////////////////////////////////////////
@@ -1942,7 +1942,7 @@ can only be shut-down, it is not re-usable.
 :return: A handle to the specified path.
 :rtype: CaptureFile
 )");
-extern "C" RENDERDOC_API ICaptureFile *RENDERDOC_CC RENDERDOC_OpenCaptureFile();
+extern "C" GUGUGAGA_API ICaptureFile *GUGUGAGA_CC GUGUGAGA_OpenCaptureFile();
 
 //////////////////////////////////////////////////////////////////////////
 // Target Control
@@ -1962,7 +1962,7 @@ This function will block until the control connection is ready, or an error occu
 :return: A handle to the target control connection, or ``None`` if something went wrong.
 :rtype: TargetControl
 )");
-extern "C" RENDERDOC_API ITargetControl *RENDERDOC_CC RENDERDOC_CreateTargetControl(
+extern "C" GUGUGAGA_API ITargetControl *GUGUGAGA_CC GUGUGAGA_CreateTargetControl(
     const rdcstr &URL, uint32_t ident, const rdcstr &clientName, bool forceConnection);
 
 DOCUMENT(R"(Repeatedly query to enumerate which targets are active on a given machine and their
@@ -1980,7 +1980,7 @@ This function will block for a variable timeout depending on how many targets ar
 :return: The ident of the next active target, or ``0`` if no other targets exist.
 :rtype: int
 )");
-extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_EnumerateRemoteTargets(const rdcstr &URL,
+extern "C" GUGUGAGA_API uint32_t GUGUGAGA_CC GUGUGAGA_EnumerateRemoteTargets(const rdcstr &URL,
                                                                                 uint32_t nextIdent);
 
 //////////////////////////////////////////////////////////////////////////
@@ -1995,8 +1995,8 @@ DOCUMENT(R"(Create a connection to a remote server running on given hostname.
   instance if it were successful
 :rtype: Tuple[ResultDetails,RemoteServer]
 )");
-extern "C" RENDERDOC_API ResultDetails RENDERDOC_CC
-RENDERDOC_CreateRemoteServerConnection(const rdcstr &URL, IRemoteServer **rend);
+extern "C" GUGUGAGA_API ResultDetails GUGUGAGA_CC
+GUGUGAGA_CreateRemoteServerConnection(const rdcstr &URL, IRemoteServer **rend);
 
 DOCUMENT(R"(Check the connection to a remote server running on given hostname.
 
@@ -2008,8 +2008,8 @@ the status can be checked without interfering with making connections.
 :return: The status of the server.
 :rtype: ResultDetails
 )");
-extern "C" RENDERDOC_API ResultDetails RENDERDOC_CC
-RENDERDOC_CheckRemoteServerConnection(const rdcstr &URL);
+extern "C" GUGUGAGA_API ResultDetails GUGUGAGA_CC
+GUGUGAGA_CheckRemoteServerConnection(const rdcstr &URL);
 
 DOCUMENT(R"(This launches a remote server which will continually run in a loop to server requests
 from external sources.
@@ -2026,9 +2026,9 @@ This function will block until a remote connection tells the server to shut down
   when the server wants to display some preview of the ongoing replay.
   Callback function signature must match :func:`PreviewWindowCallback`.
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_BecomeRemoteServer(
-    const rdcstr &listenhost, uint16_t port, RENDERDOC_KillCallback killReplay,
-    RENDERDOC_PreviewWindowCallback previewWindow);
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_BecomeRemoteServer(
+    const rdcstr &listenhost, uint16_t port, GUGUGAGA_KillCallback killReplay,
+    GUGUGAGA_PreviewWindowCallback previewWindow);
 
 //////////////////////////////////////////////////////////////////////////
 // Injection/execution capture functions.
@@ -2039,8 +2039,8 @@ DOCUMENT(R"(Retrieve the default and recommended set of capture options.
 :return: The default capture options.
 :rtype: CaptureOptions
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC
-RENDERDOC_GetDefaultCaptureOptions(CaptureOptions *defaultOpts);
+extern "C" GUGUGAGA_API void GUGUGAGA_CC
+GUGUGAGA_GetDefaultCaptureOptions(CaptureOptions *defaultOpts);
 
 DOCUMENT(R"(Begin injecting speculatively into all new processes started on the system. Where
 supported by platform, configuration, and setup begin injecting speculatively into all new processes
@@ -2060,7 +2060,7 @@ This function must be called when the process is running with administrator/supe
 :return: The result of the operation, if the result succeeded the hook is now active.
 :rtype: ResultDetails
 )");
-extern "C" RENDERDOC_API ResultDetails RENDERDOC_CC RENDERDOC_StartGlobalHook(
+extern "C" GUGUGAGA_API ResultDetails GUGUGAGA_CC GUGUGAGA_StartGlobalHook(
     const rdcstr &pathmatch, const rdcstr &logfile, const CaptureOptions &opts);
 
 DOCUMENT(R"(Stop the global hook that was activated by :func:`StartGlobalHook`.
@@ -2068,7 +2068,7 @@ DOCUMENT(R"(Stop the global hook that was activated by :func:`StartGlobalHook`.
 This function can only be called if global hooking is supported (see :func:`CanGlobalHook`) and if
 global hooking is active (see :func:`IsGlobalHookActive`).
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_StopGlobalHook();
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_StopGlobalHook();
 
 DOCUMENT(R"(Determines if the global hook is active or not.
 
@@ -2077,14 +2077,14 @@ This function can only be called if global hooking is supported (see :func:`CanG
 :return: ``True`` if the hook is active, or ``False`` if the hook is inactive.
 :rtype: bool
 )");
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_IsGlobalHookActive();
+extern "C" GUGUGAGA_API bool GUGUGAGA_CC GUGUGAGA_IsGlobalHookActive();
 
 DOCUMENT(R"(Determines if the global hook is supported on the current platform and configuration.
 
 :return: ``True`` if global hooking can be used on the platform, ``False`` if not.
 :rtype: bool
 )");
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_CanGlobalHook();
+extern "C" GUGUGAGA_API bool GUGUGAGA_CC GUGUGAGA_CanGlobalHook();
 
 DOCUMENT(R"(Launch an application and inject into it to allow capturing.
 
@@ -2103,8 +2103,8 @@ DOCUMENT(R"(Launch an application and inject into it to allow capturing.
   control if everything succeeded.
 :rtype: ExecuteResult
 )");
-extern "C" RENDERDOC_API ExecuteResult RENDERDOC_CC
-RENDERDOC_ExecuteAndInject(const rdcstr &app, const rdcstr &workingDir, const rdcstr &cmdLine,
+extern "C" GUGUGAGA_API ExecuteResult GUGUGAGA_CC
+GUGUGAGA_ExecuteAndInject(const rdcstr &app, const rdcstr &workingDir, const rdcstr &cmdLine,
                            const rdcarray<EnvironmentModification> &env, const rdcstr &capturefile,
                            const CaptureOptions &opts, bool waitForExit);
 
@@ -2121,32 +2121,32 @@ DOCUMENT(R"(Where supported by operating system and permissions, inject into a r
   control if everything succeeded.
 :rtype: ExecuteResult
 )");
-extern "C" RENDERDOC_API ExecuteResult RENDERDOC_CC
-RENDERDOC_InjectIntoProcess(uint32_t pid, const rdcarray<EnvironmentModification> &env,
+extern "C" GUGUGAGA_API ExecuteResult GUGUGAGA_CC
+GUGUGAGA_InjectIntoProcess(uint32_t pid, const rdcarray<EnvironmentModification> &env,
                             const rdcstr &capturefile, const CaptureOptions &opts, bool waitForExit);
 
-DOCUMENT(R"(When debugging RenderDoc it can be useful to capture itself by doing a side-build with a
+DOCUMENT(R"(When debugging GuguGaga it can be useful to capture itself by doing a side-build with a
 temporary name. This function checks to see if a given self-hosted DLL is available.
 
 :param str dllname: The name of the self-hosted capture module.
 :return: Whether the specified dll is loaded, ready for self-hosted capture.
 :rtype: bool
 )");
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_CanSelfHostedCapture(const rdcstr &dllname);
+extern "C" GUGUGAGA_API bool GUGUGAGA_CC GUGUGAGA_CanSelfHostedCapture(const rdcstr &dllname);
 
-DOCUMENT(R"(When debugging RenderDoc it can be useful to capture itself by doing a side-build with a
+DOCUMENT(R"(When debugging GuguGaga it can be useful to capture itself by doing a side-build with a
 temporary name. This function wraps up the use of the in-application API to start a capture.
 
 :param str dllname: The name of the self-hosted capture module.
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_StartSelfHostCapture(const rdcstr &dllname);
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_StartSelfHostCapture(const rdcstr &dllname);
 
-DOCUMENT(R"(When debugging RenderDoc it can be useful to capture itself by doing a side-build with a
+DOCUMENT(R"(When debugging GuguGaga it can be useful to capture itself by doing a side-build with a
 temporary name. This function wraps up the use of the in-application API to end a capture.
 
 :param str dllname: The name of the self-hosted capture module.
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_EndSelfHostCapture(const rdcstr &dllname);
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_EndSelfHostCapture(const rdcstr &dllname);
 
 //////////////////////////////////////////////////////////////////////////
 // Vulkan layer handling
@@ -2175,11 +2175,11 @@ struct VulkanLayerRegistrationInfo
 };
 
 DOCUMENT("INTERNAL: Determine vulkan layer registration status.");
-extern "C" RENDERDOC_API bool RENDERDOC_CC
-RENDERDOC_NeedVulkanLayerRegistration(VulkanLayerRegistrationInfo *info);
+extern "C" GUGUGAGA_API bool GUGUGAGA_CC
+GUGUGAGA_NeedVulkanLayerRegistration(VulkanLayerRegistrationInfo *info);
 
 DOCUMENT("INTERNAL: Update vulkan layer registration.");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UpdateVulkanLayerRegistration(bool systemLevel);
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_UpdateVulkanLayerRegistration(bool systemLevel);
 
 //////////////////////////////////////////////////////////////////////////
 // Miscellaneous!
@@ -2187,37 +2187,37 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UpdateVulkanLayerRegistrati
 
 #if !defined(SWIG)
 DOCUMENT("INTERNAL: Update installed version number in windows registry.");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UpdateInstalledVersionNumber();
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_UpdateInstalledVersionNumber();
 #endif
 
-DOCUMENT(R"(Initialises RenderDoc for replay. Replay API functions should not be called before this
+DOCUMENT(R"(Initialises GuguGaga for replay. Replay API functions should not be called before this
 has been called. It should be called exactly once, and before shutdown you must call
 :func:`ShutdownReplay`.
 
 :param GlobalEnvironment globalEnv: The path to the new log file.
 :param List[str] args: Any extra command-line arguments.
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_InitialiseReplay(GlobalEnvironment globalEnv,
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_InitialiseReplay(GlobalEnvironment globalEnv,
                                                                       const rdcarray<rdcstr> &args);
 
-DOCUMENT(R"(Shutdown RenderDoc for replay. Replay API functions should not be called after this
+DOCUMENT(R"(Shutdown GuguGaga for replay. Replay API functions should not be called after this
 has been called. It is not safe to re-initialise replay after this function has been called so it
 should only be called at program shutdown. This function must only be called if
 :func:`InitialiseReplay` was previously called.
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_ShutdownReplay();
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_ShutdownReplay();
 
 #if !defined(SWIG)
 DOCUMENT("INTERNAL: Create a bug report zip.");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_CreateBugReport(const rdcstr &logfile,
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_CreateBugReport(const rdcstr &logfile,
                                                                      const rdcstr &dumpfile,
                                                                      rdcstr &report);
 
 DOCUMENT("INTERNAL: Register a memory region to be saved with crash dumps.");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_RegisterMemoryRegion(void *base, size_t size);
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_RegisterMemoryRegion(void *base, size_t size);
 
 DOCUMENT("INTERNAL: Unregister a memory region to be saved with crash dumps.");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UnregisterMemoryRegion(void *base);
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_UnregisterMemoryRegion(void *base);
 #endif
 
 DOCUMENT(R"(Sets the location for the diagnostic log output, shared by captured programs and the
@@ -2225,7 +2225,7 @@ analysis program.
 
 :param str filename: The path to the new log file.
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_SetDebugLogFile(const rdcstr &filename);
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_SetDebugLogFile(const rdcstr &filename);
 
 DOCUMENT(R"(Gets the location for the diagnostic log output, shared by captured programs and the
 analysis program.
@@ -2233,15 +2233,15 @@ analysis program.
 :return: The path to the current log file.
 :rtype: str
 )");
-extern "C" RENDERDOC_API const char *RENDERDOC_CC RENDERDOC_GetLogFile();
+extern "C" GUGUGAGA_API const char *GUGUGAGA_CC GUGUGAGA_GetLogFile();
 
 #if !defined(SWIG)
 DOCUMENT("INTERNAL: Atomically fetch the contents of the log");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_GetLogFileContents(uint64_t offset,
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_GetLogFileContents(uint64_t offset,
                                                                         rdcstr &logfile);
 #endif
 
-DOCUMENT(R"(Add a message to RenderDoc's logfile.
+DOCUMENT(R"(Add a message to GuguGaga's logfile.
 
 :param LogType type: The type of the log message. Error messages will trigger a debugger breakpoint
   if a debugger is attached, and fatal errors will kill the process after logging.
@@ -2250,7 +2250,7 @@ DOCUMENT(R"(Add a message to RenderDoc's logfile.
 :param int line: The line number in :paramref:`file` where this log message came from.
 :param str text: The text of the message.
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_LogMessage(LogType type, const rdcstr &project,
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_LogMessage(LogType type, const rdcstr &project,
                                                                 const rdcstr &file, uint32_t line,
                                                                 const rdcstr &text);
 
@@ -2261,14 +2261,14 @@ This will be in the form "MAJOR.MINOR"
 :return: The version string.
 :rtype: str
 )");
-extern "C" RENDERDOC_API const char *RENDERDOC_CC RENDERDOC_GetVersionString();
+extern "C" GUGUGAGA_API const char *GUGUGAGA_CC GUGUGAGA_GetVersionString();
 
-DOCUMENT(R"(Determines if this is a release build of RenderDoc or not.
+DOCUMENT(R"(Determines if this is a release build of GuguGaga or not.
 
 :return: ``True`` if the replay is running on a release build.
 :rtype: bool
 )");
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_IsReleaseBuild();
+extern "C" GUGUGAGA_API bool GUGUGAGA_CC GUGUGAGA_IsReleaseBuild();
 
 DOCUMENT(R"(Retrieves the commit hash used to build.
 
@@ -2277,7 +2277,7 @@ This will be in the form "0123456789abcdef0123456789abcdef01234567"
 :return: The commit hash.
 :rtype: str
 )");
-extern "C" RENDERDOC_API const char *RENDERDOC_CC RENDERDOC_GetCommitHash();
+extern "C" GUGUGAGA_API const char *GUGUGAGA_CC GUGUGAGA_GetCommitHash();
 
 DOCUMENT(R"(Retrieves the driver information (if available) for a given graphics API.
 
@@ -2285,14 +2285,14 @@ DOCUMENT(R"(Retrieves the driver information (if available) for a given graphics
 :return: A :class:`DriverInformation` containing the driver information.
 :rtype: DriverInformation
 )");
-extern "C" RENDERDOC_API DriverInformation RENDERDOC_CC RENDERDOC_GetDriverInformation(GraphicsAPI api);
+extern "C" GUGUGAGA_API DriverInformation GUGUGAGA_CC GUGUGAGA_GetDriverInformation(GraphicsAPI api);
 
 DOCUMENT(R"(Returns the current process's memory usage in bytes
 
 :return: The current memory usage in bytes.
 :rtype: int
 )");
-extern "C" RENDERDOC_API uint64_t RENDERDOC_CC RENDERDOC_GetCurrentProcessMemoryUsage();
+extern "C" GUGUGAGA_API uint64_t GUGUGAGA_CC GUGUGAGA_GetCurrentProcessMemoryUsage();
 
 DOCUMENT(R"(Return a read-only handle to the :class:`SDObject` corresponding to a given setting's
 value object.
@@ -2307,7 +2307,7 @@ If no such setting exists, `None` is returned.
 :return: The specified setting.
 :rtype: SDObject
 )");
-extern "C" RENDERDOC_API const SDObject *RENDERDOC_CC RENDERDOC_GetConfigSetting(const rdcstr &name);
+extern "C" GUGUGAGA_API const SDObject *GUGUGAGA_CC GUGUGAGA_GetConfigSetting(const rdcstr &name);
 
 DOCUMENT(R"(Return a mutable handle to the :class:`SDObject` corresponding to a given setting's
 value object.
@@ -2318,14 +2318,14 @@ If no such setting exists, `None` is returned.
 :return: The specified setting.
 :rtype: SDObject
 )");
-extern "C" RENDERDOC_API SDObject *RENDERDOC_CC RENDERDOC_SetConfigSetting(const rdcstr &name);
+extern "C" GUGUGAGA_API SDObject *GUGUGAGA_CC GUGUGAGA_SetConfigSetting(const rdcstr &name);
 
 DOCUMENT(R"(Flush the current config settings as they are in memory to the config file on disk.
 
 Without calling this function, settings changes will only be temporary. The settings are **not**
 saved to disk on exit implicitly.
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_SaveConfigSettings();
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_SaveConfigSettings();
 
 DOCUMENT(R"(Configure the default colours used for checkerboards, this can broadly speaking help
 match the replay rendering to the overall theme of the replay application.
@@ -2335,12 +2335,12 @@ match the replay rendering to the overall theme of the replay application.
 :param bool darkTheme: ``True`` if the theme is a 'dark' theme, used to pick different contrasting
   colors. ``False`` if the theme is 'light' and normal colors are used.
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_SetColors(FloatVector darkChecker,
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_SetColors(FloatVector darkChecker,
                                                                FloatVector lightChecker,
                                                                bool darkTheme);
 
 DOCUMENT("INTERNAL: Check remote Android package for requirements");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_CheckAndroidPackage(
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_CheckAndroidPackage(
     const rdcstr &URL, const rdcstr &packageAndActivity, AndroidFlags *flags);
 
 DOCUMENT("An interface for enumerating and controlling remote devices.");
@@ -2387,7 +2387,7 @@ user can be prompted to close an existing program before a new one is launched.
 )");
   virtual bool SupportsMultiplePrograms(const rdcstr &URL) = 0;
 
-  DOCUMENT(R"(Query if the device supports RenderDoc capture and replay.
+  DOCUMENT(R"(Query if the device supports GuguGaga capture and replay.
 
 :param str URL: The URL of the device in the form ``protocol://host``, with protocol as returned by
   :func:`GetProtocolName` and host as returned by :func:`GetDevices`.
@@ -2415,8 +2415,8 @@ DOCUMENT(R"(Retrieve the set of device protocols supported (see :func:`GetDevice
 :return: The supported device protocols.
 :rtype: List[str]
 )");
-extern "C" RENDERDOC_API void RENDERDOC_CC
-RENDERDOC_GetSupportedDeviceProtocols(rdcarray<rdcstr> *supportedProtocols);
+extern "C" GUGUGAGA_API void GUGUGAGA_CC
+GUGUGAGA_GetSupportedDeviceProtocols(rdcarray<rdcstr> *supportedProtocols);
 
 DOCUMENT(R"(Creates a :class:`DeviceProtocolController` that provides device-specific controls.
 
@@ -2435,16 +2435,16 @@ immediate use of it may block.
   unsupported protocol being specified.
 :rtype: DeviceProtocolController
 )");
-extern "C" RENDERDOC_API IDeviceProtocolController *RENDERDOC_CC
-RENDERDOC_GetDeviceProtocolController(const rdcstr &protocol);
+extern "C" GUGUGAGA_API IDeviceProtocolController *GUGUGAGA_CC
+GUGUGAGA_GetDeviceProtocolController(const rdcstr &protocol);
 
 #if !defined(SWIG)
 DOCUMENT("INTERNAL: Run unit tests.");
-extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_RunUnitTests(const rdcstr &command,
+extern "C" GUGUGAGA_API int GUGUGAGA_CC GUGUGAGA_RunUnitTests(const rdcstr &command,
                                                                  const rdcarray<rdcstr> &args);
 
 DOCUMENT("INTERNAL: Run functional tests.");
-extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_RunFunctionalTests(int pythonMinorVersion,
+extern "C" GUGUGAGA_API int GUGUGAGA_CC GUGUGAGA_RunFunctionalTests(int pythonMinorVersion,
                                                                        const rdcarray<rdcstr> &args);
 #endif
 
@@ -2452,32 +2452,32 @@ extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_RunFunctionalTests(int pytho
 #include "version.h"
 
 DOCUMENT("INTERNAL: Begin a profile region.");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_BeginProfileRegion(const rdcstr &name);
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_BeginProfileRegion(const rdcstr &name);
 
 DOCUMENT("INTERNAL: End a profile region.");
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_EndProfileRegion();
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_EndProfileRegion();
 
 // don't define profile regions in stable builds
-#if RENDERDOC_STABLE_BUILD
+#if GUGUGAGA_STABLE_BUILD
 
-#define RENDERDOC_PROFILEREGION(name)
+#define GUGUGAGA_PROFILEREGION(name)
 
 #else
 
-struct RENDERDOC_ProfileRegion
+struct GUGUGAGA_ProfileRegion
 {
-  RENDERDOC_ProfileRegion(const rdcstr &name) { RENDERDOC_BeginProfileRegion(name); }
-  ~RENDERDOC_ProfileRegion() { RENDERDOC_EndProfileRegion(); }
+  GUGUGAGA_ProfileRegion(const rdcstr &name) { GUGUGAGA_BeginProfileRegion(name); }
+  ~GUGUGAGA_ProfileRegion() { GUGUGAGA_EndProfileRegion(); }
 };
 
-#define RENDERDOC_PROFILEREGION(name) RENDERDOC_ProfileRegion profile##__LINE__(name);
+#define GUGUGAGA_PROFILEREGION(name) GUGUGAGA_ProfileRegion profile##__LINE__(name);
 
 #endif
 
-#if defined(RENDERDOC_PLATFORM_WIN32)
-#define RENDERDOC_PROFILEFUNCTION() RENDERDOC_PROFILEREGION(__FUNCSIG__);
+#if defined(GUGUGAGA_PLATFORM_WIN32)
+#define GUGUGAGA_PROFILEFUNCTION() GUGUGAGA_PROFILEREGION(__FUNCSIG__);
 #else
-#define RENDERDOC_PROFILEFUNCTION() RENDERDOC_PROFILEREGION(__PRETTY_FUNCTION__);
+#define GUGUGAGA_PROFILEFUNCTION() GUGUGAGA_PROFILEREGION(__PRETTY_FUNCTION__);
 #endif
 
 #endif

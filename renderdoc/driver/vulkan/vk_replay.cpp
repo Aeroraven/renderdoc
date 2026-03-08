@@ -53,13 +53,13 @@ static rdcstr VulkanLayerEnableVar()
   return "ENABLE_VULKAN_" + strupper(VulkanLayerJSONBasename) + "_CAPTURE";
 }
 
-static const char *SPIRVDisassemblyTarget = "SPIR-V (RenderDoc)";
+static const char *SPIRVDisassemblyTarget = "SPIR-V (GuguGaga)";
 static const char *AMDShaderInfoTarget = "AMD_shader_info";
 static const char *KHRExecutablePropertiesTarget = "KHR_pipeline_executable_properties";
 
 VulkanReplay::VulkanReplay(WrappedVulkan *d)
 {
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(VulkanReplay));
+  GuguGaga::Inst().RegisterMemoryRegion(this, sizeof(VulkanReplay));
 
   m_pDriver = d;
   m_Proxy = false;
@@ -5540,7 +5540,7 @@ RDResult Vulkan_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IRep
 
   // disable the layer env var, just in case the user left it set from a previous capture run
   Process::RegisterEnvironmentModification(
-      EnvironmentModification(EnvMod::Set, EnvSep::NoSep, RENDERDOC_VULKAN_LAYER_VAR, "0"));
+      EnvironmentModification(EnvMod::Set, EnvSep::NoSep, GUGUGAGA_VULKAN_LAYER_VAR, "0"));
 
   // if self-hosted under a different basename, disable that dynamic enable variable too
   Process::RegisterEnvironmentModification(
@@ -5628,7 +5628,7 @@ RDResult Vulkan_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IRep
     {
       RETURN_ERROR_RESULT(ResultCode::APIIncompatibleVersion,
                           "Vulkan capture is incompatible version %llu, newest supported by this "
-                          "build of RenderDoc is %llu",
+                          "build of GuguGaga is %llu",
                           ver, VkInitParams::CurrentVersion);
     }
 
@@ -5697,9 +5697,9 @@ struct VulkanDriverRegistration
 {
   VulkanDriverRegistration()
   {
-    RenderDoc::Inst().RegisterReplayProvider(RDCDriver::Vulkan, &Vulkan_CreateReplayDevice);
-    RenderDoc::Inst().SetVulkanLayerCheck(&VulkanReplay::CheckVulkanLayer);
-    RenderDoc::Inst().SetVulkanLayerInstall(&VulkanReplay::InstallVulkanLayer);
+    GuguGaga::Inst().RegisterReplayProvider(RDCDriver::Vulkan, &Vulkan_CreateReplayDevice);
+    GuguGaga::Inst().SetVulkanLayerCheck(&VulkanReplay::CheckVulkanLayer);
+    GuguGaga::Inst().SetVulkanLayerInstall(&VulkanReplay::InstallVulkanLayer);
   }
 };
 

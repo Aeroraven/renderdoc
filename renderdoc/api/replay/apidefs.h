@@ -75,19 +75,19 @@
 #define DOCUMENT4(text1, text2, text3, text4)
 #endif
 
-#if defined(RENDERDOC_PLATFORM_WIN32)
+#if defined(GUGUGAGA_PLATFORM_WIN32)
 
-#define RENDERDOC_EXPORT_API __declspec(dllexport)
-#define RENDERDOC_IMPORT_API __declspec(dllimport)
-#define RENDERDOC_CC __cdecl
+#define GUGUGAGA_EXPORT_API __declspec(dllexport)
+#define GUGUGAGA_IMPORT_API __declspec(dllimport)
+#define GUGUGAGA_CC __cdecl
 
-#elif defined(RENDERDOC_PLATFORM_LINUX) || defined(RENDERDOC_PLATFORM_APPLE) || \
-    defined(RENDERDOC_PLATFORM_ANDROID) || defined(RENDERDOC_PLATFORM_SWITCH)
+#elif defined(GUGUGAGA_PLATFORM_LINUX) || defined(GUGUGAGA_PLATFORM_APPLE) || \
+    defined(GUGUGAGA_PLATFORM_ANDROID) || defined(GUGUGAGA_PLATFORM_SWITCH)
 
-#define RENDERDOC_EXPORT_API __attribute__((visibility("default"), used))
-#define RENDERDOC_IMPORT_API
+#define GUGUGAGA_EXPORT_API __attribute__((visibility("default"), used))
+#define GUGUGAGA_IMPORT_API
 
-#define RENDERDOC_CC
+#define GUGUGAGA_CC
 
 #else
 
@@ -96,10 +96,50 @@
 #endif
 
 // define the API visibility depending on whether we're exporting
-#ifdef RENDERDOC_EXPORTS
-#define RENDERDOC_API RENDERDOC_EXPORT_API
+#ifdef GUGUGAGA_EXPORTS
+#define GUGUGAGA_API GUGUGAGA_EXPORT_API
 #else
-#define RENDERDOC_API RENDERDOC_IMPORT_API
+#define GUGUGAGA_API GUGUGAGA_IMPORT_API
+#endif
+
+// Backward compatibility aliases for code paths that still reference old macro names.
+#ifndef RENDERDOC_EXPORT_API
+#define RENDERDOC_EXPORT_API GUGUGAGA_EXPORT_API
+#endif
+#ifndef RENDERDOC_IMPORT_API
+#define RENDERDOC_IMPORT_API GUGUGAGA_IMPORT_API
+#endif
+#ifndef RENDERDOC_API
+#define RENDERDOC_API GUGUGAGA_API
+#endif
+#ifndef RENDERDOC_CC
+#define RENDERDOC_CC GUGUGAGA_CC
+#endif
+
+#ifdef GUGUGAGA_PLATFORM_WIN32
+#ifndef RENDERDOC_PLATFORM_WIN32
+#define RENDERDOC_PLATFORM_WIN32
+#endif
+#endif
+#ifdef GUGUGAGA_PLATFORM_LINUX
+#ifndef RENDERDOC_PLATFORM_LINUX
+#define RENDERDOC_PLATFORM_LINUX
+#endif
+#endif
+#ifdef GUGUGAGA_PLATFORM_APPLE
+#ifndef RENDERDOC_PLATFORM_APPLE
+#define RENDERDOC_PLATFORM_APPLE
+#endif
+#endif
+#ifdef GUGUGAGA_PLATFORM_ANDROID
+#ifndef RENDERDOC_PLATFORM_ANDROID
+#define RENDERDOC_PLATFORM_ANDROID
+#endif
+#endif
+#ifdef GUGUGAGA_PLATFORM_SWITCH
+#ifndef RENDERDOC_PLATFORM_SWITCH
+#define RENDERDOC_PLATFORM_SWITCH
+#endif
 #endif
 
 #ifdef NO_ENUM_CLASS_OPERATORS

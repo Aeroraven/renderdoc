@@ -208,8 +208,8 @@ void main(uint3 threadID : SV_DispatchThreadID)
       devCreate.iid = __uuidof(ID3D12Device);
       devCreate.pAdapter = a.GetInterfacePtr();
 
-      extCreate.pAppName = L"RenderDoc demos";
-      extCreate.pEngineName = L"RenderDoc demos";
+      extCreate.pAppName = L"GuguGaga demos";
+      extCreate.pEngineName = L"GuguGaga demos";
 
       AGSReturnCode agsret =
           dyn_agsDriverExtensionsDX12_CreateDevice(ags, &devCreate, &extCreate, &ret);

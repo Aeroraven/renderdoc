@@ -47,15 +47,15 @@ namespace Android
 void adbForwardPorts(uint16_t portbase, const rdcstr &deviceID, uint16_t jdwpPort, int pid,
                      bool silent)
 {
-  const char *forwardCommand = "forward tcp:%i localabstract:renderdoc_%i";
+  const char *forwardCommand = "forward tcp:%i localabstract:gugugaga_%i";
 
   adbExecCommand(deviceID,
-                 StringFormat::Fmt(forwardCommand, portbase + RenderDoc_ForwardRemoteServerOffset,
-                                   RenderDoc_RemoteServerPort),
+                 StringFormat::Fmt(forwardCommand, portbase + GuguGaga_ForwardRemoteServerOffset,
+                                   GuguGaga_RemoteServerPort),
                  ".", silent);
   adbExecCommand(deviceID,
-                 StringFormat::Fmt(forwardCommand, portbase + RenderDoc_ForwardTargetControlOffset,
-                                   RenderDoc_FirstTargetControlPort),
+                 StringFormat::Fmt(forwardCommand, portbase + GuguGaga_ForwardTargetControlOffset,
+                                   GuguGaga_FirstTargetControlPort),
                  ".", silent);
 
   if(jdwpPort && pid)
@@ -285,7 +285,7 @@ enum class AndroidInstallPermissionCheckResult
 AndroidVersionCheckResult CheckAndroidServerVersion(const rdcstr &deviceID, ABI abi)
 {
   // assume all servers are updated at the same rate. Only check first ABI's version
-  rdcstr packageName = GetRenderDocPackageForABI(abi);
+  rdcstr packageName = GetGuguGagaPackageForABI(abi);
   RDCLOG("Checking installed version of %s on %s", packageName.c_str(), deviceID.c_str());
 
   rdcstr dump = adbExecCommand(deviceID, "shell pm dump " + packageName).strStdout;
@@ -326,7 +326,7 @@ AndroidVersionCheckResult CheckAndroidServerVersion(const rdcstr &deviceID, ABI 
 
   // Compare the server's versionCode and versionName with the host's for compatibility
   rdcstr hostVersionCode =
-      rdcstr(STRINGIZE(RENDERDOC_VERSION_MAJOR)) + rdcstr(STRINGIZE(RENDERDOC_VERSION_MINOR));
+      rdcstr(STRINGIZE(GUGUGAGA_VERSION_MAJOR)) + rdcstr(STRINGIZE(GUGUGAGA_VERSION_MINOR));
   rdcstr hostVersionName = GitVersionHash;
 
   // False positives will hurt us, so check for explicit matches
@@ -337,7 +337,7 @@ AndroidVersionCheckResult CheckAndroidServerVersion(const rdcstr &deviceID, ABI 
     return AndroidVersionCheckResult::Correct;
   }
 
-  RDCWARN("RenderDoc server versionCode:versionName (%s:%s) is incompatible with host (%s:%s)",
+  RDCWARN("GuguGaga server versionCode:versionName (%s:%s) is incompatible with host (%s:%s)",
           versionCode.c_str(), versionName.c_str(), hostVersionCode.c_str(), hostVersionName.c_str());
 
   return AndroidVersionCheckResult::WrongVersion;
@@ -402,7 +402,7 @@ Process::ProcessResult ListPackages(const rdcstr &deviceID, const rdcstr &parame
   return result;
 }
 
-RDResult InstallRenderDocServer(const rdcstr &deviceID)
+RDResult InstallGuguGagaServer(const rdcstr &deviceID)
 {
   ResultCode result = ResultCode::Succeeded;
 
@@ -414,15 +414,15 @@ RDResult InstallRenderDocServer(const rdcstr &deviceID)
                         "Couldn't determine supported ABIs for device %s", deviceID.c_str());
   }
 
-  // Check known paths for RenderDoc server
+  // Check known paths for GuguGaga server
   rdcstr libPath;
   FileIO::GetLibraryFilename(libPath);
   rdcstr libDir = get_dirname(FileIO::GetFullPathname(libPath));
 
   rdcarray<rdcstr> paths;
 
-#if defined(RENDERDOC_APK_PATH)
-  rdcstr customPath(RENDERDOC_APK_PATH);
+#if defined(GUGUGAGA_APK_PATH)
+  rdcstr customPath(GUGUGAGA_APK_PATH);
 #else
   rdcstr customPath;
 #endif
@@ -443,7 +443,7 @@ RDResult InstallRenderDocServer(const rdcstr &deviceID)
   rdcstr suff = GetPlainABIName(abis[0]);
 
   paths.push_back(libDir + "/plugins/android/");                                  // Windows install
-  paths.push_back(libDir + "/../share/renderdoc/plugins/android/");               // Linux install
+  paths.push_back(libDir + "/../share/gugugaga/plugins/android/");               // Linux install
   paths.push_back(libDir + "/../plugins/android/");                               // macOS install
   paths.push_back(libDir + "/../../build-android/bin/");                          // Local build
   paths.push_back(libDir + "/../../build-android-" + suff + "/bin/");             // Local ABI build
@@ -451,7 +451,7 @@ RDResult InstallRenderDocServer(const rdcstr &deviceID)
   paths.push_back(libDir + "/../../../../../build-android-" + suff + "/bin/");    // macOS ABI build
 
   // use the first ABI for searching
-  rdcstr apk = GetRenderDocPackageForABI(abis[0]);
+  rdcstr apk = GetGuguGagaPackageForABI(abis[0]);
   rdcstr apksFolder;
 
   for(uint32_t i = 0; i < paths.size(); i++)
@@ -470,13 +470,13 @@ RDResult InstallRenderDocServer(const rdcstr &deviceID)
 
   if(apksFolder.empty())
   {
-#if RENDERDOC_OFFICIAL_BUILD
+#if GUGUGAGA_OFFICIAL_BUILD
     RETURN_ERROR_RESULT(ResultCode::AndroidAPKFolderNotFound,
-                        "RenderDoc APK not found. Your build of RenderDoc may be incomplete.\n"
+                        "GuguGaga APK not found. Your build of GuguGaga may be incomplete.\n"
                         "Check that your device is ARM based, other ABIs are not supported.");
 #else
     RETURN_ERROR_RESULT(ResultCode::AndroidAPKFolderNotFound,
-                        "RenderDoc APK not found. Your build of RenderDoc is incomplete.\n"
+                        "GuguGaga APK not found. Your build of GuguGaga is incomplete.\n"
                         "If this is a development build, consult the documentation for building "
                         "the Android package.\n"
                         "If this is a release build check that your device is ARM based, other "
@@ -497,7 +497,7 @@ RDResult InstallRenderDocServer(const rdcstr &deviceID)
     if(abiSuffix >= 0)
       apk.replace(abiSuffix, suff.size(), GetPlainABIName(abi));
 
-    apk += GetRenderDocPackageForABI(abi) + ".apk";
+    apk += GetGuguGagaPackageForABI(abi) + ".apk";
 
     if(!FileIO::exists(apk))
       RDCWARN(
@@ -569,7 +569,7 @@ RDResult InstallRenderDocServer(const rdcstr &deviceID)
     if(result != ResultCode::AndroidAPKVerifyFailed)
     {
       AndroidInstallPermissionCheckResult permissionsCheck =
-          CheckAndroidServerInstallPermissions(deviceID, GetRenderDocPackageForABI(abi), apiVersion);
+          CheckAndroidServerInstallPermissions(deviceID, GetGuguGagaPackageForABI(abi), apiVersion);
       if(permissionsCheck != AndroidInstallPermissionCheckResult::Correct)
       {
         RDCWARN("Failed to verify APK installation permissions. Retrying...");
@@ -577,7 +577,7 @@ RDResult InstallRenderDocServer(const rdcstr &deviceID)
         InstallAPK(deviceID, apk, apiVersion);
         // Check permission and version again - version was correct last time so should ok here
         if((CheckAndroidServerVersion(deviceID, abi) != AndroidVersionCheckResult::Correct) ||
-           (CheckAndroidServerInstallPermissions(deviceID, GetRenderDocPackageForABI(abi), apiVersion) !=
+           (CheckAndroidServerInstallPermissions(deviceID, GetGuguGagaPackageForABI(abi), apiVersion) !=
             AndroidInstallPermissionCheckResult::Correct))
         {
           RDCWARN("Failed to verify APK installation");
@@ -588,7 +588,7 @@ RDResult InstallRenderDocServer(const rdcstr &deviceID)
   }
 
   // Ensure installation succeeded. We should have as many lines as abis we installed
-  Process::ProcessResult adbCheck = ListPackages(deviceID, RENDERDOC_ANDROID_PACKAGE_BASE);
+  Process::ProcessResult adbCheck = ListPackages(deviceID, GUGUGAGA_ANDROID_PACKAGE_BASE);
 
   if(adbCheck.strStdout.empty())
   {
@@ -604,7 +604,7 @@ RDResult InstallRenderDocServer(const rdcstr &deviceID)
   return result;
 }
 
-bool RemoveRenderDocAndroidServer(const rdcstr &deviceID)
+bool RemoveGuguGagaAndroidServer(const rdcstr &deviceID)
 {
   rdcarray<ABI> abis = GetSupportedABIs(deviceID);
 
@@ -612,11 +612,11 @@ bool RemoveRenderDocAndroidServer(const rdcstr &deviceID)
     return false;
 
   // remove the old package, if it's still there. Ignore any errors
-  adbExecCommand(deviceID, "uninstall " RENDERDOC_ANDROID_PACKAGE_BASE);
+  adbExecCommand(deviceID, "uninstall " GUGUGAGA_ANDROID_PACKAGE_BASE);
 
   for(ABI abi : abis)
   {
-    rdcstr packageName = GetRenderDocPackageForABI(abi);
+    rdcstr packageName = GetGuguGagaPackageForABI(abi);
 
     adbExecCommand(deviceID, "uninstall " + packageName);
 
@@ -697,7 +697,7 @@ struct AndroidRemoteServer : public RemoteServer
 
   virtual rdcpair<ResultDetails, IReplayController *> OpenCapture(
       uint32_t proxyid, const rdcstr &filename, const ReplayOptions &opts,
-      RENDERDOC_ProgressCallback progress) override
+      GUGUGAGA_ProgressCallback progress) override
   {
     ResetAndroidSettings();
 
@@ -736,7 +736,7 @@ struct AndroidRemoteServer : public RemoteServer
       for(const rdcstr &line : lines)
       {
         // hide our own internal packages
-        if(strstr(line.c_str(), "package:org.renderdoc."))
+        if(strstr(line.c_str(), "package:org.gugugaga."))
           continue;
 
         if(!strncmp(line.c_str(), "package:", 8))
@@ -959,7 +959,7 @@ struct AndroidController : public IDeviceProtocolHandler
       }
 
       thread = Threading::CreateThread([]() { m_Inst.ThreadEntry(); });
-      RenderDoc::Inst().RegisterShutdownFunction([]() { m_Inst.Shutdown(); });
+      GuguGaga::Inst().RegisterShutdownFunction([]() { m_Inst.Shutdown(); });
     }
   }
 
@@ -1074,8 +1074,8 @@ struct AndroidController : public IDeviceProtocolHandler
         dev.name = Android::GetFriendlyName(d);
         if(!Android::IsSupported(d))
           dev.name += " - (Android 5.x)";
-        dev.portbase = uint16_t(RenderDoc_ForwardPortBase + RenderDoc::Inst().GetForwardedPortSlot() *
-                                                                RenderDoc_ForwardPortStride);
+        dev.portbase = uint16_t(GuguGaga_ForwardPortBase + GuguGaga::Inst().GetForwardedPortSlot() *
+                                                                GuguGaga_ForwardPortStride);
 
         // silently forward the ports now. These may be refreshed but this will allow us to connect
         Android::adbForwardPorts(dev.portbase, d, 0, 0, true);
@@ -1147,14 +1147,14 @@ struct AndroidController : public IDeviceProtocolHandler
       }
 
       rdcstr packagesOutput =
-          Android::ListPackages(deviceID, RENDERDOC_ANDROID_PACKAGE_BASE).strStdout.trimmed();
+          Android::ListPackages(deviceID, GUGUGAGA_ANDROID_PACKAGE_BASE).strStdout.trimmed();
 
       rdcarray<rdcstr> packages;
       split(packagesOutput, packages, '\n');
 
       rdcarray<Android::ABI> abis = Android::GetSupportedABIs(deviceID);
 
-      RDCLOG("Starting RenderDoc server, supported ABIs:");
+      RDCLOG("Starting GuguGaga server, supported ABIs:");
       for(Android::ABI abi : abis)
         RDCLOG("  - %s", ToStr(abi).c_str());
 
@@ -1200,34 +1200,34 @@ struct AndroidController : public IDeviceProtocolHandler
         // if there was any existing package, remove it
         if(!packages.empty())
         {
-          if(Android::RemoveRenderDocAndroidServer(deviceID))
+          if(Android::RemoveGuguGagaAndroidServer(deviceID))
             RDCLOG("Uninstall of old server succeeded");
           else
             RDCERR("Uninstall of old server failed");
         }
 
         // If server is not detected or has been removed due to incompatibility, install it
-        result = Android::InstallRenderDocServer(deviceID);
+        result = Android::InstallGuguGagaServer(deviceID);
         if(result != ResultCode::Succeeded && result != ResultCode::AndroidGrantPermissionsFailed &&
            result != ResultCode::AndroidAPKVerifyFailed)
         {
-          RDCERR("Failed to install RenderDoc server app");
+          RDCERR("Failed to install GuguGaga server app");
           return;
         }
       }
 
       // stop all servers of any ABI
       for(Android::ABI abi : abis)
-        Android::adbExecCommand(deviceID, "shell am force-stop " + GetRenderDocPackageForABI(abi));
+        Android::adbExecCommand(deviceID, "shell am force-stop " + GetGuguGagaPackageForABI(abi));
 
       // Attempt to prevent the user needing to click through on permissions
       rdcstr auto_grant_permissions =
-          Android::adbExecCommand(deviceID, "shell getprop debug.renderdoc.autograntpermissions")
+          Android::adbExecCommand(deviceID, "shell getprop debug.gugugaga.autograntpermissions")
               .strStdout.trimmed();
       if(apiVersion >= 30 && atoi(auto_grant_permissions.c_str()) == 1)
       {
         for(Android::ABI abi : abis)
-          Android::adbExecCommand(deviceID, "shell pm grant " + GetRenderDocPackageForABI(abi) +
+          Android::adbExecCommand(deviceID, "shell pm grant " + GetGuguGagaPackageForABI(abi) +
                                                 " android.permission.MANAGE_EXTERNAL_STORAGE");
       }
 
@@ -1237,25 +1237,25 @@ struct AndroidController : public IDeviceProtocolHandler
       // make Oculus' on device vulkan validation layer available for load
       Android::adbExecCommand(
           deviceID,
-          "shell setprop debug.oculus.usepackagedvvl." RENDERDOC_ANDROID_PACKAGE_BASE ".arm32 1");
+          "shell setprop debug.oculus.usepackagedvvl." GUGUGAGA_ANDROID_PACKAGE_BASE ".arm32 1");
       Android::adbExecCommand(
           deviceID,
-          "shell setprop debug.oculus.usepackagedvvl." RENDERDOC_ANDROID_PACKAGE_BASE ".arm64 1");
+          "shell setprop debug.oculus.usepackagedvvl." GUGUGAGA_ANDROID_PACKAGE_BASE ".arm64 1");
 
-      rdcstr package = GetRenderDocPackageForABI(abis.back());
+      rdcstr package = GetGuguGagaPackageForABI(abis.back());
 
       rdcstr folderName = Android::GetFolderName(deviceID);
 
       // push settings file into our folder
-      Android::adbExecCommand(deviceID, "push \"" + FileIO::GetAppFolderFilename("renderdoc.conf") +
+      Android::adbExecCommand(deviceID, "push \"" + FileIO::GetAppFolderFilename("gugugaga.conf") +
                                             "\" /sdcard/Android/" + folderName + package +
-                                            "/files/renderdoc.conf");
+                                            "/files/gugugaga.conf");
 
       // launch the last ABI, as the 64-bit version where possible, or 32-bit version where not.
       // Captures are portable across bitness and in some cases a 64-bit capture can't replay on a
       // 32-bit remote server.
       Android::adbExecCommand(
-          deviceID, "shell am start -n " + package + "/.Loader -e renderdoccmd remoteserver");
+          deviceID, "shell am start -n " + package + "/.Loader -e gugugagacmd remoteserver");
     });
 
     // allow the package to start and begin listening before we return
@@ -1284,11 +1284,11 @@ struct AndroidController : public IDeviceProtocolHandler
     if(portbase == 0)
       return 0;
 
-    if(srcPort == RenderDoc_RemoteServerPort)
-      return portbase + RenderDoc_ForwardRemoteServerOffset;
+    if(srcPort == GuguGaga_RemoteServerPort)
+      return portbase + GuguGaga_ForwardRemoteServerOffset;
     // we only support a single target control connection on android
-    else if(srcPort == RenderDoc_FirstTargetControlPort)
-      return portbase + RenderDoc_ForwardTargetControlOffset;
+    else if(srcPort == GuguGaga_FirstTargetControlPort)
+      return portbase + GuguGaga_ForwardTargetControlOffset;
 
     return 0;
   }
@@ -1356,7 +1356,7 @@ ExecuteResult AndroidRemoteServer::ExecuteAndInject(const rdcstr &packageAndActi
   });
 
   RDResult result;
-  uint32_t ident = RenderDoc_FirstTargetControlPort;
+  uint32_t ident = GuguGaga_FirstTargetControlPort;
 
   AndroidController::m_Inst.Invoke([this, &result, &ident, packageAndActivity, intentArgs, opts]() {
     rdcstr packageName = Android::GetPackageName(packageAndActivity);    // Remove leading '/' if any
@@ -1418,15 +1418,15 @@ ExecuteResult AndroidRemoteServer::ExecuteAndInject(const rdcstr &packageAndActi
         abi = Android::GetABI(installedABI);
       }
 
-      rdcstr layerPackage = GetRenderDocPackageForABI(abi);
+      rdcstr layerPackage = GetGuguGagaPackageForABI(abi);
       Android::adbExecCommand(m_deviceID, "shell settings put global enable_gpu_debug_layers 1");
       Android::adbExecCommand(m_deviceID, "shell settings put global gpu_debug_app " + packageName);
       Android::adbExecCommand(m_deviceID,
                               "shell settings put global gpu_debug_layer_app " + layerPackage);
       Android::adbExecCommand(
-          m_deviceID, "shell settings put global gpu_debug_layers " RENDERDOC_VULKAN_LAYER_NAME);
+          m_deviceID, "shell settings put global gpu_debug_layers " GUGUGAGA_VULKAN_LAYER_NAME);
       Android::adbExecCommand(
-          m_deviceID, "shell settings put global gpu_debug_layers_gles " RENDERDOC_ANDROID_LIBRARY);
+          m_deviceID, "shell settings put global gpu_debug_layers_gles " GUGUGAGA_ANDROID_LIBRARY);
 
       // don't ignore the layers by default, only if we encounter an error
       Android::adbExecCommand(m_deviceID, "shell setprop debug.rdoc.IGNORE_LAYERS 0");
@@ -1454,8 +1454,8 @@ ExecuteResult AndroidRemoteServer::ExecuteAndInject(const rdcstr &packageAndActi
       if(!checkString.contains("enable_gpu_debug_layers=1") ||
          !checkString.contains("gpu_debug_app=" + packageName) ||
          !checkString.contains("gpu_debug_layer_app=" + layerPackage) ||
-         !checkString.contains("gpu_debug_layers=" RENDERDOC_VULKAN_LAYER_NAME) ||
-         !checkString.contains("gpu_debug_layers_gles=" RENDERDOC_ANDROID_LIBRARY))
+         !checkString.contains("gpu_debug_layers=" GUGUGAGA_VULKAN_LAYER_NAME) ||
+         !checkString.contains("gpu_debug_layers_gles=" GUGUGAGA_ANDROID_LIBRARY))
       {
         info =
             "Do you have a strange device that requires extra setup?\n"
@@ -1481,7 +1481,7 @@ ExecuteResult AndroidRemoteServer::ExecuteAndInject(const rdcstr &packageAndActi
 
       // enable the vulkan layer (will only be used by vulkan programs)
       Android::adbExecCommand(m_deviceID,
-                              "shell setprop debug.vulkan.layers " RENDERDOC_VULKAN_LAYER_NAME);
+                              "shell setprop debug.vulkan.layers " GUGUGAGA_VULKAN_LAYER_NAME);
     }
 
     rdcstr folderName = Android::GetFolderName(m_deviceID);
@@ -1502,18 +1502,18 @@ ExecuteResult AndroidRemoteServer::ExecuteAndInject(const rdcstr &packageAndActi
     // set our property with the capture options encoded, to be picked up by the library on the
     // device
     Android::adbExecCommand(m_deviceID,
-                            StringFormat::Fmt("shell setprop debug.rdoc.RENDERDOC_CAPOPTS %s",
+                            StringFormat::Fmt("shell setprop debug.rdoc.GUGUGAGA_CAPOPTS %s",
                                               opts.EncodeAsString().c_str()));
 
     // try to push our settings file into the appdata folder
-    Android::adbExecCommand(m_deviceID, "push \"" + FileIO::GetAppFolderFilename("renderdoc.conf") +
+    Android::adbExecCommand(m_deviceID, "push \"" + FileIO::GetAppFolderFilename("gugugaga.conf") +
                                             "\" /sdcard/Android/" + folderName + processName +
-                                            "/files/renderdoc.conf");
+                                            "/files/gugugaga.conf");
 
     rdcstr installedPath = Android::GetPathForPackage(m_deviceID, packageName);
 
     rdcstr RDCLib = Android::adbExecCommand(m_deviceID, "shell ls " + installedPath +
-                                                            "/lib/*/" RENDERDOC_ANDROID_LIBRARY)
+                                                            "/lib/*/" GUGUGAGA_ANDROID_LIBRARY)
                         .strStdout.trimmed();
 
     if(Android_Debug_ProcessLaunch())
@@ -1527,12 +1527,12 @@ ExecuteResult AndroidRemoteServer::ExecuteAndInject(const rdcstr &packageAndActi
 
     // some versions of adb/android also don't print any error message at all! Look to see if the
     // wildcard glob is still present.
-    if(RDCLib.find("/lib/*/" RENDERDOC_ANDROID_LIBRARY) >= 0)
+    if(RDCLib.find("/lib/*/" GUGUGAGA_ANDROID_LIBRARY) >= 0)
       RDCLib.clear();
 
     if(RDCLib.empty())
     {
-      RDCLOG("No library found in %s/lib/*/" RENDERDOC_ANDROID_LIBRARY
+      RDCLOG("No library found in %s/lib/*/" GUGUGAGA_ANDROID_LIBRARY
              " for %s - assuming injection is required.",
              installedPath.c_str(), packageName.c_str());
     }
@@ -1625,7 +1625,7 @@ ExecuteResult AndroidRemoteServer::ExecuteAndInject(const rdcstr &packageAndActi
     while(elapsed < timeout)
     {
       // Check if the target app has started yet and we can connect to it.
-      ITargetControl *control = RENDERDOC_CreateTargetControl(
+      ITargetControl *control = GUGUGAGA_CreateTargetControl(
           AndroidController::m_Inst.GetProtocolName() + "://" + m_deviceID, ident, "testConnection",
           false);
       if(control)
@@ -1676,10 +1676,10 @@ AndroidController AndroidController::m_Inst;
 
 DeviceProtocolRegistration androidProtocol("adb", &AndroidController::Get);
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_CheckAndroidPackage(
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_CheckAndroidPackage(
     const rdcstr &URL, const rdcstr &packageAndActivity, AndroidFlags *flags)
 {
-  IDeviceProtocolHandler *adb = RenderDoc::Inst().GetDeviceProtocol("adb");
+  IDeviceProtocolHandler *adb = GuguGaga::Inst().GetDeviceProtocol("adb");
 
   rdcstr deviceID = adb->GetDeviceID(URL);
 

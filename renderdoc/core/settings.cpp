@@ -325,7 +325,7 @@ static bool MergeConfigValues(const rdcstr &prefix, SDObject *dstConfig, const S
           RDCLOG("%s has been customised from %s to %s", (prefix + dstChild->name).c_str(),
                  oldVal.c_str(), newVal.c_str());
 
-#if RENDERDOC_STABLE_BUILD
+#if GUGUGAGA_STABLE_BUILD
           if(rdcstr(dstDesc->data.str).contains(debugOnlyString))
           {
             RDCWARN("%s customisation will not apply - read only in this build",
@@ -455,7 +455,7 @@ inline SDObject *makeSDObject(const rdcinflexiblestr &name, const rdcarray<rdcst
                                                                                           \
     obj = setting->GetChild(0);                                                           \
                                                                                           \
-    RenderDoc::Inst().RegisterSetting(name, setting);                                     \
+    GuguGaga::Inst().RegisterSetting(name, setting);                                     \
   }
 
 CONFIG_SUPPORT_TYPE(bool)
@@ -464,9 +464,9 @@ CONFIG_SUPPORT_TYPE(uint32_t)
 CONFIG_SUPPORT_TYPE(rdcstr)
 CONFIG_SUPPORT_TYPE(rdcarray<rdcstr>)
 
-void RenderDoc::ProcessConfig()
+void GuguGaga::ProcessConfig()
 {
-  rdcstr confFile = FileIO::GetAppFolderFilename("renderdoc.conf");
+  rdcstr confFile = FileIO::GetAppFolderFilename("gugugaga.conf");
 
   RDCLOG("Loading config from %s", confFile.c_str());
 
@@ -512,11 +512,11 @@ void RenderDoc::ProcessConfig()
   delete loadedConfig;
 }
 
-void RenderDoc::SaveConfigSettings()
+void GuguGaga::SaveConfigSettings()
 {
   if(IsReplayApp())
   {
-    rdcstr confFile = FileIO::GetAppFolderFilename("renderdoc.conf");
+    rdcstr confFile = FileIO::GetAppFolderFilename("gugugaga.conf");
 
     bool success = false;
 
@@ -535,17 +535,17 @@ void RenderDoc::SaveConfigSettings()
   }
 }
 
-const SDObject *RenderDoc::GetConfigSetting(const rdcstr &settingPath)
+const SDObject *GuguGaga::GetConfigSetting(const rdcstr &settingPath)
 {
   return FindConfigSetting(settingPath);
 }
 
-SDObject *RenderDoc::SetConfigSetting(const rdcstr &settingPath)
+SDObject *GuguGaga::SetConfigSetting(const rdcstr &settingPath)
 {
   return FindConfigSetting(settingPath);
 }
 
-SDObject *RenderDoc::FindConfigSetting(const rdcstr &settingPath)
+SDObject *GuguGaga::FindConfigSetting(const rdcstr &settingPath)
 {
   if(settingPath.empty())
     return m_Config;
@@ -574,7 +574,7 @@ SDObject *RenderDoc::FindConfigSetting(const rdcstr &settingPath)
   return NULL;
 }
 
-void RenderDoc::RegisterSetting(const rdcstr &settingPath, SDObject *setting)
+void GuguGaga::RegisterSetting(const rdcstr &settingPath, SDObject *setting)
 {
   SDObject *cur = m_Config;
 

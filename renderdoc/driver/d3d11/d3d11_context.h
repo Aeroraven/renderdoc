@@ -199,7 +199,7 @@ private:
     if(m_MarkedActive)
       return;
 
-    RenderDoc::Inst().AddActiveDriver(RDCDriver::D3D11, false);
+    GuguGaga::Inst().AddActiveDriver(RDCDriver::D3D11, false);
   }
 
   bool m_DoStateVerify;
@@ -298,8 +298,8 @@ private:
 
 #define SERIALISED_ID3D11CONTEXT_ANNOTATION_FUNCTIONS()                                        \
   IMPLEMENT_FUNCTION_SERIALISED(bool, SetCommandAnnotation, rdcstr key,                        \
-                                RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth, \
-                                RENDERDOC_AnnotationValue value);
+                                GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth, \
+                                GUGUGAGA_AnnotationValue value);
 
   SERIALISED_ID3D11CONTEXT_ANNOTATION_FUNCTIONS();
 
@@ -378,10 +378,10 @@ public:
   void IntRelease();
 
   // annotations functions in DeviceContext (immediate only)
-  uint32_t SetCommandAnnotation(const char *key, RENDERDOC_AnnotationType valueType,
-                                uint32_t valueVectorWidth, const RENDERDOC_AnnotationValue *value);
-  uint32_t SetObjectAnnotation(void *object, const char *key, RENDERDOC_AnnotationType valueType,
-                               uint32_t valueVectorWidth, const RENDERDOC_AnnotationValue *value);
+  uint32_t SetCommandAnnotation(const char *key, GUGUGAGA_AnnotationType valueType,
+                                uint32_t valueVectorWidth, const GUGUGAGA_AnnotationValue *value);
+  uint32_t SetObjectAnnotation(void *object, const char *key, GUGUGAGA_AnnotationType valueType,
+                               uint32_t valueVectorWidth, const GUGUGAGA_AnnotationValue *value);
 
   //////////////////////////////
   // implement IUnknown

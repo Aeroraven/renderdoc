@@ -1,6 +1,6 @@
 import rdtest
 import struct
-import renderdoc as rd
+import gugugaga as rd
 
 
 class VK_Descriptor_Indexing(rdtest.TestCase):

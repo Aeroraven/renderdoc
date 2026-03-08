@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2015-2026 Baldur Karlsson
+ * Copyright (c) 2015-2026 GuguGaga Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -53,13 +53,13 @@ RDOC_CONFIG(bool, Vulkan_Debug_EnableGPUVA, false,
 // capture and replay, and the safer default is not to replay as if we were the original app but
 // with a slightly different workload. So instead we trample what the app reported and put in our
 // own info.
-static VkApplicationInfo renderdocAppInfo = {
+static VkApplicationInfo gugugagaAppInfo = {
     VK_STRUCTURE_TYPE_APPLICATION_INFO,
     NULL,
-    "RenderDoc Capturing App",
-    VK_MAKE_VERSION(RENDERDOC_VERSION_MAJOR, RENDERDOC_VERSION_MINOR, 0),
-    "RenderDoc",
-    VK_MAKE_VERSION(RENDERDOC_VERSION_MAJOR, RENDERDOC_VERSION_MINOR, 0),
+    "GuguGaga Capturing App",
+    VK_MAKE_VERSION(GUGUGAGA_VERSION_MAJOR, GUGUGAGA_VERSION_MINOR, 0),
+    "GuguGaga",
+    VK_MAKE_VERSION(GUGUGAGA_VERSION_MAJOR, GUGUGAGA_VERSION_MINOR, 0),
     VK_API_VERSION_1_0,
 };
 
@@ -126,7 +126,7 @@ static void StripUnwantedLayers(rdcarray<rdcstr> &Layers)
 
   Layers.removeIf([&vulkanLayerName](const rdcstr &layer) {
     // don't try and create our own layer on replay!
-    if(layer == RENDERDOC_VULKAN_LAYER_NAME || layer == vulkanLayerName)
+    if(layer == GUGUGAGA_VULKAN_LAYER_NAME || layer == vulkanLayerName)
     {
       return true;
     }
@@ -452,7 +452,7 @@ RDResult WrappedVulkan::Initialise(VkInitParams &params, uint64_t sectionVersion
       VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
       instNext,
       0,
-      &renderdocAppInfo,
+      &gugugagaAppInfo,
       (uint32_t)params.Layers.size(),
       layerscstr,
       (uint32_t)params.Extensions.size(),
@@ -460,18 +460,18 @@ RDResult WrappedVulkan::Initialise(VkInitParams &params, uint64_t sectionVersion
   };
 
   if(params.APIVersion >= VK_API_VERSION_1_0)
-    renderdocAppInfo.apiVersion = params.APIVersion;
+    gugugagaAppInfo.apiVersion = params.APIVersion;
 
-  m_EnabledExtensions.vulkanVersion = renderdocAppInfo.apiVersion;
+  m_EnabledExtensions.vulkanVersion = gugugagaAppInfo.apiVersion;
 
   if(!Vulkan_Debug_ReplaceAppInfo())
   {
-    // if we're not replacing the app info, set renderdocAppInfo's parameters to the ones from the
+    // if we're not replacing the app info, set gugugagaAppInfo's parameters to the ones from the
     // capture
-    renderdocAppInfo.pEngineName = params.EngineName.c_str();
-    renderdocAppInfo.engineVersion = params.EngineVersion;
-    renderdocAppInfo.pApplicationName = params.AppName.c_str();
-    renderdocAppInfo.applicationVersion = params.AppVersion;
+    gugugagaAppInfo.pEngineName = params.EngineName.c_str();
+    gugugagaAppInfo.engineVersion = params.EngineVersion;
+    gugugagaAppInfo.pApplicationName = params.AppName.c_str();
+    gugugagaAppInfo.applicationVersion = params.AppVersion;
   }
 
   m_Instance = VK_NULL_HANDLE;
@@ -480,7 +480,7 @@ RDResult WrappedVulkan::Initialise(VkInitParams &params, uint64_t sectionVersion
 
 #undef CheckExt
 #define CheckExt(name, ver)                                                                           \
-  if(!strcmp(instinfo.ppEnabledExtensionNames[i], "VK_" #name) || renderdocAppInfo.apiVersion >= ver) \
+  if(!strcmp(instinfo.ppEnabledExtensionNames[i], "VK_" #name) || gugugagaAppInfo.apiVersion >= ver) \
   {                                                                                                   \
     m_EnabledExtensions.ext_##name = true;                                                            \
   }
@@ -592,8 +592,8 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
 
   const bool internalInstance =
       (pCreateInfo->pApplicationInfo && pCreateInfo->pApplicationInfo->pApplicationName &&
-       (rdcstr(pCreateInfo->pApplicationInfo->pApplicationName) == "RenderDoc forced instance" ||
-        rdcstr(pCreateInfo->pApplicationInfo->pApplicationName) == "RenderDoc Capturing App"));
+       (rdcstr(pCreateInfo->pApplicationInfo->pApplicationName) == "GuguGaga forced instance" ||
+        rdcstr(pCreateInfo->pApplicationInfo->pApplicationName) == "GuguGaga Capturing App"));
 
   PFN_vkGetInstanceProcAddr gpa = NULL;
   PFN_vkCreateInstance createFunc = NULL;
@@ -656,7 +656,7 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
           (VkDebugReportCallbackCreateInfoEXT *)pCreateInfo->pNext;
 
       rdcstr msg =
-          "RenderDoc's layer should NEVER be activated manually. Do not include it in "
+          "GuguGaga's layer should NEVER be activated manually. Do not include it in "
           "vkCreateInstance's instance layers.";
 
       RDCERR("%s", msg.c_str());
@@ -700,17 +700,17 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
   {
     if(!IsSupportedExtension(modifiedCreateInfo.ppEnabledExtensionNames[i]))
     {
-      RDCERR("RenderDoc does not support instance extension '%s'.",
+      RDCERR("GuguGaga does not support instance extension '%s'.",
              modifiedCreateInfo.ppEnabledExtensionNames[i]);
       RDCERR(
           "For KHR/EXT extensions file an issue on github to request support: "
-          "https://github.com/baldurk/renderdoc");
+          "https://github.com/GuguGaga/GuguGaga");
 
       // see if any debug report callbacks were passed in the pNext chain
       VkDebugReportCallbackCreateInfoEXT *report =
           (VkDebugReportCallbackCreateInfoEXT *)pCreateInfo->pNext;
 
-      rdcstr msg = StringFormat::Fmt("RenderDoc does not support requested instance extension: %s.",
+      rdcstr msg = StringFormat::Fmt("GuguGaga does not support requested instance extension: %s.",
                                      modifiedCreateInfo.ppEnabledExtensionNames[i]);
 
       while(report)
@@ -833,7 +833,7 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
 
   bool brokenGetDeviceProcAddr = false;
 
-  // override applicationInfo with RenderDoc's, but preserve apiVersion
+  // override applicationInfo with GuguGaga's, but preserve apiVersion
   if(modifiedCreateInfo.pApplicationInfo)
   {
     if(modifiedCreateInfo.pApplicationInfo->pEngineName &&
@@ -841,11 +841,11 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
       brokenGetDeviceProcAddr = true;
 
     if(modifiedCreateInfo.pApplicationInfo->apiVersion >= VK_API_VERSION_1_0)
-      renderdocAppInfo.apiVersion = modifiedCreateInfo.pApplicationInfo->apiVersion;
+      gugugagaAppInfo.apiVersion = modifiedCreateInfo.pApplicationInfo->apiVersion;
 
     if(Vulkan_Debug_ReplaceAppInfo())
     {
-      modifiedCreateInfo.pApplicationInfo = &renderdocAppInfo;
+      modifiedCreateInfo.pApplicationInfo = &gugugagaAppInfo;
     }
   }
 
@@ -860,7 +860,7 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
   }
 
   // if we forced on API validation, it's also available
-  m_LayersEnabled[VkCheckLayer_unique_objects] |= RenderDoc::Inst().GetCaptureOptions().apiValidation;
+  m_LayersEnabled[VkCheckLayer_unique_objects] |= GuguGaga::Inst().GetCaptureOptions().apiValidation;
 
   VkResult ret = createFunc(&modifiedCreateInfo, pAllocator, pInstance);
 
@@ -900,9 +900,9 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
 
   record->instDevInfo->vulkanVersion = VK_API_VERSION_1_0;
 
-  // whether or not we're using it, we updated the apiVersion in renderdocAppInfo
-  if(renderdocAppInfo.apiVersion > VK_API_VERSION_1_0)
-    record->instDevInfo->vulkanVersion = renderdocAppInfo.apiVersion;
+  // whether or not we're using it, we updated the apiVersion in gugugagaAppInfo
+  if(gugugagaAppInfo.apiVersion > VK_API_VERSION_1_0)
+    record->instDevInfo->vulkanVersion = gugugagaAppInfo.apiVersion;
 
   std::set<rdcstr> availablePhysDeviceFunctions;
 
@@ -976,7 +976,7 @@ VkResult WrappedVulkan::vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo
   }
   else
   {
-    RenderDoc::Inst().AddDeviceFrameCapturer(LayerDisp(m_Instance), this);
+    GuguGaga::Inst().AddDeviceFrameCapturer(LayerDisp(m_Instance), this);
   }
 
   m_DbgReportCallback = VK_NULL_HANDLE;
@@ -1182,7 +1182,7 @@ void WrappedVulkan::vkDestroyInstance(VkInstance instance, const VkAllocationCal
   // application is well behaved. If not, we just leak.
 
   ObjDisp(m_Instance)->DestroyInstance(Unwrap(m_Instance), NULL);
-  RenderDoc::Inst().RemoveDeviceFrameCapturer(LayerDisp(m_Instance));
+  GuguGaga::Inst().RemoveDeviceFrameCapturer(LayerDisp(m_Instance));
 
   GetResourceManager()->ReleaseWrappedResource(m_Instance);
   m_Instance = VK_NULL_HANDLE;
@@ -1697,7 +1697,7 @@ bool WrappedVulkan::SelectGraphicsComputeQueue(const rdcarray<VkQueueFamilyPrope
     {
       SET_ERROR_RESULT(
           m_FailedReplayResult, ResultCode::APIHardwareUnsupported,
-          "Can't add a queue with required properties for RenderDoc! Unsupported configuration");
+          "Can't add a queue with required properties for GuguGaga! Unsupported configuration");
       return false;
     }
 
@@ -2294,7 +2294,7 @@ bool WrappedVulkan::Serialise_vkCreateDevice(SerialiserType &ser, VkPhysicalDevi
     {
       SET_ERROR_RESULT(
           m_FailedReplayResult, ResultCode::APIHardwareUnsupported,
-          "Can't add a queue with required properties for RenderDoc! Unsupported configuration");
+          "Can't add a queue with required properties for GuguGaga! Unsupported configuration");
       return false;
     }
 
@@ -3802,7 +3802,7 @@ bool WrappedVulkan::Serialise_vkCreateDevice(SerialiserType &ser, VkPhysicalDevi
           "robustBufferAccess is available, but cannot be enabled due to "
           "robustBufferAccessUpdateAfterBind not being avilable and some UpdateAfterBind features "
           "being enabled. "
-          "out of bounds access due to bugs in application or RenderDoc may cause crashes");
+          "out of bounds access due to bugs in application or GuguGaga may cause crashes");
     }
     else
     {
@@ -3812,7 +3812,7 @@ bool WrappedVulkan::Serialise_vkCreateDevice(SerialiserType &ser, VkPhysicalDevi
       else
         RDCWARN(
             "robustBufferAccess = false, out of bounds access due to bugs in application or "
-            "RenderDoc may cause crashes");
+            "GuguGaga may cause crashes");
     }
 
     if(availFeatures.shaderInt64)
@@ -4627,7 +4627,7 @@ bool WrappedVulkan::Serialise_vkCreateDevice(SerialiserType &ser, VkPhysicalDevi
         VkDebugUtilsObjectTagInfoEXT tagInfo = {VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT};
         tagInfo.objectType = VK_OBJECT_TYPE_INSTANCE;
         tagInfo.objectHandle = uint64_t(Unwrap(m_Instance));
-        tagInfo.tagName = RENDERDOC_DescriptorsReservation_UUID;
+        tagInfo.tagName = GUGUGAGA_DescriptorsReservation_UUID;
         tagInfo.tagSize = sizeof(bool);
         bool yes = true;
         tagInfo.pTag = &yes;
@@ -4661,14 +4661,14 @@ VkResult WrappedVulkan::vkCreateDevice(VkPhysicalDevice physicalDevice,
   {
     if(!IsSupportedExtension(createInfo.ppEnabledExtensionNames[i]))
     {
-      RDCERR("RenderDoc does not support device extension '%s'.",
+      RDCERR("GuguGaga does not support device extension '%s'.",
              createInfo.ppEnabledExtensionNames[i]);
       RDCERR(
           "For KHR/EXT extensions file an issue on github to request support: "
-          "https://github.com/baldurk/renderdoc");
+          "https://github.com/GuguGaga/GuguGaga");
 
       SendUserDebugMessage(
-          StringFormat::Fmt("RenderDoc does not support requested device extension: %s.",
+          StringFormat::Fmt("GuguGaga does not support requested device extension: %s.",
                             createInfo.ppEnabledExtensionNames[i]));
 
       return VK_ERROR_EXTENSION_NOT_PRESENT;
@@ -4677,7 +4677,7 @@ VkResult WrappedVulkan::vkCreateDevice(VkPhysicalDevice physicalDevice,
 
   if(m_Device != VK_NULL_HANDLE)
   {
-    SendUserDebugMessage("RenderDoc does not support multiple simultaneous logical devices.");
+    SendUserDebugMessage("GuguGaga does not support multiple simultaneous logical devices.");
     return VK_ERROR_INITIALIZATION_FAILED;
   }
 
@@ -4873,7 +4873,7 @@ VkResult WrappedVulkan::vkCreateDevice(VkPhysicalDevice physicalDevice,
         "robustBufferAccess is available, but cannot be enabled due to "
         "robustBufferAccessUpdateAfterBind not being avilable and some UpdateAfterBind features "
         "being enabled. "
-        "out of bounds access due to bugs in application or RenderDoc may cause crashes");
+        "out of bounds access due to bugs in application or GuguGaga may cause crashes");
 
     for(const char *e : Extensions)
     {
@@ -4891,7 +4891,7 @@ VkResult WrappedVulkan::vkCreateDevice(VkPhysicalDevice physicalDevice,
     else
       RDCWARN(
           "robustBufferAccess = false, out of bounds access due to bugs in application or "
-          "RenderDoc may cause crashes");
+          "GuguGaga may cause crashes");
   }
 
   // enable this feature as it's needed at capture time to save MSAA initial states
@@ -5327,10 +5327,10 @@ VkResult WrappedVulkan::vkCreateDevice(VkPhysicalDevice physicalDevice,
     if(m_PhysicalDeviceData.driverProps.driverID == VK_DRIVER_ID_MESA_RADV &&
        m_PhysicalDeviceData.props.vendorID == 0x1002 && m_PhysicalDeviceData.props.deviceID == 0x163F)
     {
-      CaptureOptions opts = RenderDoc::Inst().GetCaptureOptions();
+      CaptureOptions opts = GuguGaga::Inst().GetCaptureOptions();
       if(opts.softMemoryLimit == 0)
         opts.softMemoryLimit = 200;
-      RenderDoc::Inst().SetCaptureOptions(opts);
+      GuguGaga::Inst().SetCaptureOptions(opts);
       RDCLOG("Forcing 200MB soft memory limit");
     }
 

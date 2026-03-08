@@ -26,7 +26,7 @@
 #include "common/common.h"
 #include "strings/string_utils.h"
 
-#if ENABLED(RDOC_WIN32) && ENABLED(RENDERDOC_DX_GL_INTEROP)
+#if ENABLED(RDOC_WIN32) && ENABLED(GUGUGAGA_DX_GL_INTEROP)
 
 struct ID3D11Resource;
 
@@ -265,7 +265,7 @@ bool WrappedOpenGL::Serialise_wglDXRegisterObjectNV(SerialiserType &ser, GLResou
   if(ser.IsWriting())
   {
     ResourceFormat format;
-#if ENABLED(RDOC_WIN32) && ENABLED(RENDERDOC_DX_GL_INTEROP)
+#if ENABLED(RDOC_WIN32) && ENABLED(GUGUGAGA_DX_GL_INTEROP)
     GetDXTextureProperties(dxObject, format, width, height, depth, mips, layers, samples);
     if(type != eGL_NONE)
       internalFormat = MakeGLFormat(format);

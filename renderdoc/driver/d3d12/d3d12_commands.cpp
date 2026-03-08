@@ -502,7 +502,7 @@ WrappedID3D12CommandQueue::WrappedID3D12CommandQueue(ResourceId id, ID3D12Comman
       m_WrappedCompat(*this),
       m_SharingContract(*m_pDevice)
 {
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(WrappedID3D12CommandQueue));
+  GuguGaga::Inst().RegisterMemoryRegion(this, sizeof(WrappedID3D12CommandQueue));
 
   m_WrappedDebug.m_pQueue = this;
   m_pDownlevel = NULL;
@@ -517,7 +517,7 @@ WrappedID3D12CommandQueue::WrappedID3D12CommandQueue(ResourceId id, ID3D12Comman
     m_pReal->QueryInterface(__uuidof(ID3D12SharingContract), (void **)&m_SharingContract.m_pReal);
   }
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     m_ReplayList = new WrappedID3D12GraphicsCommandList(ResourceId(), NULL, m_pDevice, state);
 
@@ -533,7 +533,7 @@ WrappedID3D12CommandQueue::WrappedID3D12CommandQueue(ResourceId id, ID3D12Comman
 
   m_Cmd.m_pDevice = m_pDevice;
 
-  if(!RenderDoc::Inst().IsReplayApp())
+  if(!GuguGaga::Inst().IsReplayApp())
   {
     m_QueueRecord = m_pDevice->GetResourceManager()->AddResourceRecord(m_ResourceID);
     m_QueueRecord->type = Resource_CommandQueue;
@@ -1012,12 +1012,12 @@ bool WrappedID3D12CommandQueue::ProcessChunk(ReadSerialiser &ser, D3D12Chunk chu
       break;
 
     case D3D12Chunk::SetCommandAnnotation:
-      ret = m_ReplayList->Serialise_SetCommandAnnotation(ser, rdcstr(), eRENDERDOC_AnnotationMax, 0,
-                                                         RENDERDOC_AnnotationValue());
+      ret = m_ReplayList->Serialise_SetCommandAnnotation(ser, rdcstr(), eGUGUGAGA_AnnotationMax, 0,
+                                                         GUGUGAGA_AnnotationValue());
       break;
     case D3D12Chunk::SetQueueAnnotation:
-      ret = Serialise_SetQueueAnnotation(ser, rdcstr(), eRENDERDOC_AnnotationMax, 0,
-                                         RENDERDOC_AnnotationValue());
+      ret = Serialise_SetQueueAnnotation(ser, rdcstr(), eGUGUGAGA_AnnotationMax, 0,
+                                         GUGUGAGA_AnnotationValue());
       break;
 
     // in order to get a warning if we miss a case, we explicitly handle the device creation chunks
@@ -1315,7 +1315,7 @@ RDResult WrappedID3D12CommandQueue::ReplayLog(CaptureState readType, uint32_t st
     if(m_pDevice->HasFatalError())
       return ResultCode::Succeeded;
 
-    RenderDoc::Inst().SetProgress(
+    GuguGaga::Inst().SetProgress(
         LoadProgress::FrameEventsRead,
         float(m_Cmd.m_CurChunkOffset - startOffset) / float(ser.GetReader()->GetSize()));
 
@@ -1366,7 +1366,7 @@ WrappedID3D12GraphicsCommandList::WrappedID3D12GraphicsCommandList(ResourceId id
                                                                    CaptureState &state)
     : m_RefCounter(real, false), m_pList(real), m_pDevice(device), m_State(state)
 {
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(WrappedID3D12GraphicsCommandList));
+  GuguGaga::Inst().RegisterMemoryRegion(this, sizeof(WrappedID3D12GraphicsCommandList));
 
   m_pList1 = NULL;
   m_pList2 = NULL;
@@ -1407,7 +1407,7 @@ WrappedID3D12GraphicsCommandList::WrappedID3D12GraphicsCommandList(ResourceId id
   m_CurGfxRootSig = NULL;
   m_CurCompRootSig = NULL;
 
-  if(!RenderDoc::Inst().IsReplayApp())
+  if(!GuguGaga::Inst().IsReplayApp())
   {
     m_ListRecord = m_pDevice->GetResourceManager()->AddResourceRecord(m_ResourceID);
     m_ListRecord->type = Resource_GraphicsCommandList;
@@ -2471,7 +2471,7 @@ void D3D12CommandData::InsertActionsAndRefreshIDs(ResourceId cmd, const BakedCmd
           const PendingAnnotation &annot = cmdListInfo.annotations[curAnnot];
           if(annot.eventId == ev.eventId)
           {
-            if(annot.valueType == eRENDERDOC_Empty)
+            if(annot.valueType == eGUGUGAGA_Empty)
               localAnnotations->EraseChildByKeyPath(annot.key);
             else
               WriteAnnotation(localAnnotations->CreateChildByKeyPath(annot.key), annot.valueType,

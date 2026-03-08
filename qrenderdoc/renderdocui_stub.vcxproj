@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>gugugagaui_stub</RootNamespace>
     <ProjectName>gugugagaui_stub</ProjectName>
-    <WindowsTargetPlatformVersion>$(RenderDocLatestWin10SDKVersion)</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>$(GuguGagaLatestWin10SDKVersion)</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\util\WindowsSDKTarget.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -83,10 +83,10 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="renderdocui_stub.cpp" />
+    <ClCompile Include="gugugagaui_stub.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\renderdoccmd\renderdoccmd.rc" />
+    <ResourceCompile Include="..\renderdoccmd\gugugagacmd.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

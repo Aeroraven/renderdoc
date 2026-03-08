@@ -1,4 +1,4 @@
-import renderdoc as rd
+import gugugaga as rd
 import rdtest
 
 class VK_KHR_Buffer_Address(rdtest.TestCase):

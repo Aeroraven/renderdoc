@@ -26,7 +26,7 @@
 #pragma once
 
 #include <unordered_map>
-#include "api/replay/renderdoc_replay.h"
+#include "api/replay/gugugaga_replay.h"
 #include "core/core.h"
 #include "replay/replay_driver.h"
 #include "gl_common.h"

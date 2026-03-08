@@ -146,7 +146,7 @@ bool InjectLibraries(const rdcstr &deviceID, Network::Socket *sock)
     abi = Android::ABI::armeabi_v7a;
   }
 
-  rdcstr libPath = Android::GetPathForPackage(deviceID, Android::GetRenderDocPackageForABI(abi));
+  rdcstr libPath = Android::GetPathForPackage(deviceID, Android::GetGuguGagaPackageForABI(abi));
 
   switch(abi)
   {
@@ -157,7 +157,7 @@ bool InjectLibraries(const rdcstr &deviceID, Network::Socket *sock)
     case Android::ABI::x86: libPath += "lib/x86"; break;
   }
 
-  RDCLOG("Injecting RenderDoc from library in %s", libPath.c_str());
+  RDCLOG("Injecting GuguGaga from library in %s", libPath.c_str());
 
   if(conn.IsErrored())
     return false;
@@ -417,11 +417,11 @@ bool InjectLibraries(const rdcstr &deviceID, Network::Socket *sock)
   // responsible for injecting its hooks into GLES on its own. See android_hook.cpp for more
   // information on the implementation
   value ret = conn.InvokeInstance(thread, runtime, load, runtimeObject.Object,
-                                  {conn.NewString(thread, libPath + "/" RENDERDOC_ANDROID_LIBRARY)});
+                                  {conn.NewString(thread, libPath + "/" GUGUGAGA_ANDROID_LIBRARY)});
 
   if(ret.tag != Tag::Void)
   {
-    RDCERR("Failed to call load(%s/%s)!", libPath.c_str(), RENDERDOC_ANDROID_LIBRARY);
+    RDCERR("Failed to call load(%s/%s)!", libPath.c_str(), GUGUGAGA_ANDROID_LIBRARY);
     return false;
   }
 

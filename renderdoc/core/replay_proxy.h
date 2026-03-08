@@ -136,7 +136,7 @@ public:
   ReplayProxy(ReadSerialiser &reader, WriteSerialiser &writer, IReplayDriver *proxy);
 
   ReplayProxy(ReadSerialiser &reader, WriteSerialiser &writer, IRemoteDriver *remoteDriver,
-              IReplayDriver *replayDriver, RENDERDOC_PreviewWindowCallback previewWindow);
+              IReplayDriver *replayDriver, GUGUGAGA_PreviewWindowCallback previewWindow);
 
   virtual ~ReplayProxy();
 
@@ -697,7 +697,7 @@ private:
 
   // The callback (if provided) that handles creating and ticking a preview window on the remote
   // host.
-  RENDERDOC_PreviewWindowCallback m_PreviewWindow;
+  GUGUGAGA_PreviewWindowCallback m_PreviewWindow;
   // the ID of the output window to use for previewing on the remote host. Only valid/useful if
   // m_Replay is set
   uint64_t m_PreviewOutput = 0;

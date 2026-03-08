@@ -26,7 +26,7 @@
 #pragma once
 
 #include <set>
-#include "api/replay/renderdoc_replay.h"
+#include "api/replay/gugugaga_replay.h"
 #include "common/common.h"
 #include "core/core.h"
 #include "replay/replay_driver.h"

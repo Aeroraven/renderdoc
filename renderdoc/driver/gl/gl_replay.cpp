@@ -44,13 +44,13 @@
 RDOC_CONFIG(bool, OpenGL_HardwareCounters, true,
             "Enable support for IHV-specific hardware counters on OpenGL.");
 
-static const char *SPIRVDisassemblyTarget = "SPIR-V (RenderDoc)";
+static const char *SPIRVDisassemblyTarget = "SPIR-V (GuguGaga)";
 
 GLReplay::GLReplay(WrappedOpenGL *d)
 {
   m_pDriver = d;
 
-  RenderDoc::Inst().RegisterMemoryRegion(this, sizeof(GLReplay));
+  GuguGaga::Inst().RegisterMemoryRegion(this, sizeof(GLReplay));
 
   m_Proxy = false;
 
@@ -175,7 +175,7 @@ rdcarray<WindowingSystem> GLReplay::GetSupportedWindowSystems()
 #if ENABLED(RDOC_WAYLAND)
   // if wayland is supported and a display is configured, we *must* get wayland surfaces to render
   // on
-  if(RenderDoc::Inst().GetGlobalEnvironment().waylandDisplay)
+  if(GuguGaga::Inst().GetGlobalEnvironment().waylandDisplay)
   {
     ret.push_back(WindowingSystem::Wayland);
   }
@@ -4467,7 +4467,7 @@ rdcarray<GLVersion> GetReplayVersions(RDCDriver api)
   }
 }
 
-#if defined(RENDERDOC_SUPPORT_GLES)
+#if defined(GUGUGAGA_SUPPORT_GLES)
 
 RDResult GLES_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IReplayDriver **driver)
 {
@@ -4490,7 +4490,7 @@ RDResult GLES_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IRepla
     return CreateReplayDevice(rdc ? rdc->GetDriver() : RDCDriver::OpenGLES, rdc, opts,
                               GetEGLPlatform(), driver);
   }
-#if defined(RENDERDOC_SUPPORT_GL)
+#if defined(GUGUGAGA_SUPPORT_GL)
   else if(GetGLPlatform().CanCreateGLESContext())
   {
     RDCLOG("libEGL is not available, falling back to EXT_create_context_es2_profile");
@@ -4521,15 +4521,15 @@ static DriverRegistration GLESDriverRegistration(RDCDriver::OpenGLES, &GLES_Crea
 
 #endif
 
-#if defined(RENDERDOC_SUPPORT_GL)
+#if defined(GUGUGAGA_SUPPORT_GL)
 
 RDResult GL_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IReplayDriver **driver)
 {
   GLPlatform *gl_platform = &GetGLPlatform();
 
-  if(RenderDoc::Inst().GetGlobalEnvironment().waylandDisplay)
+  if(GuguGaga::Inst().GetGlobalEnvironment().waylandDisplay)
   {
-#if defined(RENDERDOC_SUPPORT_EGL)
+#if defined(GUGUGAGA_SUPPORT_EGL)
     RDCLOG("Forcing EGL device creation for wayland");
     gl_platform = &GetEGLPlatform();
 #else
@@ -4540,7 +4540,7 @@ RDResult GL_CreateReplayDevice(RDCFile *rdc, const ReplayOptions &opts, IReplayD
 
   bool can_create_gl_context = gl_platform->CanCreateGLContext();
 
-#if defined(RENDERDOC_SUPPORT_EGL)
+#if defined(GUGUGAGA_SUPPORT_EGL)
   if(!can_create_gl_context && gl_platform == &GetGLPlatform())
   {
     RDCLOG("Cannot create GL context with GL platform, falling back to EGL");

@@ -26,7 +26,7 @@
 
 #include <map>
 #include "api/replay/data_types.h"
-#include "api/replay/renderdoc_replay.h"
+#include "api/replay/gugugaga_replay.h"
 #include "api/replay/replay_enums.h"
 #include "common/common.h"
 

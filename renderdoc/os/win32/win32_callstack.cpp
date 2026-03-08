@@ -98,7 +98,7 @@ rdcwstr GetSymSearchPath()
   if(len == 0 && GetLastError() == ERROR_ENVVAR_NOT_FOUND)
   {
     // set up a default sympath to look up MS's symbol servers and cache them locally in
-    // RenderDoc's appdata folder.
+    // GuguGaga's appdata folder.
     PWSTR appDataPath;
     SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_SIMPLE_IDLIST | KF_FLAG_DONT_UNEXPAND,
                          NULL, &appDataPath);
@@ -435,7 +435,7 @@ class Win32CallstackResolver : public Callstack::StackResolver
 {
 public:
   Win32CallstackResolver(bool interactive, byte *moduleDB, size_t DBSize,
-                         RENDERDOC_ProgressCallback progress);
+                         GUGUGAGA_ProgressCallback progress);
   ~Win32CallstackResolver();
 
   Callstack::AddressDetails GetAddr(uint64_t addr);
@@ -461,8 +461,8 @@ private:
 
 ///////////////////////////////////////////////////
 
-void *renderdocBase = NULL;
-uint32_t renderdocSize = 0;
+void *gugugagaBase = NULL;
+uint32_t gugugagaSize = 0;
 
 // gives us an address to identify this dll with
 static int dllLocator = 0;
@@ -557,12 +557,12 @@ static bool InitDbgHelp()
 
     if(result != FALSE)
     {
-      renderdocBase = modinfo.lpBaseOfDll;
-      renderdocSize = modinfo.SizeOfImage;
+      gugugagaBase = modinfo.lpBaseOfDll;
+      gugugagaSize = modinfo.SizeOfImage;
     }
   }
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     DIA2::Init();
   }
@@ -681,8 +681,8 @@ void Win32Callstack::Collect()
 
   stack32.resize(num);
 
-  while(!stack32.empty() && (uint64_t)stack32[0] >= (uint64_t)renderdocBase &&
-        (uint64_t)stack32[0] <= (uint64_t)renderdocBase + renderdocSize)
+  while(!stack32.empty() && (uint64_t)stack32[0] >= (uint64_t)gugugagaBase &&
+        (uint64_t)stack32[0] <= (uint64_t)gugugagaBase + gugugagaSize)
   {
     stack32.erase(0, 1);
   }
@@ -696,7 +696,7 @@ Win32Callstack::Win32Callstack()
 {
   bool ret = InitDbgHelp();
 
-  if(ret && renderdocBase != NULL)
+  if(ret && gugugagaBase != NULL)
     Collect();
 }
 
@@ -740,7 +740,7 @@ rdcstr Win32CallstackResolver::pdbBrowse(rdcstr startingPoint)
 }
 
 Win32CallstackResolver::Win32CallstackResolver(bool interactive, byte *moduleDB, size_t DBSize,
-                                               RENDERDOC_ProgressCallback progress)
+                                               GUGUGAGA_ProgressCallback progress)
 {
   if(Win32_Callstacks_MSDIAPath() == UNINITIALISED_VAR)
   {
@@ -965,7 +965,7 @@ Win32CallstackResolver::Win32CallstackResolver(bool interactive, byte *moduleDB,
         {
           pdbName = get_dirname(defaultPdb) + "\\" + get_basename(defaultPdb);
 
-          // prompt for new pdbName, unless it's renderdoc or dbghelp, or we're non-interactive
+          // prompt for new pdbName, unless it's gugugaga or dbghelp, or we're non-interactive
           if(pdbName.contains("gugugaga.") || pdbName.contains("dbghelp.") ||
              pdbName.contains("symsrv.") || !interactive)
             pdbName = "";
@@ -1034,15 +1034,15 @@ Win32CallstackResolver::Win32CallstackResolver(bool interactive, byte *moduleDB,
     modules.push_back(m);
   }
 
-  SDObject *ignoreList = RenderDoc::Inst().SetConfigSetting("Win32.Callstacks.IgnoreList");
+  SDObject *ignoreList = GuguGaga::Inst().SetConfigSetting("Win32.Callstacks.IgnoreList");
   ignoreList->DeleteChildren();
   ignoreList->ReserveChildren(pdbIgnores.size());
   for(rdcstr &i : pdbIgnores)
     ignoreList->AddAndOwnChild(makeSDString("$el"_lit, i));
-  RenderDoc::Inst().SetConfigSetting("Win32.Callstacks.MSDIAPath")->data.str =
+  GuguGaga::Inst().SetConfigSetting("Win32.Callstacks.MSDIAPath")->data.str =
       StringFormat::Wide2UTF8(DIA2::msdiapath);
 
-  RENDERDOC_SaveConfigSettings();
+  GUGUGAGA_SaveConfigSettings();
 }
 
 Win32CallstackResolver::~Win32CallstackResolver()
@@ -1113,7 +1113,7 @@ void Init()
 {
   // if we're capturing, need to initialise immediately to claim ownership and be ready to collect
   // callstacks. On replay we can do this later when needed.
-  if(!RenderDoc::Inst().IsReplayApp())
+  if(!GuguGaga::Inst().IsReplayApp())
     ::InitDbgHelp();
 }
 
@@ -1128,7 +1128,7 @@ Stackwalk *Create()
 }
 
 StackResolver *MakeResolver(bool interactive, byte *moduleDB, size_t DBSize,
-                            RENDERDOC_ProgressCallback progress)
+                            GUGUGAGA_ProgressCallback progress)
 {
   if(DBSize < 8 || memcmp(moduleDB, "WN32CALL", 8) != 0)
   {

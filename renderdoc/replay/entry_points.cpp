@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2015-2026 Baldur Karlsson
+ * Copyright (c) 2015-2026 GuguGaga Team
  * Copyright (c) 2014 Crytek
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 #include "android/android.h"
-#include "api/replay/renderdoc_replay.h"
+#include "api/replay/gugugaga_replay.h"
 #include "api/replay/version.h"
 #include "common/common.h"
 #include "common/formatting.h"
@@ -64,7 +64,7 @@ RDResult::operator ResultDetails() const
 
 // these entry points are for the replay/analysis side - not for the application.
 
-extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_NumVerticesPerPrimitive(Topology topology)
+extern "C" GUGUGAGA_API uint32_t GUGUGAGA_CC GUGUGAGA_NumVerticesPerPrimitive(Topology topology)
 {
   // strips/loops/fans have the same number of indices for a single primitive
   // as their list friends
@@ -120,7 +120,7 @@ extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_NumVerticesPerPrimitive
   return 0;
 }
 
-extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_VertexOffset(Topology topology,
+extern "C" GUGUGAGA_API uint32_t GUGUGAGA_CC GUGUGAGA_VertexOffset(Topology topology,
                                                                       uint32_t primitive)
 {
   // strips/loops/fans have the same number of indices for a single primitive
@@ -181,30 +181,30 @@ extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_VertexOffset(Topology t
       return primitive * 2;
   }
 
-  return primitive * RENDERDOC_NumVerticesPerPrimitive(topology);
+  return primitive * GUGUGAGA_NumVerticesPerPrimitive(topology);
 }
 
-extern "C" RENDERDOC_API float RENDERDOC_CC RENDERDOC_HalfToFloat(uint16_t half)
+extern "C" GUGUGAGA_API float GUGUGAGA_CC GUGUGAGA_HalfToFloat(uint16_t half)
 {
   return ConvertFromHalf(half);
 }
 
-extern "C" RENDERDOC_API uint16_t RENDERDOC_CC RENDERDOC_FloatToHalf(float f)
+extern "C" GUGUGAGA_API uint16_t GUGUGAGA_CC GUGUGAGA_FloatToHalf(float f)
 {
   return ConvertToHalf(f);
 }
 
-extern "C" RENDERDOC_API ICamera *RENDERDOC_CC RENDERDOC_InitCamera(CameraType type)
+extern "C" GUGUGAGA_API ICamera *GUGUGAGA_CC GUGUGAGA_InitCamera(CameraType type)
 {
   return new Camera(type);
 }
 
-extern "C" RENDERDOC_API const char *RENDERDOC_CC RENDERDOC_GetVersionString()
+extern "C" GUGUGAGA_API const char *GUGUGAGA_CC GUGUGAGA_GetVersionString()
 {
   return MAJOR_MINOR_VERSION_STRING;
 }
 
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_IsReleaseBuild()
+extern "C" GUGUGAGA_API bool GUGUGAGA_CC GUGUGAGA_IsReleaseBuild()
 {
 #if ENABLED(RDOC_RELEASE)
   return true;
@@ -213,57 +213,57 @@ extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_IsReleaseBuild()
 #endif
 }
 
-extern "C" RENDERDOC_API const char *RENDERDOC_CC RENDERDOC_GetCommitHash()
+extern "C" GUGUGAGA_API const char *GUGUGAGA_CC GUGUGAGA_GetCommitHash()
 {
   return GitVersionHash;
 }
 
-extern "C" RENDERDOC_API DriverInformation RENDERDOC_CC RENDERDOC_GetDriverInformation(GraphicsAPI api)
+extern "C" GUGUGAGA_API DriverInformation GUGUGAGA_CC GUGUGAGA_GetDriverInformation(GraphicsAPI api)
 {
-  return RenderDoc::Inst().GetDriverInformation(api);
+  return GuguGaga::Inst().GetDriverInformation(api);
 }
 
-extern "C" RENDERDOC_API uint64_t RENDERDOC_CC RENDERDOC_GetCurrentProcessMemoryUsage()
+extern "C" GUGUGAGA_API uint64_t GUGUGAGA_CC GUGUGAGA_GetCurrentProcessMemoryUsage()
 {
   return Process::GetMemoryUsage();
 }
 
-extern "C" RENDERDOC_API const SDObject *RENDERDOC_CC RENDERDOC_GetConfigSetting(const rdcstr &name)
+extern "C" GUGUGAGA_API const SDObject *GUGUGAGA_CC GUGUGAGA_GetConfigSetting(const rdcstr &name)
 {
-  return RenderDoc::Inst().GetConfigSetting(name);
+  return GuguGaga::Inst().GetConfigSetting(name);
 }
 
-extern "C" RENDERDOC_API SDObject *RENDERDOC_CC RENDERDOC_SetConfigSetting(const rdcstr &name)
+extern "C" GUGUGAGA_API SDObject *GUGUGAGA_CC GUGUGAGA_SetConfigSetting(const rdcstr &name)
 {
-  return RenderDoc::Inst().SetConfigSetting(name);
+  return GuguGaga::Inst().SetConfigSetting(name);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_SaveConfigSettings()
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_SaveConfigSettings()
 {
-  return RenderDoc::Inst().SaveConfigSettings();
+  return GuguGaga::Inst().SaveConfigSettings();
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_SetColors(FloatVector darkChecker,
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_SetColors(FloatVector darkChecker,
                                                                FloatVector lightChecker,
                                                                bool darkTheme)
 {
-  RenderDoc::Inst().SetDarkCheckerboardColor(darkChecker);
-  RenderDoc::Inst().SetLightCheckerboardColor(lightChecker);
-  RenderDoc::Inst().SetDarkTheme(darkTheme);
+  GuguGaga::Inst().SetDarkCheckerboardColor(darkChecker);
+  GuguGaga::Inst().SetLightCheckerboardColor(lightChecker);
+  GuguGaga::Inst().SetDarkTheme(darkTheme);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_SetDebugLogFile(const rdcstr &log)
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_SetDebugLogFile(const rdcstr &log)
 {
   if(!log.empty())
   {
     RDCLOGFILE(log.c_str());
 
     // need to recreate the crash handler to propagate the new log filename.
-    RenderDoc::Inst().RecreateCrashHandler();
+    GuguGaga::Inst().RecreateCrashHandler();
   }
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_LogMessage(LogType type, const rdcstr &project,
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_LogMessage(LogType type, const rdcstr &project,
                                                                 const rdcstr &file,
                                                                 unsigned int line, const rdcstr &text)
 {
@@ -294,24 +294,24 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_LogMessage(LogType type, co
     RDCDUMP();
 }
 
-extern "C" RENDERDOC_API const char *RENDERDOC_CC RENDERDOC_GetLogFile()
+extern "C" GUGUGAGA_API const char *GUGUGAGA_CC GUGUGAGA_GetLogFile()
 {
   return RDCGETLOGFILE();
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_GetLogFileContents(uint64_t offset,
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_GetLogFileContents(uint64_t offset,
                                                                         rdcstr &logfile)
 {
   logfile = FileIO::logfile_readall(offset, RDCGETLOGFILE());
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_InitialiseReplay(GlobalEnvironment env,
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_InitialiseReplay(GlobalEnvironment env,
                                                                       const rdcarray<rdcstr> &args)
 {
-  RenderDoc::Inst().InitialiseReplay(env, args);
+  GuguGaga::Inst().InitialiseReplay(env, args);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_ShutdownReplay()
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_ShutdownReplay()
 {
   {
     SCOPED_LOCK(detailStringLock);
@@ -320,10 +320,10 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_ShutdownReplay()
     detailStrings.clear();
   }
 
-  RenderDoc::Inst().ShutdownReplay();
+  GuguGaga::Inst().ShutdownReplay();
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_CreateBugReport(const rdcstr &logfile,
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_CreateBugReport(const rdcstr &logfile,
                                                                      const rdcstr &dumpfile,
                                                                      rdcstr &report)
 {
@@ -333,7 +333,7 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_CreateBugReport(const rdcst
   if(report.empty())
   {
     report = FileIO::GetTempFolderFilename() +
-             StringFormat::sntimef(Timing::GetUTCTime(), "/renderdoc_report_%H%M%S.zip");
+             StringFormat::sntimef(Timing::GetUTCTime(), "/gugugaga_report_%H%M%S.zip");
   }
 
   FileIO::Delete(report);
@@ -353,18 +353,18 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_CreateBugReport(const rdcst
   mz_zip_writer_end(&zip);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_RegisterMemoryRegion(void *base, size_t size)
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_RegisterMemoryRegion(void *base, size_t size)
 {
-  RenderDoc::Inst().RegisterMemoryRegion(base, size);
+  GuguGaga::Inst().RegisterMemoryRegion(base, size);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UnregisterMemoryRegion(void *base)
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_UnregisterMemoryRegion(void *base)
 {
-  RenderDoc::Inst().UnregisterMemoryRegion(base);
+  GuguGaga::Inst().UnregisterMemoryRegion(base);
 }
 
-extern "C" RENDERDOC_API ExecuteResult RENDERDOC_CC
-RENDERDOC_ExecuteAndInject(const rdcstr &app, const rdcstr &workingDir, const rdcstr &cmdLine,
+extern "C" GUGUGAGA_API ExecuteResult GUGUGAGA_CC
+GUGUGAGA_ExecuteAndInject(const rdcstr &app, const rdcstr &workingDir, const rdcstr &cmdLine,
                            const rdcarray<EnvironmentModification> &env, const rdcstr &capturefile,
                            const CaptureOptions &opts, bool waitForExit)
 {
@@ -377,34 +377,34 @@ RENDERDOC_ExecuteAndInject(const rdcstr &app, const rdcstr &workingDir, const rd
   return ret;
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_GetDefaultCaptureOptions(CaptureOptions *opts)
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_GetDefaultCaptureOptions(CaptureOptions *opts)
 {
   *opts = CaptureOptions();
 }
 
-extern "C" RENDERDOC_API ResultDetails RENDERDOC_CC RENDERDOC_StartGlobalHook(
+extern "C" GUGUGAGA_API ResultDetails GUGUGAGA_CC GUGUGAGA_StartGlobalHook(
     const rdcstr &pathmatch, const rdcstr &capturefile, const CaptureOptions &opts)
 {
   return Process::StartGlobalHook(pathmatch, capturefile, opts);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_StopGlobalHook()
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_StopGlobalHook()
 {
   Process::StopGlobalHook();
 }
 
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_IsGlobalHookActive()
+extern "C" GUGUGAGA_API bool GUGUGAGA_CC GUGUGAGA_IsGlobalHookActive()
 {
   return Process::IsGlobalHookActive();
 }
 
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_CanGlobalHook()
+extern "C" GUGUGAGA_API bool GUGUGAGA_CC GUGUGAGA_CanGlobalHook()
 {
   return Process::CanGlobalHook();
 }
 
-extern "C" RENDERDOC_API ExecuteResult RENDERDOC_CC
-RENDERDOC_InjectIntoProcess(uint32_t pid, const rdcarray<EnvironmentModification> &env,
+extern "C" GUGUGAGA_API ExecuteResult GUGUGAGA_CC
+GUGUGAGA_InjectIntoProcess(uint32_t pid, const rdcarray<EnvironmentModification> &env,
                             const rdcstr &capturefile, const CaptureOptions &opts, bool waitForExit)
 {
   rdcpair<RDResult, uint32_t> status =
@@ -416,26 +416,26 @@ RENDERDOC_InjectIntoProcess(uint32_t pid, const rdcarray<EnvironmentModification
   return ret;
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_FreeArrayMem(void *mem)
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_FreeArrayMem(void *mem)
 {
   free(mem);
 }
 
 // not exported, this is needed for calling from the container allocate functions
-void RENDERDOC_OutOfMemory(uint64_t sz)
+void GUGUGAGA_OutOfMemory(uint64_t sz)
 {
   RDCFATAL("Allocation failed for %llu bytes", sz);
 }
 
-extern "C" RENDERDOC_API void *RENDERDOC_CC RENDERDOC_AllocArrayMem(uint64_t sz)
+extern "C" GUGUGAGA_API void *GUGUGAGA_CC GUGUGAGA_AllocArrayMem(uint64_t sz)
 {
   void *ret = malloc((size_t)sz);
   if(ret == NULL)
-    RENDERDOC_OutOfMemory(sz);
+    GUGUGAGA_OutOfMemory(sz);
   return ret;
 }
 
-extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_EnumerateRemoteTargets(const rdcstr &URL,
+extern "C" GUGUGAGA_API uint32_t GUGUGAGA_CC GUGUGAGA_EnumerateRemoteTargets(const rdcstr &URL,
                                                                                 uint32_t nextIdent)
 {
   rdcstr host = "localhost";
@@ -448,11 +448,11 @@ extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_EnumerateRemoteTargets(
   // otherwise we're called with the last successful ident, so increment
   // before continuing to enumerate.
   if(nextIdent == 0)
-    nextIdent = RenderDoc_FirstTargetControlPort;
+    nextIdent = GuguGaga_FirstTargetControlPort;
   else
     nextIdent++;
 
-  IDeviceProtocolHandler *protocol = RenderDoc::Inst().GetDeviceProtocol(deviceID);
+  IDeviceProtocolHandler *protocol = GuguGaga::Inst().GetDeviceProtocol(deviceID);
 
   if(protocol)
   {
@@ -469,7 +469,7 @@ extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_EnumerateRemoteTargets(
       return 0;
   }
 
-  for(; nextIdent <= RenderDoc_LastTargetControlPort; nextIdent++)
+  for(; nextIdent <= GuguGaga_LastTargetControlPort; nextIdent++)
   {
     uint16_t port = (uint16_t)nextIdent;
     if(protocol)
@@ -502,21 +502,21 @@ extern "C" RENDERDOC_API uint32_t RENDERDOC_CC RENDERDOC_EnumerateRemoteTargets(
   return 0;
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC
-RENDERDOC_GetSupportedDeviceProtocols(rdcarray<rdcstr> *supportedProtocols)
+extern "C" GUGUGAGA_API void GUGUGAGA_CC
+GUGUGAGA_GetSupportedDeviceProtocols(rdcarray<rdcstr> *supportedProtocols)
 {
-  *supportedProtocols = RenderDoc::Inst().GetSupportedDeviceProtocols();
+  *supportedProtocols = GuguGaga::Inst().GetSupportedDeviceProtocols();
 }
 
-extern "C" RENDERDOC_API IDeviceProtocolController *RENDERDOC_CC
-RENDERDOC_GetDeviceProtocolController(const rdcstr &protocol)
+extern "C" GUGUGAGA_API IDeviceProtocolController *GUGUGAGA_CC
+GUGUGAGA_GetDeviceProtocolController(const rdcstr &protocol)
 {
-  return RenderDoc::Inst().GetDeviceProtocol(protocol);
+  return GuguGaga::Inst().GetDeviceProtocol(protocol);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_BecomeRemoteServer(
-    const rdcstr &listenhost, uint16_t port, RENDERDOC_KillCallback killReplay,
-    RENDERDOC_PreviewWindowCallback previewWindow)
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_BecomeRemoteServer(
+    const rdcstr &listenhost, uint16_t port, GUGUGAGA_KillCallback killReplay,
+    GUGUGAGA_PreviewWindowCallback previewWindow)
 {
   // ensure a sensible default if no callback is provided, that just never kills
   if(!killReplay)
@@ -530,18 +530,18 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_BecomeRemoteServer(
     };
 
   if(port == 0)
-    port = RenderDoc_RemoteServerPort;
+    port = GuguGaga_RemoteServerPort;
 
-  RenderDoc::Inst().BecomeRemoteServer(listenhost.empty() ? "0.0.0.0" : listenhost, port,
+  GuguGaga::Inst().BecomeRemoteServer(listenhost.empty() ? "0.0.0.0" : listenhost, port,
                                        killReplay, previewWindow);
 }
 
-extern "C" RENDERDOC_API bool RENDERDOC_CC RENDERDOC_CanSelfHostedCapture(const rdcstr &dllname)
+extern "C" GUGUGAGA_API bool GUGUGAGA_CC GUGUGAGA_CanSelfHostedCapture(const rdcstr &dllname)
 {
   return Process::IsModuleLoaded(dllname);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_StartSelfHostCapture(const rdcstr &dllname)
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_StartSelfHostCapture(const rdcstr &dllname)
 {
   if(!Process::IsModuleLoaded(dllname))
     return;
@@ -551,15 +551,15 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_StartSelfHostCapture(const 
   if(module == NULL)
     return;
 
-  pRENDERDOC_GetAPI get =
-      (pRENDERDOC_GetAPI)Process::GetFunctionAddress(module, "RENDERDOC_GetAPI");
+  pGUGUGAGA_GetAPI get =
+      (pGUGUGAGA_GetAPI)Process::GetFunctionAddress(module, "GUGUGAGA_GetAPI");
 
   if(get == NULL)
     return;
 
-  RENDERDOC_API_1_0_0 *rdoc = NULL;
+  GUGUGAGA_API_1_0_0 *rdoc = NULL;
 
-  get(eRENDERDOC_API_Version_1_0_0, (void **)&rdoc);
+  get(eGUGUGAGA_API_Version_1_0_0, (void **)&rdoc);
 
   if(rdoc == NULL)
     return;
@@ -567,7 +567,7 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_StartSelfHostCapture(const 
   rdoc->StartFrameCapture(NULL, NULL);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_EndSelfHostCapture(const rdcstr &dllname)
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_EndSelfHostCapture(const rdcstr &dllname)
 {
   if(!Process::IsModuleLoaded(dllname))
     return;
@@ -577,15 +577,15 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_EndSelfHostCapture(const rd
   if(module == NULL)
     return;
 
-  pRENDERDOC_GetAPI get =
-      (pRENDERDOC_GetAPI)Process::GetFunctionAddress(module, "RENDERDOC_GetAPI");
+  pGUGUGAGA_GetAPI get =
+      (pGUGUGAGA_GetAPI)Process::GetFunctionAddress(module, "GUGUGAGA_GetAPI");
 
   if(get == NULL)
     return;
 
-  RENDERDOC_API_1_0_0 *rdoc = NULL;
+  GUGUGAGA_API_1_0_0 *rdoc = NULL;
 
-  get(eRENDERDOC_API_Version_1_0_0, (void **)&rdoc);
+  get(eGUGUGAGA_API_Version_1_0_0, (void **)&rdoc);
 
   if(rdoc == NULL)
     return;
@@ -593,14 +593,14 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_EndSelfHostCapture(const rd
   rdoc->EndFrameCapture(NULL, NULL);
 }
 
-extern "C" RENDERDOC_API bool RENDERDOC_CC
-RENDERDOC_NeedVulkanLayerRegistration(VulkanLayerRegistrationInfo *info)
+extern "C" GUGUGAGA_API bool GUGUGAGA_CC
+GUGUGAGA_NeedVulkanLayerRegistration(VulkanLayerRegistrationInfo *info)
 {
   VulkanLayerFlags flags = VulkanLayerFlags::NoFlags;
   rdcarray<rdcstr> myJSONs;
   rdcarray<rdcstr> otherJSONs;
 
-  bool ret = RenderDoc::Inst().NeedVulkanLayerRegistration(flags, myJSONs, otherJSONs);
+  bool ret = GuguGaga::Inst().NeedVulkanLayerRegistration(flags, myJSONs, otherJSONs);
 
   if(info)
   {
@@ -618,12 +618,12 @@ RENDERDOC_NeedVulkanLayerRegistration(VulkanLayerRegistrationInfo *info)
   return ret;
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UpdateVulkanLayerRegistration(bool systemLevel)
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_UpdateVulkanLayerRegistration(bool systemLevel)
 {
-  RenderDoc::Inst().UpdateVulkanLayerRegistration(systemLevel);
+  GuguGaga::Inst().UpdateVulkanLayerRegistration(systemLevel);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UpdateInstalledVersionNumber()
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_UpdateInstalledVersionNumber()
 {
 #if ENABLED(RDOC_WIN32)
   HKEY key = NULL;
@@ -681,11 +681,11 @@ extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_UpdateInstalledVersionNumbe
         Publisher[0] = 0;
 
       // if this is our key, set the version number
-      if(!strcmp(DisplayName, "RenderDoc") && !strcmp(Publisher, "Baldur Karlsson"))
+      if(!strcmp(DisplayName, "GuguGaga") && !strcmp(Publisher, "GuguGaga Team"))
       {
-        DWORD Version = (RENDERDOC_VERSION_MAJOR << 24) | (RENDERDOC_VERSION_MINOR << 16);
-        DWORD VersionMajor = RENDERDOC_VERSION_MAJOR;
-        DWORD VersionMinor = RENDERDOC_VERSION_MINOR;
+        DWORD Version = (GUGUGAGA_VERSION_MAJOR << 24) | (GUGUGAGA_VERSION_MINOR << 16);
+        DWORD VersionMajor = GUGUGAGA_VERSION_MAJOR;
+        DWORD VersionMinor = GUGUGAGA_VERSION_MINOR;
         rdcstr DisplayVersion = MAJOR_MINOR_VERSION_STRING ".0";
 
         RegSetValueExA(subkey, "Version", 0, REG_DWORD, (const BYTE *)&Version, sizeof(Version));
@@ -879,7 +879,7 @@ static rdcstr ResourceFormatName(const ResourceFormat &fmt)
   return ret + "_UNKNOWN";
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_ResourceFormatName(const ResourceFormat &fmt,
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_ResourceFormatName(const ResourceFormat &fmt,
                                                                         rdcstr &name)
 {
   name = ResourceFormatName(fmt);
@@ -891,22 +891,22 @@ static void TestPrintMsg(const rdcstr &msg)
   OSUtility::WriteOutput(OSUtility::Output_StdErr, msg.c_str());
 }
 
-extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_RunFunctionalTests(int pythonMinorVersion,
+extern "C" GUGUGAGA_API int GUGUGAGA_CC GUGUGAGA_RunFunctionalTests(int pythonMinorVersion,
                                                                        const rdcarray<rdcstr> &args)
 {
 #if ENABLED(RDOC_WIN32)
   const char *moduledir = "/pymodules";
-  const char *modulename = "renderdoc.pyd";
+  const char *modulename = "gugugaga.pyd";
   rdcstr pythonlibs[] = {"python3?.dll"};
 #elif ENABLED(RDOC_LINUX)
   const char *moduledir = "";
-  const char *modulename = "renderdoc.so";
+  const char *modulename = "gugugaga.so";
   // we don't care about pymalloc or not
   rdcstr pythonlibs[] = {"libpython3.?m.so.1.0", "libpython3.?.so.1.0", "libpython3.?m.so",
                          "libpython3.?.so"};
 #elif ENABLED(RDOC_APPLE)
   const char *moduledir = "";
-  const char *modulename = "renderdoc.so";
+  const char *modulename = "gugugaga.so";
   rdcstr pythonlibs[] = {"libpython3.?.dylib"};
 #else
   const char *moduledir = "";
@@ -971,7 +971,7 @@ extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_RunFunctionalTests(int pytho
     return 1;
   }
 
-  typedef int(RENDERDOC_CC * PFN_Py_Main)(int, wchar_t **);
+  typedef int(GUGUGAGA_CC * PFN_Py_Main)(int, wchar_t **);
 
   PFN_Py_Main mainFunc = (PFN_Py_Main)Process::GetFunctionAddress(handle, "Py_Main");
 
@@ -993,10 +993,10 @@ extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_RunFunctionalTests(int pytho
                          // specify script path
                          StringFormat::UTF82Wide(scriptPath),
                          // specify native library path
-                         L"--renderdoc",
+                         L"--gugugaga",
                          StringFormat::UTF82Wide(libPath),
                          // specify python module path
-                         L"--pyrenderdoc",
+                         L"--pygugugaga",
                          StringFormat::UTF82Wide(modulePath),
                          // force in-process as we can't fork out to python to pass args
                          L"--in-process",
@@ -1011,12 +1011,12 @@ extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_RunFunctionalTests(int pytho
   return mainFunc((int)wideArgStrings.size(), wideArgStrings.data());
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_BeginProfileRegion(const rdcstr &name)
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_BeginProfileRegion(const rdcstr &name)
 {
   Superluminal::BeginProfileRange(name);
 }
 
-extern "C" RENDERDOC_API void RENDERDOC_CC RENDERDOC_EndProfileRegion()
+extern "C" GUGUGAGA_API void GUGUGAGA_CC GUGUGAGA_EndProfileRegion()
 {
   Superluminal::EndProfileRange();
 }

@@ -2168,16 +2168,16 @@ VkResult WrappedVulkan::vkCopyMemoryToImage(VkDevice device,
   SCOPED_DBG_SINK();
 
   // Calls with VK_HOST_IMAGE_COPY_MEMCPY_BIT are not supported, and are not expected from typical
-  // applications. RenderDoc sets optimalTilingLayoutUUID to a fake UUID, meaning the applications
+  // applications. GuguGaga sets optimalTilingLayoutUUID to a fake UUID, meaning the applications
   // cannot have any preconceived notion of what the preswizzled image data should look like and
   // must provide linear data.
   //
   // Technically dropping these calls is a spec violation, since an application may read back
   // preswizzled data with memcpy and provide that again to another VkImage in the same run. Outside
   // of tests, this usage is highly unlikely. On the other hand, supporting
-  // VK_HOST_IMAGE_COPY_MEMCPY_BIT complicates RenderDoc as the size of preswizzled memory is not
+  // VK_HOST_IMAGE_COPY_MEMCPY_BIT complicates GuguGaga as the size of preswizzled memory is not
   // obviously known and requires a driver call using VkSubresourceHostMemcpySize at inconvenient
-  // times. Additionally, it reduces the portability of RenderDoc captures.
+  // times. Additionally, it reduces the portability of GuguGaga captures.
   //
   // Given the little benefit from this complication, it's decided not to support this bit.
   if((pCopyMemoryToImageInfo->flags & VK_HOST_IMAGE_COPY_MEMCPY_BIT) != 0)
@@ -2352,7 +2352,7 @@ VkBool32 VKAPI_PTR UserDebugReportCallback(VkDebugReportFlagsEXT flags,
 {
   UserDebugReportCallbackData *user = (UserDebugReportCallbackData *)pUserData;
 
-  if(RenderDoc::Inst().GetCaptureOptions().debugOutputMute)
+  if(GuguGaga::Inst().GetCaptureOptions().debugOutputMute)
   {
     if(user->muteWarned)
       return false;
@@ -2372,10 +2372,10 @@ VkBool32 VKAPI_PTR UserDebugReportCallback(VkDebugReportFlagsEXT flags,
 
       user->createInfo.pfnCallback(flags, VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT,
                                    (uint64_t)user->wrappedInstance, 1, 1, "RDOC",
-                                   "While debugging through RenderDoc, debug output through "
+                                   "While debugging through GuguGaga, debug output through "
                                    "validation layers is suppressed.\n"
                                    "To show debug output look at the 'DebugOutputMute' capture "
-                                   "option in RenderDoc's API, but "
+                                   "option in GuguGaga's API, but "
                                    "be aware of false positives from the validation layers.",
                                    user->createInfo.pUserData);
     }
@@ -2394,7 +2394,7 @@ VkBool32 VKAPI_PTR UserDebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT
 {
   UserDebugUtilsCallbackData *user = (UserDebugUtilsCallbackData *)pUserData;
 
-  if(RenderDoc::Inst().GetCaptureOptions().debugOutputMute)
+  if(GuguGaga::Inst().GetCaptureOptions().debugOutputMute)
   {
     if(user->muteWarned)
       return false;
@@ -2419,9 +2419,9 @@ VkBool32 VKAPI_PTR UserDebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT
       data.messageIdNumber = 1;
       data.pMessageIdName = NULL;
       data.pMessage =
-          "While debugging through RenderDoc, debug output through validation layers is "
+          "While debugging through GuguGaga, debug output through validation layers is "
           "suppressed.\n"
-          "To show debug output look at the 'DebugOutputMute' capture option in RenderDoc's API, "
+          "To show debug output look at the 'DebugOutputMute' capture option in GuguGaga's API, "
           "but be aware of false positives from the validation layers.";
       data.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT;
 
@@ -2462,7 +2462,7 @@ VkResult WrappedVulkan::vkCreateDebugReportCallbackEXT(
 
   // we create an interception object here so that we can dynamically check the state of API
   // messages being muted, since it's quite likely that the application will initialise Vulkan (and
-  // so create a debug report callback) before it messes with RenderDoc's API to unmute messages.
+  // so create a debug report callback) before it messes with GuguGaga's API to unmute messages.
   UserDebugReportCallbackData *user = new UserDebugReportCallbackData();
   user->wrappedInstance = instance;
   user->createInfo = *pCreateInfo;
@@ -2761,9 +2761,9 @@ ResourceId WrappedVulkan::GetIDForUserObject(void *object)
   {
     // the object was wrapped between us and the application. We'll assume it's pointer-ish and look
     // at its dispatch table. If this crashes, not much we can do
-    void *dispatchTable = RENDERDOC_DEVICEPOINTER_FROM_VKINSTANCE(object);
+    void *dispatchTable = GUGUGAGA_DEVICEPOINTER_FROM_VKINSTANCE(object);
 
-    if(dispatchTable == RENDERDOC_DEVICEPOINTER_FROM_VKINSTANCE(m_Instance))
+    if(dispatchTable == GUGUGAGA_DEVICEPOINTER_FROM_VKINSTANCE(m_Instance))
     {
       // instance or physical device - they share a dispatch table
 
@@ -2786,7 +2786,7 @@ ResourceId WrappedVulkan::GetIDForUserObject(void *object)
         }
       }
     }
-    else if(dispatchTable == RENDERDOC_DEVICEPOINTER_FROM_VKINSTANCE(m_Device))
+    else if(dispatchTable == GUGUGAGA_DEVICEPOINTER_FROM_VKINSTANCE(m_Device))
     {
       // device, queue, or command buffer - they would share a dispatch table
 
@@ -2815,17 +2815,17 @@ ResourceId WrappedVulkan::GetIDForUserObject(void *object)
 }
 
 uint32_t WrappedVulkan::SetObjectAnnotation(void *object, const char *key,
-                                            RENDERDOC_AnnotationType valueType,
+                                            GUGUGAGA_AnnotationType valueType,
                                             uint32_t valueVectorWidth,
-                                            const RENDERDOC_AnnotationValue *value)
+                                            const GUGUGAGA_AnnotationValue *value)
 {
   ResourceId id = GetIDForUserObject(object);
 
   if(id != ResourceId())
   {
-    RENDERDOC_AnnotationValue val = value ? *value : RENDERDOC_AnnotationValue();
+    GUGUGAGA_AnnotationValue val = value ? *value : GUGUGAGA_AnnotationValue();
 
-    if(valueType == eRENDERDOC_APIObject)
+    if(valueType == eGUGUGAGA_APIObject)
     {
       ResourceId valId = GetIDForUserObject(val.apiObject);
       RDCCOMPILE_ASSERT(sizeof(val.uint64) == sizeof(valId), "ResourceId isn't 64-bit!");
@@ -2840,7 +2840,7 @@ uint32_t WrappedVulkan::SetObjectAnnotation(void *object, const char *key,
         root = m_Annotations[id] = new SDObject("Object Annotations"_lit, "Object Annotations"_lit);
     }
 
-    if(valueType == eRENDERDOC_Empty)
+    if(valueType == eGUGUGAGA_Empty)
     {
       root->EraseChildByKeyPath(key);
     }
@@ -2857,9 +2857,9 @@ uint32_t WrappedVulkan::SetObjectAnnotation(void *object, const char *key,
 
 template <typename SerialiserType>
 bool WrappedVulkan::Serialise_SetQueueAnnotation(SerialiserType &ser, VkQueue queue, rdcstr key,
-                                                 RENDERDOC_AnnotationType valueType,
+                                                 GUGUGAGA_AnnotationType valueType,
                                                  uint32_t valueVectorWidth,
-                                                 RENDERDOC_AnnotationValue value)
+                                                 GUGUGAGA_AnnotationValue value)
 {
   SERIALISE_ELEMENT(queue);
   SERIALISE_ELEMENT(key);
@@ -2879,7 +2879,7 @@ bool WrappedVulkan::Serialise_SetQueueAnnotation(SerialiserType &ser, VkQueue qu
 
       SDObject *root = m_RootAnnotation;
 
-      if(valueType == eRENDERDOC_Empty)
+      if(valueType == eGUGUGAGA_Empty)
       {
         root->EraseChildByKeyPath(key);
       }
@@ -2897,9 +2897,9 @@ bool WrappedVulkan::Serialise_SetQueueAnnotation(SerialiserType &ser, VkQueue qu
 
 template <typename SerialiserType>
 bool WrappedVulkan::Serialise_SetCommandAnnotation(SerialiserType &ser, VkCommandBuffer cmd,
-                                                   rdcstr key, RENDERDOC_AnnotationType valueType,
+                                                   rdcstr key, GUGUGAGA_AnnotationType valueType,
                                                    uint32_t valueVectorWidth,
-                                                   RENDERDOC_AnnotationValue value)
+                                                   GUGUGAGA_AnnotationValue value)
 {
   SERIALISE_ELEMENT(cmd);
   SERIALISE_ELEMENT(key);
@@ -2932,9 +2932,9 @@ bool WrappedVulkan::Serialise_SetCommandAnnotation(SerialiserType &ser, VkComman
 }
 
 uint32_t WrappedVulkan::SetCommandAnnotation(void *queueOrCommandBuffer, const char *key,
-                                             RENDERDOC_AnnotationType valueType,
+                                             GUGUGAGA_AnnotationType valueType,
                                              uint32_t valueVectorWidth,
-                                             const RENDERDOC_AnnotationValue *value)
+                                             const GUGUGAGA_AnnotationValue *value)
 {
   if(WrappedVkQueue::IsAlloc(queueOrCommandBuffer))
   {
@@ -2946,9 +2946,9 @@ uint32_t WrappedVulkan::SetCommandAnnotation(void *queueOrCommandBuffer, const c
       ser.SetActionChunk();
       SCOPED_SERIALISE_CHUNK(VulkanChunk::SetQueueAnnotation);
 
-      RENDERDOC_AnnotationValue val = value ? *value : RENDERDOC_AnnotationValue();
+      GUGUGAGA_AnnotationValue val = value ? *value : GUGUGAGA_AnnotationValue();
 
-      if(valueType == eRENDERDOC_APIObject)
+      if(valueType == eGUGUGAGA_APIObject)
       {
         ResourceId id = GetIDForUserObject(val.apiObject);
         RDCCOMPILE_ASSERT(sizeof(val.uint64) == sizeof(id), "ResourceId isn't 64-bit!");
@@ -2973,9 +2973,9 @@ uint32_t WrappedVulkan::SetCommandAnnotation(void *queueOrCommandBuffer, const c
       ser.SetActionChunk();
       SCOPED_SERIALISE_CHUNK(VulkanChunk::SetCommandAnnotation);
 
-      RENDERDOC_AnnotationValue val = value ? *value : RENDERDOC_AnnotationValue();
+      GUGUGAGA_AnnotationValue val = value ? *value : GUGUGAGA_AnnotationValue();
 
-      if(valueType == eRENDERDOC_APIObject)
+      if(valueType == eGUGUGAGA_APIObject)
       {
         ResourceId id = GetIDForUserObject(val.apiObject);
         RDCCOMPILE_ASSERT(sizeof(val.uint64) == sizeof(id), "ResourceId isn't 64-bit!");
@@ -3021,7 +3021,7 @@ VkResult WrappedVulkan::vkDebugMarkerSetObjectTagEXT(VkDevice device,
   {
     ObjData data = GetObjData(pTagInfo->objectType, pTagInfo->object);
 
-    if(data.record && pTagInfo->tagName == RENDERDOC_ShaderDebugMagicValue_truncated &&
+    if(data.record && pTagInfo->tagName == GUGUGAGA_ShaderDebugMagicValue_truncated &&
        pTagInfo->objectType == VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT)
     {
       CACHE_THREAD_SERIALISER();
@@ -3150,7 +3150,7 @@ VkResult WrappedVulkan::vkCreateDebugUtilsMessengerEXT(
 
   // we create an interception object here so that we can dynamically check the state of API
   // messages being muted, since it's quite likely that the application will initialise Vulkan (and
-  // so create a debug report callback) before it messes with RenderDoc's API to unmute messages.
+  // so create a debug report callback) before it messes with GuguGaga's API to unmute messages.
   UserDebugUtilsCallbackData *user = new UserDebugUtilsCallbackData();
   user->createInfo = *pCreateInfo;
   user->muteWarned = false;
@@ -3317,7 +3317,7 @@ VkResult WrappedVulkan::vkSetDebugUtilsObjectTagEXT(VkDevice device,
   {
     ObjData data = GetObjData(pTagInfo->objectType, pTagInfo->objectHandle);
 
-    if(data.record && pTagInfo->tagName == RENDERDOC_ShaderDebugMagicValue_truncated &&
+    if(data.record && pTagInfo->tagName == GUGUGAGA_ShaderDebugMagicValue_truncated &&
        pTagInfo->objectType == VK_OBJECT_TYPE_SHADER_MODULE)
     {
       CACHE_THREAD_SERIALISER();
@@ -3333,12 +3333,12 @@ VkResult WrappedVulkan::vkSetDebugUtilsObjectTagEXT(VkDevice device,
     {
       m_CurrentVRBackbuffer = data.record->GetResourceID();
     }
-    else if(pTagInfo->tagName == RENDERDOC_DescriptorsReservation_UUID &&
+    else if(pTagInfo->tagName == GUGUGAGA_DescriptorsReservation_UUID &&
             pTagInfo->objectType == VK_OBJECT_TYPE_INSTANCE)
     {
       m_InitParams.DescriptorsReserved = true;
     }
-    else if(data.record && pTagInfo->tagName == RENDERDOC_APIObjectAnnotationHelper)
+    else if(data.record && pTagInfo->tagName == GUGUGAGA_APIObjectAnnotationHelper)
     {
       if(pTagInfo->objectType == VK_OBJECT_TYPE_INSTANCE)
         m_UserInstance = pTagInfo->pTag;
@@ -3506,9 +3506,9 @@ INSTANTIATE_FUNCTION_SERIALISED(VkResult, vkResetQueryPool, VkDevice device, VkQ
                                 uint32_t firstQuery, uint32_t queryCount);
 
 INSTANTIATE_FUNCTION_SERIALISED(void, SetCommandAnnotation, VkCommandBuffer cmd, rdcstr key,
-                                RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                RENDERDOC_AnnotationValue value);
+                                GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+                                GUGUGAGA_AnnotationValue value);
 
 INSTANTIATE_FUNCTION_SERIALISED(void, SetQueueAnnotation, VkQueue queue, rdcstr key,
-                                RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                RENDERDOC_AnnotationValue value);
+                                GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+                                GUGUGAGA_AnnotationValue value);

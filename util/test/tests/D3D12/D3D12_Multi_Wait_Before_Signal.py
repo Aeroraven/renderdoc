@@ -1,4 +1,4 @@
-import renderdoc as rd
+import gugugaga as rd
 import rdtest
 
 class D3D12_Multi_Wait_Before_Signal(rdtest.TestCase):

@@ -36,8 +36,8 @@
 #include "common/formatting.h"
 #include "os/os_specific.h"
 
-void *renderdocBase = NULL;
-void *renderdocEnd = NULL;
+void *gugugagaBase = NULL;
+void *gugugagaEnd = NULL;
 
 class LinuxCallstack : public Callstack::Stackwalk
 {
@@ -75,7 +75,7 @@ private:
     int offs = 0;
     // if we want to trim levels of the stack, we can do that here
     // by incrementing offs and decrementing numLevels
-    while(numLevels > 0 && addrs_ptr[offs] >= renderdocBase && addrs_ptr[offs] < renderdocEnd)
+    while(numLevels > 0 && addrs_ptr[offs] >= gugugagaBase && addrs_ptr[offs] < gugugagaEnd)
     {
       offs++;
       numLevels--;
@@ -105,7 +105,7 @@ void Init()
       {
         if(strstr(line, "lib" STRINGIZE(RDOC_BASE_NAME)) && strstr(line, "r-xp"))
         {
-          sscanf(line, "%p-%p", &renderdocBase, &renderdocEnd);
+          sscanf(line, "%p-%p", &gugugagaBase, &gugugagaEnd);
           break;
         }
       }
@@ -277,7 +277,7 @@ private:
 };
 
 StackResolver *MakeResolver(bool interactive, byte *moduleDB, size_t DBSize,
-                            RENDERDOC_ProgressCallback progress)
+                            GUGUGAGA_ProgressCallback progress)
 {
   // we look in the original locations for the files, we don't prompt if we can't
   // find the file, or the file doesn't have symbols (and we don't validate that

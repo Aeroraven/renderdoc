@@ -220,8 +220,8 @@ void WrappedVulkan::AddRequiredExtensions(bool instance, rdcarray<rdcstr> &exten
 
 // embedded data file
 
-extern unsigned char driver_vulkan_renderdoc_json[];
-extern int driver_vulkan_renderdoc_json_len;
+extern unsigned char driver_vulkan_gugugaga_json[];
+extern int driver_vulkan_gugugaga_json_len;
 
 #if ENABLED(RDOC_ANDROID)
 bool VulkanReplay::CheckVulkanLayer(VulkanLayerFlags &flags, rdcarray<rdcstr> &myJSONs,
@@ -236,8 +236,8 @@ void VulkanReplay::InstallVulkanLayer(bool systemLevel)
 #else
 static rdcstr GenerateJSON(const rdcstr &sopath)
 {
-  char *txt = (char *)driver_vulkan_renderdoc_json;
-  int len = driver_vulkan_renderdoc_json_len;
+  char *txt = (char *)driver_vulkan_gugugaga_json;
+  int len = driver_vulkan_gugugaga_json_len;
 
   rdcstr json = rdcstr(txt, len);
 
@@ -247,23 +247,23 @@ static rdcstr GenerateJSON(const rdcstr &sopath)
 
   json = json.substr(0, idx) + sopath + json.substr(idx + sizeof(modulePathString) - 1);
 
-  const char majorString[] = "@RENDERDOC_VERSION_MAJOR@";
+  const char majorString[] = "@GUGUGAGA_VERSION_MAJOR@";
 
   idx = json.find(majorString);
   while(idx >= 0)
   {
-    json = json.substr(0, idx) + STRINGIZE(RENDERDOC_VERSION_MAJOR) +
+    json = json.substr(0, idx) + STRINGIZE(GUGUGAGA_VERSION_MAJOR) +
                                            json.substr(idx + sizeof(majorString) - 1);
 
     idx = json.find(majorString);
   }
 
-  const char minorString[] = "@RENDERDOC_VERSION_MINOR@";
+  const char minorString[] = "@GUGUGAGA_VERSION_MINOR@";
 
   idx = json.find(minorString);
   while(idx >= 0)
   {
-    json = json.substr(0, idx) + STRINGIZE(RENDERDOC_VERSION_MINOR) +
+    json = json.substr(0, idx) + STRINGIZE(GUGUGAGA_VERSION_MINOR) +
                                            json.substr(idx + sizeof(minorString) - 1);
 
     idx = json.find(minorString);
@@ -316,7 +316,7 @@ static rdcstr GetSOFromJSON(const rdcstr &json)
   rdcstr ret = "";
 
   // The line is:
-  // "library_path": "/foo/bar/librenderdoc.so",
+  // "library_path": "/foo/bar/libgugugaga.so",
   char *c = strstr(json_string, "library_path");
 
   if(c)
@@ -359,7 +359,7 @@ ITERABLE_OPERATORS(LayerPath);
 rdcstr LayerRegistrationPath(LayerPath path)
 {
   const rdcstr json_filename =
-      VulkanLayerJSONBasename + "_capture" STRINGIZE(RENDERDOC_VULKAN_JSON_SUFFIX) ".json";
+      VulkanLayerJSONBasename + "_capture" STRINGIZE(GUGUGAGA_VULKAN_JSON_SUFFIX) ".json";
 
   switch(path)
   {
@@ -400,31 +400,31 @@ bool VulkanReplay::CheckVulkanLayer(VulkanLayerFlags &flags, rdcarray<rdcstr> &m
 {
   ////////////////////////////////////////////////////////////////////////////////////////
   // check that there's only one layer registered, and it points to the same .so file that
-  // we are running with in this instance of renderdoccmd
+  // we are running with in this instance of gugugagacmd
 
-  rdcstr librenderdoc_path;
-  FileIO::GetLibraryFilename(librenderdoc_path);
+  rdcstr libgugugaga_path;
+  FileIO::GetLibraryFilename(libgugugaga_path);
 
-  char *resolved = realpath(librenderdoc_path.c_str(), NULL);
+  char *resolved = realpath(libgugugaga_path.c_str(), NULL);
   if(resolved && resolved[0])
   {
-    librenderdoc_path = resolved;
+    libgugugaga_path = resolved;
     free(resolved);
   }
 
-  if(librenderdoc_path.empty() || !FileExists(librenderdoc_path))
+  if(libgugugaga_path.empty() || !FileExists(libgugugaga_path))
   {
     RDCERR("Couldn't determine current library path!");
     flags = VulkanLayerFlags::ThisInstallRegistered;
     return false;
   }
 
-  // it's impractical to determine whether the currently running RenderDoc build is just a loose
+  // it's impractical to determine whether the currently running GuguGaga build is just a loose
   // extract of a tarball or a distribution that decided to put all the files in the same folder,
   // and whether or not the library is in ld's searchpath.
   //
-  // Instead we just make the requirement that renderdoc.json will always contain an absolute path
-  // to the matching librenderdoc.so, so that we can check if it points to this build or another
+  // Instead we just make the requirement that gugugaga.json will always contain an absolute path
+  // to the matching libgugugaga.so, so that we can check if it points to this build or another
   // build etc.
   //
   // Note there are three places to register layers - /usr, /etc and /home. The first is reserved
@@ -441,7 +441,7 @@ bool VulkanReplay::CheckVulkanLayer(VulkanLayerFlags &flags, rdcarray<rdcstr> &m
   for(LayerPath i : values<LayerPath>())
   {
     exist[(int)i] = FileExists(LayerRegistrationPath(i));
-    match[(int)i] = (GetSOFromJSON(LayerRegistrationPath(i)) == librenderdoc_path);
+    match[(int)i] = (GetSOFromJSON(LayerRegistrationPath(i)) == libgugugaga_path);
 
     if(exist[(int)i])
       numExist++;

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>About RenderDoc</string>
+   <string>About GuguGaga</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="sizeConstraint">
@@ -147,7 +147,7 @@
          </font>
         </property>
         <property name="text">
-         <string>RenderDoc</string>
+         <string>GuguGaga</string>
         </property>
        </widget>
       </item>
@@ -225,7 +225,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Baldur Karlsson</string>
+        <string>GuguGaga Team</string>
        </property>
       </widget>
      </item>
@@ -237,9 +237,9 @@
         </font>
        </property>
        <property name="text">
-        <string>&lt;a href='mailto:baldurk@baldurk.org'&gt;baldurk@baldurk.org&lt;/a&gt;
+        <string>&lt;a href='mailto:contact@gugugaga.org'&gt;contact@gugugaga.org&lt;/a&gt;
 &amp;bull;
-&lt;a href='https://renderdoc.org/'&gt;https://renderdoc.org&lt;/a&gt;</string>
+&lt;a href='https://gugugaga.org/'&gt;https://gugugaga.org&lt;/a&gt;</string>
        </property>
        <property name="textFormat">
         <enum>Qt::RichText</enum>
@@ -257,7 +257,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Copyright &amp;copy; Baldur Karlsson 2026</string>
+        <string>Copyright &amp;copy; GuguGaga Team 2026</string>
        </property>
        <property name="textFormat">
         <enum>Qt::RichText</enum>

@@ -1,6 +1,6 @@
 import rdtest
 import os
-import renderdoc as rd
+import gugugaga as rd
 
 
 class Repeat_Load(rdtest.TestCase):

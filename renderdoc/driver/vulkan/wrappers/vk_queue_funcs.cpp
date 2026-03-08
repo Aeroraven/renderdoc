@@ -900,7 +900,7 @@ void WrappedVulkan::InsertActionsAndRefreshIDs(BakedCmdBufferInfo &cmdBufInfo)
           const PendingAnnotation &annot = cmdBufInfo.annotations[curAnnot];
           if(annot.eventId == ev.eventId)
           {
-            if(annot.valueType == eRENDERDOC_Empty)
+            if(annot.valueType == eGUGUGAGA_Empty)
               localAnnotations->EraseChildByKeyPath(annot.key);
             else
               WriteAnnotation(localAnnotations->CreateChildByKeyPath(annot.key), annot.valueType,
@@ -1500,7 +1500,7 @@ VkResult WrappedVulkan::vkQueueSubmit(VkQueue queue, uint32_t submitCount,
   if(!m_MarkedActive)
   {
     m_MarkedActive = true;
-    RenderDoc::Inst().AddActiveDriver(RDCDriver::Vulkan, false);
+    GuguGaga::Inst().AddActiveDriver(RDCDriver::Vulkan, false);
   }
 
   if(IsActiveCapturing(m_State))
@@ -1508,7 +1508,7 @@ VkResult WrappedVulkan::vkQueueSubmit(VkQueue queue, uint32_t submitCount,
     // 15 is quite a lot of submissions.
     const int expectedMaxSubmissions = 15;
 
-    RenderDoc::Inst().SetProgress(CaptureProgress::FrameCapture,
+    GuguGaga::Inst().SetProgress(CaptureProgress::FrameCapture,
                                   FakeProgress(m_SubmitCounter, expectedMaxSubmissions));
     m_SubmitCounter++;
   }
@@ -1534,7 +1534,7 @@ VkResult WrappedVulkan::vkQueueSubmit(VkQueue queue, uint32_t submitCount,
 
   if(beginCapture)
   {
-    RenderDoc::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+    GuguGaga::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
   }
 
   {
@@ -1588,7 +1588,7 @@ VkResult WrappedVulkan::vkQueueSubmit(VkQueue queue, uint32_t submitCount,
 
   if(endCapture)
   {
-    RenderDoc::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+    GuguGaga::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
   }
 
   if(present)
@@ -1668,7 +1668,7 @@ VkResult WrappedVulkan::vkQueueSubmit2(VkQueue queue, uint32_t submitCount,
   if(!m_MarkedActive)
   {
     m_MarkedActive = true;
-    RenderDoc::Inst().AddActiveDriver(RDCDriver::Vulkan, false);
+    GuguGaga::Inst().AddActiveDriver(RDCDriver::Vulkan, false);
   }
 
   if(IsActiveCapturing(m_State))
@@ -1676,7 +1676,7 @@ VkResult WrappedVulkan::vkQueueSubmit2(VkQueue queue, uint32_t submitCount,
     // 15 is quite a lot of submissions.
     const int expectedMaxSubmissions = 15;
 
-    RenderDoc::Inst().SetProgress(CaptureProgress::FrameCapture,
+    GuguGaga::Inst().SetProgress(CaptureProgress::FrameCapture,
                                   FakeProgress(m_SubmitCounter, expectedMaxSubmissions));
     m_SubmitCounter++;
   }
@@ -1702,7 +1702,7 @@ VkResult WrappedVulkan::vkQueueSubmit2(VkQueue queue, uint32_t submitCount,
 
   if(beginCapture)
   {
-    RenderDoc::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+    GuguGaga::Inst().StartFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
   }
 
   {
@@ -1756,7 +1756,7 @@ VkResult WrappedVulkan::vkQueueSubmit2(VkQueue queue, uint32_t submitCount,
 
   if(endCapture)
   {
-    RenderDoc::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
+    GuguGaga::Inst().EndFrameCapture(DeviceOwnedWindow(LayerDisp(m_Instance), NULL));
   }
 
   if(present)

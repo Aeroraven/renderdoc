@@ -2586,15 +2586,15 @@ rdcarray<PixelModification> D3D11Replay::PixelHistory(rdcarray<EventUsage> event
           // TODO once pixel history distinguishes between instances, draw only the instance for
           // this fragment
           m_pImmediateContext->DrawIndexedInstanced(
-              RENDERDOC_NumVerticesPerPrimitive(topo), RDCMAX(1U, action->numInstances),
-              action->indexOffset + RENDERDOC_VertexOffset(topo, history[h].primitiveID),
+              GUGUGAGA_NumVerticesPerPrimitive(topo), RDCMAX(1U, action->numInstances),
+              action->indexOffset + GUGUGAGA_VertexOffset(topo, history[h].primitiveID),
               action->baseVertex, action->instanceOffset);
         }
         else
         {
           m_pImmediateContext->DrawInstanced(
-              RENDERDOC_NumVerticesPerPrimitive(topo), RDCMAX(1U, action->numInstances),
-              action->vertexOffset + RENDERDOC_VertexOffset(topo, history[h].primitiveID),
+              GUGUGAGA_NumVerticesPerPrimitive(topo), RDCMAX(1U, action->numInstances),
+              action->vertexOffset + GUGUGAGA_VertexOffset(topo, history[h].primitiveID),
               action->instanceOffset);
         }
 

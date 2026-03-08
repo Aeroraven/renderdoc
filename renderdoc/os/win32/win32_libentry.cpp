@@ -49,7 +49,7 @@ static BOOL add_hooks()
     return TRUE;
   }
 
-  // search for an exported symbol with this name, typically renderdoc__replay__marker.
+  // search for an exported symbol with this name, typically gugugaga__replay__marker.
   // Also accept the legacy/alternate longer marker name.
   const rdcstr replayMarker = STRINGIZE(RDOC_BASE_NAME) "__replay__marker";
   if(LibraryHooks::Detect(replayMarker.c_str()) ||
@@ -57,16 +57,16 @@ static BOOL add_hooks()
   {
     RDCDEBUG("Not creating hooks - in replay app");
 
-    RenderDoc::Inst().SetReplayApp(true);
+    GuguGaga::Inst().SetReplayApp(true);
 
-    RenderDoc::Inst().Initialise();
+    GuguGaga::Inst().Initialise();
 
     LibraryHooks::ReplayInitialise();
 
     return true;
   }
 
-  RenderDoc::Inst().Initialise();
+  GuguGaga::Inst().Initialise();
 
   RDCLOG("Loading into %ls", curFile);
 

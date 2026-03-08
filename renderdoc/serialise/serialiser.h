@@ -159,7 +159,7 @@ public:
   // up-front
   void SetStreamingMode(bool stream) { m_DataStreaming = stream; }
   SDFile &GetStructuredFile() { return *m_StructuredFile; }
-  void WriteStructuredFile(const SDFile &file, RENDERDOC_ProgressCallback progress);
+  void WriteStructuredFile(const SDFile &file, GUGUGAGA_ProgressCallback progress);
   void SetActionChunk() { m_ActionChunk = true; }
   // the struct argument allows nested structs to pass a bit of data so a child struct can have
   // context from a parent struct if needed to serialise properly. Rarely used, primarily to be able
@@ -1054,7 +1054,7 @@ public:
   }
 
   Serialiser &SerialiseStream(const rdcstr &name, StreamReader &stream,
-                              RENDERDOC_ProgressCallback progress = RENDERDOC_ProgressCallback())
+                              GUGUGAGA_ProgressCallback progress = GUGUGAGA_ProgressCallback())
   {
     // we don't make this a compile-time assert so this code can be compiled in a
     // templated-serialisation function (but we still assert as this will not be valid to execute
@@ -1077,7 +1077,7 @@ public:
   }
 
   Serialiser &SerialiseStream(const rdcstr &name, StreamWriter &stream,
-                              RENDERDOC_ProgressCallback progress)
+                              GUGUGAGA_ProgressCallback progress)
   {
     RDCCOMPILE_ASSERT(IsReading(), "Can't write from a StreamWriter");
 

@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-#include "renderdoccmd.h"
+#include "gugugagacmd.h"
 #include <dlfcn.h>
 #include <iconv.h>
 #include <limits.h>
@@ -36,11 +36,11 @@
 #include <unistd.h>
 #include <string>
 
-#if defined(RENDERDOC_WINDOWING_XLIB)
+#if defined(GUGUGAGA_WINDOWING_XLIB)
 #include <X11/Xlib-xcb.h>
 #endif
 
-#include <replay/renderdoc_replay.h>
+#include <replay/gugugaga_replay.h>
 
 void Daemonise()
 {
@@ -57,7 +57,7 @@ WindowingData DisplayRemoteServerPreview(bool active, const rdcarray<WindowingSy
 // we only have the preview implemented for platforms that have xlib & xcb. It's unlikely
 // a meaningful platform exists with only one, and at the time of writing no other windowing
 // systems are supported on linux for the replay
-#if defined(RENDERDOC_WINDOWING_XLIB) && defined(RENDERDOC_WINDOWING_XCB)
+#if defined(GUGUGAGA_WINDOWING_XLIB) && defined(GUGUGAGA_WINDOWING_XCB)
   if(active)
   {
     if(remoteServerPreview.system == WindowingSystem::Unknown)
@@ -170,7 +170,7 @@ void DisplayRendererPreview(IReplayController *renderer, TextureDisplay &display
 // we only have the preview implemented for platforms that have xlib & xcb. It's unlikely
 // a meaningful platform exists with only one, and at the time of writing no other windowing
 // systems are supported on linux for the replay
-#if defined(RENDERDOC_WINDOWING_XLIB) && defined(RENDERDOC_WINDOWING_XCB)
+#if defined(GUGUGAGA_WINDOWING_XLIB) && defined(GUGUGAGA_WINDOWING_XCB)
   // need to create a hybrid setup xlib and xcb in case only one or the other is supported.
   // We'll prefer xcb
 
@@ -219,7 +219,7 @@ void DisplayRendererPreview(IReplayController *renderer, TextureDisplay &display
   xcb_intern_atom_reply_t *atom_wm_delete_window = xcb_intern_atom_reply(connection, cookie2, 0);
 
   xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING,
-                      8, sizeof("renderdoccmd") - 1, "renderdoccmd");
+                      8, sizeof("gugugagacmd") - 1, "gugugagacmd");
 
   xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, (*reply).atom, 4, 32, 1,
                       &(*atom_wm_delete_window).atom);
@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
 
   GlobalEnvironment env;
 
-#if defined(RENDERDOC_WINDOWING_XLIB) || defined(RENDERDOC_WINDOWING_XCB)
+#if defined(GUGUGAGA_WINDOWING_XLIB) || defined(GUGUGAGA_WINDOWING_XCB)
   // call XInitThreads - although we don't use xlib concurrently the driver might need to.
   XInitThreads();
 
@@ -344,17 +344,17 @@ int main(int argc, char *argv[])
     std::string support = "APIs supported at compile-time: ";
     int count = 0;
 
-#if defined(RENDERDOC_SUPPORT_VULKAN)
+#if defined(GUGUGAGA_SUPPORT_VULKAN)
     support += "Vulkan, ";
     count++;
 #endif
 
-#if defined(RENDERDOC_SUPPORT_GL)
+#if defined(GUGUGAGA_SUPPORT_GL)
     support += "GL, ";
     count++;
 #endif
 
-#if defined(RENDERDOC_SUPPORT_GLES)
+#if defined(GUGUGAGA_SUPPORT_GLES)
     support += "GLES, ";
     count++;
 #endif
@@ -376,22 +376,22 @@ int main(int argc, char *argv[])
     support = "Windowing systems supported at compile-time: ";
     count = 0;
 
-#if defined(RENDERDOC_WINDOWING_XLIB)
+#if defined(GUGUGAGA_WINDOWING_XLIB)
     support += "xlib, ";
     count++;
 #endif
 
-#if defined(RENDERDOC_WINDOWING_XCB)
+#if defined(GUGUGAGA_WINDOWING_XCB)
     support += "XCB, ";
     count++;
 #endif
 
-#if defined(RENDERDOC_WINDOWING_WAYLAND)
+#if defined(GUGUGAGA_WINDOWING_WAYLAND)
     support += "Wayland (CAPTURE ONLY), ";
     count++;
 #endif
 
-#if defined(RENDERDOC_SUPPORT_VULKAN)
+#if defined(GUGUGAGA_SUPPORT_VULKAN)
     support += "Vulkan KHR_display, ";
     count++;
 #endif
@@ -411,9 +411,9 @@ int main(int argc, char *argv[])
     add_version_line(support);
   }
 
-  int ret = renderdoccmd(env, argc, argv);
+  int ret = gugugagacmd(env, argc, argv);
 
-#if defined(RENDERDOC_WINDOWING_XLIB) || defined(RENDERDOC_WINDOWING_XCB)
+#if defined(GUGUGAGA_WINDOWING_XLIB) || defined(GUGUGAGA_WINDOWING_XCB)
   if(display)
     XCloseDisplay(display);
 #endif

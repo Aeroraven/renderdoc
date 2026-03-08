@@ -2854,7 +2854,7 @@ bool VulkanCreationInfo::ShaderModule::Reinit()
   bytebuf debugBytecode;
   if(originalShaderFile == NULL)
   {
-    if(!RenderDoc::Inst().GetTrackedFileData(foundFname, debugBytecode))
+    if(!GuguGaga::Inst().GetTrackedFileData(foundFname, debugBytecode))
     {
       loadingLog += StringFormat::Fmt(
           "\nFile not found in files embedded in the capture using nickname '%s'\n",
@@ -2940,7 +2940,7 @@ bool VulkanCreationInfo::ShaderModule::Reinit()
       if(initialSpirv.isEmpty())
         initialSpirv = spirv.GetSPIRV();
       spirv = reflTest;
-      RenderDoc::Inst().AddTrackedFileReference(foundFname, foundPath);
+      GuguGaga::Inst().AddTrackedFileReference(foundFname, foundPath);
       loadingLog += StringFormat::Fmt("Debug data parsed successfully (%u bytes)\n",
                                       (uint32_t)debugBytecode.size());
       debugInfoLoadingLog = StringFormat::Fmt("Found debug data for '%s'\n\n", foundFname.c_str());

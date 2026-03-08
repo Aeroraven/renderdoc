@@ -995,7 +995,7 @@ struct SwapchainInfo
 
   VkRenderPass rp;
 
-  RENDERDOC_WindowHandle wndHandle;
+  GUGUGAGA_WindowHandle wndHandle;
 
   struct SwapImage
   {

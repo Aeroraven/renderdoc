@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2016-2026 Baldur Karlsson
+ * Copyright (c) 2016-2026 GuguGaga Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDia
 {
   ui->setupUi(this);
 
-  QString hash = QString::fromLatin1(RENDERDOC_GetCommitHash());
+  QString hash = QString::fromLatin1(GUGUGAGA_GetCommitHash());
 
   if(hash[0] == QLatin1Char('N') && hash[1] == QLatin1Char('O'))
   {
@@ -44,14 +44,14 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDia
   {
     ui->version->setText(tr("Version %1 (built from <a href='%2'>%3</a>)")
                              .arg(lit(FULL_VERSION_STRING))
-                             .arg(lit("https://github.com/baldurk/renderdoc/commit/%1").arg(hash))
+                             .arg(lit("https://github.com/GuguGaga/GuguGaga/commit/%1").arg(hash))
                              .arg(hash.left(8)));
   }
 
   ui->version->setText(tr("%1 (Qt version %2)").arg(ui->version->text()).arg(lit(QT_VERSION_STR)));
 
 #if defined(DISTRIBUTION_VERSION)
-  ui->owner->setText(QFormatStr("Baldur Karlsson - Packaged for %1").arg(lit(DISTRIBUTION_NAME)));
+  ui->owner->setText(QFormatStr("GuguGaga Team - Packaged for %1").arg(lit(DISTRIBUTION_NAME)));
   ui->contact->setText(QFormatStr("<a href='%1'>%1</a>").arg(lit(DISTRIBUTION_CONTACT)));
 #endif
 

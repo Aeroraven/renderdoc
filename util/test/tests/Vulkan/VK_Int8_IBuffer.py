@@ -1,5 +1,5 @@
 import rdtest
-import renderdoc as rd
+import gugugaga as rd
 
 
 class VK_Int8_IBuffer(rdtest.TestCase):

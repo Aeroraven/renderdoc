@@ -31,7 +31,7 @@
 
 typedef uint8_t byte;
 
-// see renderdoc_app.h RENDERDOC_CaptureOption - make sure any changes here are reflected there, to
+// see gugugaga_app.h GUGUGAGA_CaptureOption - make sure any changes here are reflected there, to
 // the options or to the documentation
 DOCUMENT(R"(Sets up configuration and options for optional features either at capture time or at API
 initialisation time that the user can enable or disable at will.
@@ -40,7 +40,7 @@ struct CaptureOptions
 {
 // for convenience, don't export the constructor but allow it within the module
 // for constructing defaults
-#ifdef RENDERDOC_EXPORTS
+#ifdef GUGUGAGA_EXPORTS
   CaptureOptions();
 #endif
 
@@ -167,26 +167,26 @@ Default - disabled
 ``True`` - Verify buffer access.
 
 ``False`` - No verification is performed, and overwriting bounds may cause crashes or corruption in
-RenderDoc.
+GuguGaga.
 
 :type: bool
 )");
   bool verifyBufferAccess;
 
   DOCUMENT(R"(Hooks any system API calls that create child processes, and injects
-RenderDoc into them recursively with the same options.
+GuguGaga into them recursively with the same options.
 
 Default - disabled
 
 ``True`` - Hooks into spawned child processes.
 
-``False`` - Child processes are not hooked by RenderDoc.
+``False`` - Child processes are not hooked by GuguGaga.
 
 :type: bool
 )");
   bool hookIntoChildren;
 
-  DOCUMENT(R"(By default RenderDoc only includes resources in the final logfile necessary
+  DOCUMENT(R"(By default GuguGaga only includes resources in the final logfile necessary
 for that frame, this allows you to override that behaviour.
 
 Default - disabled
@@ -201,7 +201,7 @@ and available for inspection.
   bool refAllResources;
 
   DOCUMENT(R"(In APIs that allow for the recording of command lists to be replayed later,
-RenderDoc may choose to not capture command lists before a frame capture is
+GuguGaga may choose to not capture command lists before a frame capture is
 triggered, to reduce overheads. This means any command lists recorded once
 and replayed many times will not be available and may cause a failure to
 capture.

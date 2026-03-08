@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2017-2026 Baldur Karlsson
+ * Copyright (c) 2017-2026 GuguGaga Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,7 @@ PyTypeObject **SbkPySide2_QtWidgetsTypes = NULL;
 // for non-windows, this message is displayed at CMake time.
 #ifdef _MSC_VER
 #pragma message( \
-    "Building without PySide2 - Qt will not be accessible in python scripting. See https://github.com/baldurk/renderdoc/wiki/PySide2")
+    "Building without PySide2 - Qt will not be accessible in python scripting. See https://github.com/GuguGaga/GuguGaga/wiki/PySide2")
 #endif
 
 #endif
@@ -77,12 +77,12 @@ PyTypeObject **SbkPySide2_QtWidgetsTypes = NULL;
 bool CheckCoreInterface(rdcstr &log);
 bool CheckQtInterface(rdcstr &log);
 
-// defined in SWIG-generated renderdoc_python.cpp
-extern "C" PyObject *PyInit_renderdoc(void);
+// defined in SWIG-generated gugugaga_python.cpp
+extern "C" PyObject *PyInit_gugugaga(void);
 extern "C" PyObject *PassObjectToPython(const char *type, void *obj);
 extern "C" PyObject *PassNewObjectToPython(const char *type, void *obj);
-// this one is in qrenderdoc_python.cpp
-extern "C" PyObject *PyInit_qrenderdoc(void);
+// this one is in qgugugaga_python.cpp
+extern "C" PyObject *PyInit_qgugugaga(void);
 extern "C" PyObject *WrapBareQWidget(QWidget *);
 extern "C" QWidget *UnwrapBareQWidget(PyObject *);
 
@@ -232,8 +232,8 @@ void PythonContext::GlobalInit()
   // for the exception signal
   qRegisterMetaType<QList<QString>>("QList<QString>");
 
-  PyImport_AppendInittab("renderdoc", &PyInit_renderdoc);
-  PyImport_AppendInittab("qrenderdoc", &PyInit_qrenderdoc);
+  PyImport_AppendInittab("gugugaga", &PyInit_gugugaga);
+  PyImport_AppendInittab("qgugugaga", &PyInit_qgugugaga);
 
 #if PY_VERSION_HEX > 0x030B0000
   PyConfig config;
@@ -242,12 +242,12 @@ void PythonContext::GlobalInit()
   config.parse_argv = 0;
 #endif
 
-#if defined(STATIC_QRENDERDOC)
+#if defined(STATIC_QGUGUGAGA)
   // add the location where our libs will be for statically-linked python installs
   {
     QDir bin = QFileInfo(QCoreApplication::applicationFilePath()).absoluteDir();
 
-    QString pylibs = QDir::cleanPath(bin.absoluteFilePath(lit("../share/renderdoc/pylibs")));
+    QString pylibs = QDir::cleanPath(bin.absoluteFilePath(lit("../share/gugugaga/pylibs")));
 
     pylibs.toWCharArray(python_home);
 
@@ -277,7 +277,7 @@ void PythonContext::GlobalInit()
   PyEval_InitThreads();
 #endif
 
-  OutputRedirectorType.tp_name = "renderdoc_output_redirector";
+  OutputRedirectorType.tp_name = "gugugaga_output_redirector";
   OutputRedirectorType.tp_basicsize = sizeof(OutputRedirector);
   OutputRedirectorType.tp_flags = Py_TPFLAGS_DEFAULT;
   OutputRedirectorType.tp_doc =
@@ -291,8 +291,8 @@ void PythonContext::GlobalInit()
 
   PyObject *main_module = PyImport_AddModule("__main__");
 
-  PyModule_AddObject(main_module, "renderdoc", PyImport_ImportModule("renderdoc"));
-  PyModule_AddObject(main_module, "qrenderdoc", PyImport_ImportModule("qrenderdoc"));
+  PyModule_AddObject(main_module, "gugugaga", PyImport_ImportModule("gugugaga"));
+  PyModule_AddObject(main_module, "qgugugaga", PyImport_ImportModule("qgugugaga"));
 
   main_dict = PyModule_GetDict(main_module);
 
@@ -324,8 +324,8 @@ void PythonContext::GlobalInit()
   // sysobj = sys
   PyObject *sysobj = PyDict_GetItemString(main_dict, "sys");
 
-  // sysobj.stdout = renderdoc_output_redirector()
-  // sysobj.stderr = renderdoc_output_redirector()
+  // sysobj.stdout = gugugaga_output_redirector()
+  // sysobj.stderr = gugugaga_output_redirector()
   if(PyType_Ready(&OutputRedirectorType) >= 0)
   {
     // for compatibility with earlier versions of python that took a char * instead of const char *
@@ -370,7 +370,7 @@ void PythonContext::GlobalInit()
   }
 #endif
 
-#if RENDERDOC_STABLE_BUILD == 0
+#if GUGUGAGA_STABLE_BUILD == 0
   // if we're running in the git checkout and we can find the test scripts, add that location to the
   // path
   {
@@ -456,7 +456,7 @@ PythonContext::PythonContext(QObject *parent) : QObject(parent)
   PyObject *redirector = PyObject_CallFunction((PyObject *)&OutputRedirectorType, noparams);
   if(redirector)
   {
-    PyDict_SetItemString(context_namespace, "_renderdoc_internal", redirector);
+    PyDict_SetItemString(context_namespace, "_gugugaga_internal", redirector);
 
     OutputRedirector *output = (OutputRedirector *)redirector;
     output->context = this;
@@ -475,7 +475,7 @@ PythonContext::PythonContext(QObject *parent) : QObject(parent)
 
       if(m_Completer)
       {
-        PyDict_SetItemString(context_namespace, "_renderdoc_completer", m_Completer);
+        PyDict_SetItemString(context_namespace, "_gugugaga_completer", m_Completer);
       }
       else
       {
@@ -529,7 +529,7 @@ bool PythonContext::CheckInterfaces(rdcstr &log)
   errors |= CheckCoreInterface(log);
   errors |= CheckQtInterface(log);
 
-  for(rdcstr module_name : {"renderdoc", "qrenderdoc"})
+  for(rdcstr module_name : {"gugugaga", "qgugugaga"})
   {
     PyObject *mod = PyImport_ImportModule(module_name.c_str());
     PyObject *dict = PyModule_GetDict(mod);
@@ -753,7 +753,7 @@ QString PythonContext::LoadExtension(ICaptureContext &ctx, const rdcstr &extensi
   {
     extensions[extension] = ext;
 
-    PyModule_AddObject(ext, "_renderdoc_internal", current_global_handle);
+    PyModule_AddObject(ext, "_gugugaga_internal", current_global_handle);
   }
 
   if(ext)
@@ -773,8 +773,8 @@ QString PythonContext::LoadExtension(ICaptureContext &ctx, const rdcstr &extensi
       }
       else
       {
-        qCritical() << "Internal error passing pyrenderdoc to extension register()";
-        ret += tr("Internal error passing pyrenderdoc to extension register()\n");
+        qCritical() << "Internal error passing pygugugaga to extension register()";
+        ret += tr("Internal error passing pygugugaga to extension register()\n");
       }
 
       if(retval == NULL)
@@ -788,12 +788,12 @@ QString PythonContext::LoadExtension(ICaptureContext &ctx, const rdcstr &extensi
 
       if(ext)
       {
-        int pyret = PyModule_AddObject(ext, "pyrenderdoc", pyctx);
+        int pyret = PyModule_AddObject(ext, "pygugugaga", pyctx);
 
         if(pyret != 0)
         {
-          qCritical() << "Couldn't set pyrenderdoc global in loaded module";
-          ret += tr("Couldn't set pyrenderdoc global in loaded module\n");
+          qCritical() << "Couldn't set pygugugaga global in loaded module";
+          ret += tr("Couldn't set pygugugaga global in loaded module\n");
           ext = NULL;
         }
       }
@@ -1122,8 +1122,8 @@ QStringList PythonContext::completionOptions(QString base)
       bool add = true;
 
       // little hack, remove some of the ugly swig template instantiations that we can't avoid.
-      if(optstr.contains(lit("renderdoc.rdcarray")) || optstr.contains(lit("renderdoc.rdcstr")) ||
-         optstr.contains(lit("renderdoc.bytebuf")))
+      if(optstr.contains(lit("gugugaga.rdcarray")) || optstr.contains(lit("gugugaga.rdcstr")) ||
+         optstr.contains(lit("gugugaga.bytebuf")))
         add = false;
 
       if(add)
@@ -1296,7 +1296,7 @@ PyObject *PythonContext::outstream_write(PyObject *self, PyObject *args)
         if(globals)
         {
           OutputRedirector *global =
-              (OutputRedirector *)PyDict_GetItemString(globals, "_renderdoc_internal");
+              (OutputRedirector *)PyDict_GetItemString(globals, "_gugugaga_internal");
           if(global)
             context = global->context;
         }
@@ -1346,7 +1346,7 @@ PyObject *PythonContext::outstream_write(PyObject *self, PyObject *args)
       }
 
       if(!message.empty())
-        RENDERDOC_LogMessage(redirector->isStdError ? LogType::Error : LogType::Comment, "EXTN",
+        GUGUGAGA_LogMessage(redirector->isStdError ? LogType::Error : LogType::Comment, "EXTN",
                              filename, line, message);
     }
   }
@@ -1404,7 +1404,7 @@ extern "C" PyObject *GetCurrentGlobalHandle()
 {
   PyObject *frame_global_handle = NULL;
 
-  // walk the frames until we find one with _renderdoc_internal. If we call a function in another
+  // walk the frames until we find one with _gugugaga_internal. If we call a function in another
   // module the globals may not have the entry, but the root level is expected to.
   {
     PyFrameObject *frame = PyEval_GetFrame();
@@ -1415,7 +1415,7 @@ extern "C" PyObject *GetCurrentGlobalHandle()
     while(frame)
     {
       PyObject *globals = PyFrame_GetGlobals(frame);
-      frame_global_handle = PyDict_GetItemString(globals, "_renderdoc_internal");
+      frame_global_handle = PyDict_GetItemString(globals, "_gugugaga_internal");
       Py_XDECREF(globals);
 
       // first get the next frame without decrefing the current
@@ -1500,7 +1500,7 @@ extern "C" void HandleException(PyObject *global_handle)
       linenum = PyFrame_GetLineNumber(frame);
     }
 
-    RENDERDOC_LogMessage(LogType::Error, "EXTN", filename, linenum, exString);
+    GUGUGAGA_LogMessage(LogType::Error, "EXTN", filename, linenum, exString);
   }
 }
 

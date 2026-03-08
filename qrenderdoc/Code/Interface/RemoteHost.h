@@ -61,10 +61,10 @@ public:
   void CheckStatus();
 
   DOCUMENT(R"(Runs the command specified in :data:`runCommand`. Returns
-:class:`~renderdoc.ResultDetails` which indicates success or the type of failure.
+:class:`~gugugaga.ResultDetails` which indicates success or the type of failure.
 
 :return: The result from launching the remote server.
-:rtype: renderdoc.ResultDetails
+:rtype: gugugaga.ResultDetails
 )");
   ResultDetails Launch();
 
@@ -137,14 +137,14 @@ public:
 
 :return: The status of opening the capture, whether success or failure, and a :class:`RemoteServer`
   instance if it were successful
-:rtype: Tuple[renderdoc.ResultDetails, renderdoc.RemoteServer]
+:rtype: Tuple[gugugaga.ResultDetails, gugugaga.RemoteServer]
 )");
   ResultDetails Connect(IRemoteServer **server);
 
   DOCUMENT(R"(
-:return: The :class:`~renderdoc.DeviceProtocolController` for this host, or ``None`` if no protocol
+:return: The :class:`~gugugaga.DeviceProtocolController` for this host, or ``None`` if no protocol
   is in use
-:rtype: renderdoc.DeviceProtocolController
+:rtype: gugugaga.DeviceProtocolController
 )");
   IDeviceProtocolController *Protocol() const { return m_protocol; }
   DOCUMENT(R"(

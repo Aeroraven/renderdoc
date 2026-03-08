@@ -12,11 +12,11 @@ lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5.6; found $$[QT_VERSION]")
 
 equals(QT_MAJOR_VERSION, 5): lessThan(QT_MINOR_VERSION, 6): error("requires Qt 5.6; found $$[QT_VERSION]")
 
-TARGET = qrenderdoc
+TARGET = qgugugaga
 TEMPLATE = app
 
-# include path for core renderdoc API
-INCLUDEPATH += $$_PRO_FILE_PWD_/../renderdoc/api/replay
+# include path for core gugugaga API
+INCLUDEPATH += $$_PRO_FILE_PWD_/../gugugaga/api/replay
 
 # Allow includes relative to the root
 INCLUDEPATH += $$_PRO_FILE_PWD_/
@@ -41,7 +41,7 @@ QMAKE_CXXFLAGS += -Wno-deprecated-declarations
 # Different output folders per platform
 win32 {
 
-	RC_INCLUDEPATH = $$_PRO_FILE_PWD_/../renderdoc/api/replay
+	RC_INCLUDEPATH = $$_PRO_FILE_PWD_/../gugugaga/api/replay
 	RC_FILE = Resources/qrenderdoc.rc
 
 	# generate pdb files even in release
@@ -61,7 +61,7 @@ win32 {
 	swig.name = SWIG ${QMAKE_FILE_IN}
 	swig.input = SWIGSOURCES
 	swig.output = ${QMAKE_FILE_BASE}_python.cxx
-	swig.commands = $$_PRO_FILE_PWD_/3rdparty/swig/swig.exe -v -Wextra -Werror -O -interface ${QMAKE_FILE_BASE} -c++ -python -modern -modernargs -enumclass -fastunpack -py3 -builtin -I$$_PRO_FILE_PWD_ -I$$_PRO_FILE_PWD_/../renderdoc/api/replay -outdir . -o ${QMAKE_FILE_BASE}_python.cxx ${QMAKE_FILE_IN}
+	swig.commands = $$_PRO_FILE_PWD_/3rdparty/swig/swig.exe -v -Wextra -Werror -O -interface ${QMAKE_FILE_BASE} -c++ -python -modern -modernargs -enumclass -fastunpack -py3 -builtin -I$$_PRO_FILE_PWD_ -I$$_PRO_FILE_PWD_/../gugugaga/api/replay -outdir . -o ${QMAKE_FILE_BASE}_python.cxx ${QMAKE_FILE_IN}
 	swig.CONFIG += target_predeps
 	swig.variable_out = GENERATED_SOURCES
 	silent:swig.commands = @echo SWIG ${QMAKE_FILE_IN} && $$swig.commands
@@ -70,8 +70,8 @@ win32 {
 	# add qrc file with qt.conf
 	RESOURCES += Resources/qtconf.qrc
 
-	SWIGSOURCES += Code/pyrenderdoc/renderdoc.i
-	SWIGSOURCES += Code/pyrenderdoc/qrenderdoc.i
+	SWIGSOURCES += Code/pygugugaga/gugugaga.i
+	SWIGSOURCES += Code/pygugugaga/qgugugaga.i
 
 	# Include and link against python
 	INCLUDEPATH += $$_PRO_FILE_PWD_/3rdparty/python/include
@@ -99,17 +99,17 @@ win32 {
 	LIBS += user32.lib
 
 	# Link against the core library
-	LIBS += $$DESTDIR/renderdoc.lib
+	LIBS += $$DESTDIR/gugugaga.lib
 
 	# Link against the version library
 	LIBS += $$DESTDIR/version.lib
 
 	QMAKE_CXXFLAGS_WARN_ON -= -w34100 
-	DEFINES += RENDERDOC_PLATFORM_WIN32
+	DEFINES += GUGUGAGA_PLATFORM_WIN32
 
 } else {
 	isEmpty(CMAKE_DIR) {
-		error("When run from outside CMake, please set the Build Environment Variable CMAKE_DIR to point to your CMake build root. In Qt Creator add CMAKE_DIR=/path/to/renderdoc/build under 'Additional arguments' in the qmake Build Step. If running qmake directly, add CMAKE_DIR=/path/to/renderdoc/build/ to the command line.")
+		error("When run from outside CMake, please set the Build Environment Variable CMAKE_DIR to point to your CMake build root. In Qt Creator add CMAKE_DIR=/path/to/gugugaga/build under 'Additional arguments' in the qmake Build Step. If running qmake directly, add CMAKE_DIR=/path/to/gugugaga/build/ to the command line.")
 	}
 
 	DESTDIR=$$CMAKE_DIR/bin
@@ -117,7 +117,7 @@ win32 {
 	# Archlinux broke Qt builds by forcing on lto, so we have to re-override that here
 	CONFIG -= ltcg
 
-	include($$CMAKE_DIR/qrenderdoc/qrenderdoc_cmake.pri)
+	include($$CMAKE_DIR/qgugugaga/qgugugaga_cmake.pri)
 
 	# Temp files into .obj
 	MOC_DIR = .obj
@@ -126,12 +126,12 @@ win32 {
 	OBJECTS_DIR = .obj
 
 	# Link against the core library
-	LIBS += -lrenderdoc
+	LIBS += -lgugugaga
 	QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\',-rpath,\'\$$ORIGIN/../lib'$$LIB_SUFFIX'/'$$LIB_SUBFOLDER_TRAIL_SLASH'\''
 
 	# Add the SWIG files that were generated in cmake
-	SOURCES += $$CMAKE_DIR/qrenderdoc/renderdoc_python.cxx
-	SOURCES += $$CMAKE_DIR/qrenderdoc/qrenderdoc_python.cxx
+	SOURCES += $$CMAKE_DIR/qgugugaga/gugugaga_python.cxx
+	SOURCES += $$CMAKE_DIR/qgugugaga/qgugugaga_python.cxx
 
 	CONFIG += warn_off
 	CONFIG += c++14
@@ -143,30 +143,30 @@ win32 {
 
 		LIBS += -framework Cocoa -framework QuartzCore
 
-		DEFINES += RENDERDOC_PLATFORM_POSIX RENDERDOC_PLATFORM_APPLE
+		DEFINES += GUGUGAGA_PLATFORM_POSIX GUGUGAGA_PLATFORM_APPLE
 		ICON = $$OSX_ICONFILE
 
 		# add qrc file with qt.conf
 		RESOURCES += Resources/qtconf.qrc
 		
-		librd.files = $$files($$DESTDIR/../lib/librenderdoc.dylib)
+		librd.files = $$files($$DESTDIR/../lib/libgugugaga.dylib)
 		librd.path = Contents/lib
 		QMAKE_BUNDLE_DATA += librd
 
 		INFO_PLIST_PATH = $$shell_quote($$DESTDIR/$${TARGET}.app/Contents/Info.plist)
 		QTPLUGINS_PATH = $$shell_quote($$DESTDIR/$${TARGET}.app/Contents/qtplugins)
 		QMAKE_POST_LINK += ln -sf $$[QT_INSTALL_PLUGINS] $${QTPLUGINS_PATH} ;
-		QMAKE_POST_LINK += sh $$_PRO_FILE_PWD_/../util/set_plist_version.sh $${RENDERDOC_VERSION}.0 $${INFO_PLIST_PATH}
+		QMAKE_POST_LINK += sh $$_PRO_FILE_PWD_/../util/set_plist_version.sh $${GUGUGAGA_VERSION}.0 $${INFO_PLIST_PATH}
 	} else {
 		QT += x11extras
-		DEFINES += RENDERDOC_PLATFORM_POSIX RENDERDOC_PLATFORM_LINUX RENDERDOC_WINDOWING_XLIB RENDERDOC_WINDOWING_XCB
+		DEFINES += GUGUGAGA_PLATFORM_POSIX GUGUGAGA_PLATFORM_LINUX GUGUGAGA_WINDOWING_XLIB GUGUGAGA_WINDOWING_XCB
 		QMAKE_LFLAGS += '-Wl,--no-as-needed -rdynamic'
 	}
 }
 
 # Add our sources first so Qt Creator adds new files here
 
-SOURCES += Code/qrenderdoc.cpp \
+SOURCES += Code/qgugugaga.cpp \
     Code/qprocessinfo.cpp \
     Code/ReplayManager.cpp \
     Code/CaptureContext.cpp \
@@ -176,7 +176,7 @@ SOURCES += Code/qrenderdoc.cpp \
     Code/BufferFormatter.cpp \
     Code/Resources.cpp \
     Code/RGPInterop.cpp \
-    Code/pyrenderdoc/PythonContext.cpp \
+    Code/pygugugaga/PythonContext.cpp \
     Code/Interface/QRDInterface.cpp \
     Code/Interface/Analytics.cpp \
     Code/Interface/ShaderProcessingTool.cpp \
@@ -263,9 +263,9 @@ HEADERS += Code/CaptureContext.h \
     Code/MiniQtHelper.h \
     Code/Resources.h \
     Code/RGPInterop.h \
-    Code/pyrenderdoc/PythonContext.h \
-    Code/pyrenderdoc/pyconversion.h \
-    Code/pyrenderdoc/interface_check.h \
+    Code/pygugugaga/PythonContext.h \
+    Code/pygugugaga/pyconversion.h \
+    Code/pygugugaga/interface_check.h \
     Code/Interface/QRDInterface.h \
     Code/Interface/Analytics.h \
     Code/Interface/PersistantConfig.h \

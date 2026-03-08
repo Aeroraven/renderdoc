@@ -651,4 +651,4 @@ private:
   rdcarray<StreamCloseCallback> m_Callbacks;
 };
 
-void StreamTransfer(StreamWriter *writer, StreamReader *reader, RENDERDOC_ProgressCallback progress);
+void StreamTransfer(StreamWriter *writer, StreamReader *reader, GUGUGAGA_ProgressCallback progress);

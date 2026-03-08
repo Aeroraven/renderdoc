@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 #include "d3d11_resources.h"
-#include "api/app/renderdoc_app.h"
+#include "api/app/gugugaga_app.h"
 #include "driver/dxgi/dxgi_wrapped.h"
 #include "driver/shaders/dxbc/dxbc_reflect.h"
 #include "d3d11_context.h"
@@ -69,8 +69,8 @@ Threading::CriticalSection WrappedShader::m_ShaderListLock;
 rdcarray<WrappedID3DDeviceContextState *> WrappedID3DDeviceContextState::m_List;
 Threading::CriticalSection WrappedID3DDeviceContextState::m_Lock;
 
-const GUID RENDERDOC_ID3D11ShaderGUID_ShaderDebugMagicValue = RENDERDOC_ShaderDebugMagicValue_struct;
-const GUID RENDERDOC_DeleteSelf = {
+const GUID GUGUGAGA_ID3D11ShaderGUID_ShaderDebugMagicValue = GUGUGAGA_ShaderDebugMagicValue_struct;
+const GUID GUGUGAGA_DeleteSelf = {
     0x1e4bf855,
     0xcc83,
     0x4b7a,

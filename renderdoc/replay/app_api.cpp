@@ -23,64 +23,64 @@
  ******************************************************************************/
 
 #include <string.h>
-#include "api/app/renderdoc_app.h"
-#include "api/replay/apidefs.h"    // for RENDERDOC_API to export the RENDERDOC_GetAPI function
+#include "api/app/gugugaga_app.h"
+#include "api/replay/apidefs.h"    // for GUGUGAGA_API to export the GUGUGAGA_GetAPI function
 #include "common/common.h"
 #include "common/formatting.h"
 #include "core/core.h"
 #include "hooks/hooks.h"
 #include "serialise/rdcfile.h"
 
-static void SetFocusToggleKeys(RENDERDOC_InputButton *keys, int num)
+static void SetFocusToggleKeys(GUGUGAGA_InputButton *keys, int num)
 {
-  RenderDoc::Inst().SetFocusKeys(keys, num);
+  GuguGaga::Inst().SetFocusKeys(keys, num);
 }
 
-static void SetCaptureKeys(RENDERDOC_InputButton *keys, int num)
+static void SetCaptureKeys(GUGUGAGA_InputButton *keys, int num)
 {
-  RenderDoc::Inst().SetCaptureKeys(keys, num);
+  GuguGaga::Inst().SetCaptureKeys(keys, num);
 }
 
 static uint32_t GetOverlayBits()
 {
-  return RenderDoc::Inst().GetOverlayBits();
+  return GuguGaga::Inst().GetOverlayBits();
 }
 
 static void MaskOverlayBits(uint32_t And, uint32_t Or)
 {
-  RenderDoc::Inst().MaskOverlayBits(And, Or);
+  GuguGaga::Inst().MaskOverlayBits(And, Or);
 }
 
 static void RemoveHooks()
 {
-  RenderDoc::Inst().RemoveHooks();
+  GuguGaga::Inst().RemoveHooks();
   LibraryHooks::RemoveHooks();
 }
 
 static void UnloadCrashHandler()
 {
-  RenderDoc::Inst().UnloadCrashHandler();
+  GuguGaga::Inst().UnloadCrashHandler();
 }
 
 static void SetCaptureFilePathTemplate(const char *pathtemplate)
 {
   RDCLOG("Using capture file template %s", pathtemplate);
-  RenderDoc::Inst().SetCaptureFileTemplate(pathtemplate);
+  GuguGaga::Inst().SetCaptureFileTemplate(pathtemplate);
 }
 
 static const char *GetCaptureFilePathTemplate()
 {
-  return RenderDoc::Inst().GetCaptureFileTemplate();
+  return GuguGaga::Inst().GetCaptureFileTemplate();
 }
 
 static uint32_t GetNumCaptures()
 {
-  return (uint32_t)RenderDoc::Inst().GetCaptures().size();
+  return (uint32_t)GuguGaga::Inst().GetCaptures().size();
 }
 
 static uint32_t GetCapture(uint32_t idx, char *filename, uint32_t *pathlength, uint64_t *timestamp)
 {
-  rdcarray<CaptureData> caps = RenderDoc::Inst().GetCaptures();
+  rdcarray<CaptureData> caps = GuguGaga::Inst().GetCaptures();
 
   if(idx >= (uint32_t)caps.size())
   {
@@ -110,7 +110,7 @@ static void SetCaptureFileComments(const char *filePath, const char *comments)
   rdcstr path;
   if(filePath == NULL || filePath[0] == 0)
   {
-    rdcarray<CaptureData> caps = RenderDoc::Inst().GetCaptures();
+    rdcarray<CaptureData> caps = GuguGaga::Inst().GetCaptures();
     if(caps.empty())
     {
       RDCERR(
@@ -180,17 +180,17 @@ static void SetCaptureFileComments(const char *filePath, const char *comments)
 
 static void TriggerCapture()
 {
-  RenderDoc::Inst().TriggerCapture(1);
+  GuguGaga::Inst().TriggerCapture(1);
 }
 
 static void TriggerMultiFrameCapture(uint32_t numFrames)
 {
-  RenderDoc::Inst().TriggerCapture(numFrames);
+  GuguGaga::Inst().TriggerCapture(numFrames);
 }
 
 static uint32_t IsTargetControlConnected()
 {
-  return RenderDoc::Inst().IsTargetControlConnected();
+  return GuguGaga::Inst().IsTargetControlConnected();
 }
 
 static uint32_t LaunchReplayUI(uint32_t connectTargetControl, const char *cmdline)
@@ -203,57 +203,57 @@ static uint32_t LaunchReplayUI(uint32_t connectTargetControl, const char *cmdlin
   rdcstr cmd = cmdline ? cmdline : "";
   if(connectTargetControl)
     cmd += StringFormat::Fmt(" --targetcontrol localhost:%u",
-                             RenderDoc::Inst().GetTargetControlIdent());
+                             GuguGaga::Inst().GetTargetControlIdent());
 
   return Process::LaunchProcess(replayapp, "", cmd, false);
 }
 
 static void SetActiveWindow(void *device, void *wndHandle)
 {
-  RenderDoc::Inst().SetActiveWindow(DeviceOwnedWindow(device, wndHandle));
+  GuguGaga::Inst().SetActiveWindow(DeviceOwnedWindow(device, wndHandle));
 }
 
 static void StartFrameCapture(void *device, void *wndHandle)
 {
   DeviceOwnedWindow devWnd(device, wndHandle);
 
-  RenderDoc::Inst().StartFrameCapture(devWnd);
+  GuguGaga::Inst().StartFrameCapture(devWnd);
 
   if(devWnd.device == NULL || devWnd.windowHandle == NULL)
-    RenderDoc::Inst().MatchClosestWindow(devWnd);
+    GuguGaga::Inst().MatchClosestWindow(devWnd);
 
   if(devWnd.device != NULL && devWnd.windowHandle != NULL)
-    RenderDoc::Inst().SetActiveWindow(devWnd);
+    GuguGaga::Inst().SetActiveWindow(devWnd);
 }
 
 static uint32_t IsFrameCapturing()
 {
-  return RenderDoc::Inst().IsFrameCapturing() ? 1 : 0;
+  return GuguGaga::Inst().IsFrameCapturing() ? 1 : 0;
 }
 
 static uint32_t EndFrameCapture(void *device, void *wndHandle)
 {
-  return RenderDoc::Inst().EndFrameCapture(DeviceOwnedWindow(device, wndHandle)) ? 1 : 0;
+  return GuguGaga::Inst().EndFrameCapture(DeviceOwnedWindow(device, wndHandle)) ? 1 : 0;
 }
 
 static void SetCaptureTitle(const char *title)
 {
-  RenderDoc::Inst().SetCaptureTitle(title);
+  GuguGaga::Inst().SetCaptureTitle(title);
 }
 
 static uint32_t DiscardFrameCapture(void *device, void *wndHandle)
 {
-  return RenderDoc::Inst().DiscardFrameCapture(DeviceOwnedWindow(device, wndHandle)) ? 1 : 0;
+  return GuguGaga::Inst().DiscardFrameCapture(DeviceOwnedWindow(device, wndHandle)) ? 1 : 0;
 }
 
 static uint32_t ShowReplayUI()
 {
-  return RenderDoc::Inst().ShowReplayUI() ? 1 : 0;
+  return GuguGaga::Inst().ShowReplayUI() ? 1 : 0;
 }
 
 static uint32_t SetObjectAnnotation(void *device, void *object, const char *key,
-                                    RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                    const RENDERDOC_AnnotationValue *value)
+                                    GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+                                    const GUGUGAGA_AnnotationValue *value)
 {
   if(object == NULL)
   {
@@ -261,15 +261,15 @@ static uint32_t SetObjectAnnotation(void *device, void *object, const char *key,
     return 3;
   }
 
-  if((valueType == eRENDERDOC_Empty && value != NULL) ||
-     (valueType != eRENDERDOC_Empty && value == NULL))
+  if((valueType == eGUGUGAGA_Empty && value != NULL) ||
+     (valueType != eGUGUGAGA_Empty && value == NULL))
   {
     RDCWARN("Invalid annotation - value should be NULL and type should be empty");
     return 3;
   }
 
-  if((valueType == eRENDERDOC_Empty || valueType == eRENDERDOC_String ||
-      valueType == eRENDERDOC_APIObject) &&
+  if((valueType == eGUGUGAGA_Empty || valueType == eGUGUGAGA_String ||
+      valueType == eGUGUGAGA_APIObject) &&
      valueVectorWidth != 0)
   {
     RDCWARN(
@@ -286,7 +286,7 @@ static uint32_t SetObjectAnnotation(void *device, void *object, const char *key,
 
   DeviceOwnedWindow devWnd(device, NULL);
 
-  IFrameCapturer *capturer = RenderDoc::Inst().MatchFrameCapturer(devWnd);
+  IFrameCapturer *capturer = GuguGaga::Inst().MatchFrameCapturer(devWnd);
 
   if(!capturer)
     return 1;
@@ -295,11 +295,11 @@ static uint32_t SetObjectAnnotation(void *device, void *object, const char *key,
 }
 
 static uint32_t SetCommandAnnotation(void *device, void *queueOrCommandBuffer, const char *key,
-                                     RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                     const RENDERDOC_AnnotationValue *value)
+                                     GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+                                     const GUGUGAGA_AnnotationValue *value)
 {
-  if((valueType == eRENDERDOC_Empty && value != NULL) ||
-     (valueType != eRENDERDOC_Empty && value == NULL))
+  if((valueType == eGUGUGAGA_Empty && value != NULL) ||
+     (valueType != eGUGUGAGA_Empty && value == NULL))
   {
     RDCWARN("Invalid annotation - value should be NULL and type should be empty");
     return 3;
@@ -311,8 +311,8 @@ static uint32_t SetCommandAnnotation(void *device, void *queueOrCommandBuffer, c
     return 3;
   }
 
-  if((valueType == eRENDERDOC_Empty || valueType == eRENDERDOC_String ||
-      valueType == eRENDERDOC_APIObject) &&
+  if((valueType == eGUGUGAGA_Empty || valueType == eGUGUGAGA_String ||
+      valueType == eGUGUGAGA_APIObject) &&
      valueVectorWidth != 0)
   {
     RDCWARN(
@@ -323,7 +323,7 @@ static uint32_t SetCommandAnnotation(void *device, void *queueOrCommandBuffer, c
 
   DeviceOwnedWindow devWnd(device, NULL);
 
-  IFrameCapturer *capturer = RenderDoc::Inst().MatchFrameCapturer(devWnd);
+  IFrameCapturer *capturer = GuguGaga::Inst().MatchFrameCapturer(devWnd);
 
   if(!capturer)
     return 1;
@@ -333,12 +333,12 @@ static uint32_t SetCommandAnnotation(void *device, void *queueOrCommandBuffer, c
 }
 
 // defined in capture_options.cpp
-int RENDERDOC_CC SetCaptureOptionU32(RENDERDOC_CaptureOption opt, uint32_t val);
-int RENDERDOC_CC SetCaptureOptionF32(RENDERDOC_CaptureOption opt, float val);
-uint32_t RENDERDOC_CC GetCaptureOptionU32(RENDERDOC_CaptureOption opt);
-float RENDERDOC_CC GetCaptureOptionF32(RENDERDOC_CaptureOption opt);
+int GUGUGAGA_CC SetCaptureOptionU32(GUGUGAGA_CaptureOption opt, uint32_t val);
+int GUGUGAGA_CC SetCaptureOptionF32(GUGUGAGA_CaptureOption opt, float val);
+uint32_t GUGUGAGA_CC GetCaptureOptionU32(GUGUGAGA_CaptureOption opt);
+float GUGUGAGA_CC GetCaptureOptionF32(GUGUGAGA_CaptureOption opt);
 
-void RENDERDOC_CC GetAPIVersion_1_7_0(int *major, int *minor, int *patch)
+void GUGUGAGA_CC GetAPIVersion_1_7_0(int *major, int *minor, int *patch)
 {
   if(major)
     *major = 1;
@@ -348,10 +348,10 @@ void RENDERDOC_CC GetAPIVersion_1_7_0(int *major, int *minor, int *patch)
     *patch = 0;
 }
 
-RENDERDOC_API_1_7_0 api_1_7_0;
+GUGUGAGA_API_1_7_0 api_1_7_0;
 void Init_1_7_0()
 {
-  RENDERDOC_API_1_7_0 &api = api_1_7_0;
+  GUGUGAGA_API_1_7_0 &api = api_1_7_0;
 
   api.GetAPIVersion = &GetAPIVersion_1_7_0;
 
@@ -401,12 +401,12 @@ void Init_1_7_0()
   api.SetCommandAnnotation = &SetCommandAnnotation;
 }
 
-extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_GetAPI(RENDERDOC_Version version,
+extern "C" GUGUGAGA_API int GUGUGAGA_CC GUGUGAGA_GetAPI(GUGUGAGA_Version version,
                                                            void **outAPIPointers)
 {
   if(outAPIPointers == NULL)
   {
-    RDCERR("Invalid call to RENDERDOC_GetAPI with NULL outAPIPointers");
+    RDCERR("Invalid call to GUGUGAGA_GetAPI with NULL outAPIPointers");
     return 0;
   }
 
@@ -417,7 +417,7 @@ extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_GetAPI(RENDERDOC_Version ver
 
 #define API_VERSION_HANDLE(enumver, actualver)                     \
   supportedVersions += " " STRINGIZE(CONCAT(API_, enumver));       \
-  if(version == CONCAT(eRENDERDOC_API_Version_, enumver))          \
+  if(version == CONCAT(eGUGUGAGA_API_Version_, enumver))          \
   {                                                                \
     CONCAT(Init_, actualver)();                                    \
     *outAPIPointers = &CONCAT(api_, actualver);                    \
@@ -444,7 +444,7 @@ extern "C" RENDERDOC_API int RENDERDOC_CC RENDERDOC_GetAPI(RENDERDOC_Version ver
 
   if(ret)
   {
-    RDCLOG("Initialising RenderDoc API version %d.%d.%d for requested version %d", major, minor,
+    RDCLOG("Initialising GuguGaga API version %d.%d.%d for requested version %d", major, minor,
            patch, version);
     return 1;
   }

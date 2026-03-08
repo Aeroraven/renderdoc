@@ -1228,7 +1228,7 @@ static void CheckSPIRV(rdcspv::Editor &ed, size_t offsets[rdcspv::Section::Count
 TEST_CASE("Test SPIR-V editor section handling", "[spirv]")
 {
   rdcspv::Init();
-  RenderDoc::Inst().RegisterShutdownFunction(&rdcspv::Shutdown);
+  GuguGaga::Inst().RegisterShutdownFunction(&rdcspv::Shutdown);
 
   rdcspv::CompilationSettings settings;
   settings.entryPoint = "main";

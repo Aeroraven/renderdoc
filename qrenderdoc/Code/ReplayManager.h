@@ -49,7 +49,7 @@ public:
   ~ReplayManager();
 
   void OpenCapture(const QString &capturefile, const ReplayOptions &opts,
-                   RENDERDOC_ProgressCallback progress);
+                   GUGUGAGA_ProgressCallback progress);
   void DeleteCapture(const rdcstr &capturefile, bool local);
 
   bool IsRunning();
@@ -118,7 +118,7 @@ private:
   };
 
   void run(int proxyRenderer, const QString &capturefile, const ReplayOptions &opts,
-           RENDERDOC_ProgressCallback progress);
+           GUGUGAGA_ProgressCallback progress);
 
   QMutex m_TimerLock;
   QElapsedTimer m_CommandTimer;

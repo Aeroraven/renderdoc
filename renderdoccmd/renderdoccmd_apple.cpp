@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-#include "renderdoccmd.h"
+#include "gugugagacmd.h"
 #include <locale.h>
 #include <string.h>
 #include <unistd.h>
@@ -48,7 +48,7 @@ WindowingData DisplayRemoteServerPreview(bool active, const rdcarray<WindowingSy
 void DisplayRendererPreview(IReplayController *renderer, TextureDisplay &displayCfg, uint32_t width,
                             uint32_t height, uint32_t numLoops)
 {
-  void *cocoaWindow = cocoa_windowCreate(width, height, "renderdoccmd");
+  void *cocoaWindow = cocoa_windowCreate(width, height, "gugugagacmd");
   void *view = cocoa_windowGetView(cocoaWindow);
   void *layer = cocoa_windowGetLayer(cocoaWindow);
   IReplayOutput *out =
@@ -103,17 +103,17 @@ int main(int argc, char *argv[])
     std::string support = "APIs supported at compile-time: ";
     int count = 0;
 
-#if defined(RENDERDOC_SUPPORT_VULKAN)
+#if defined(GUGUGAGA_SUPPORT_VULKAN)
     support += "Vulkan, ";
     count++;
 #endif
 
-#if defined(RENDERDOC_SUPPORT_GL)
+#if defined(GUGUGAGA_SUPPORT_GL)
     support += "GL, ";
     count++;
 #endif
 
-#if defined(RENDERDOC_SUPPORT_METAL)
+#if defined(GUGUGAGA_SUPPORT_METAL)
     support += "Metal, ";
     count++;
 #endif
@@ -133,5 +133,5 @@ int main(int argc, char *argv[])
     add_version_line(support);
   }
 
-  return renderdoccmd(env, argc, argv);
+  return gugugagacmd(env, argc, argv);
 }

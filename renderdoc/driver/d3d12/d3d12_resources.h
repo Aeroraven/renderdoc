@@ -73,7 +73,7 @@ protected:
   D3D12ResourceRecord *m_pRecord;
 };
 
-extern const GUID RENDERDOC_ID3D12ShaderGUID_ShaderDebugMagicValue;
+extern const GUID GUGUGAGA_ID3D12ShaderGUID_ShaderDebugMagicValue;
 
 template <typename NestedType, typename NestedType1 = NestedType, typename NestedType2 = NestedType1>
 class WrappedDeviceChild12 : public RefCounter12<NestedType>,
@@ -296,7 +296,7 @@ public:
 
   HRESULT STDMETHODCALLTYPE SetPrivateData(REFGUID guid, UINT DataSize, const void *pData)
   {
-    if(guid == RENDERDOC_ID3D12ShaderGUID_ShaderDebugMagicValue)
+    if(guid == GUGUGAGA_ID3D12ShaderGUID_ShaderDebugMagicValue)
       return m_pDevice->SetShaderDebugPath(this, (const char *)pData);
 
     if(guid == WKPDID_D3DDebugObjectName)
@@ -471,14 +471,14 @@ public:
 struct D3D12Descriptor;
 
 MIDL_INTERFACE("52528c37-bfd9-4bbb-99ff-fdb7188619ce")
-IRenderDocDescriptorNamer : public IUnknown
+IGuguGagaDescriptorNamer : public IUnknown
 {
 public:
   virtual HRESULT STDMETHODCALLTYPE SetName(UINT DescriptorIndex, LPCSTR Name) = 0;
 };
 
 class WrappedID3D12DescriptorHeap : public WrappedDeviceChild12<ID3D12DescriptorHeap>,
-                                    public IRenderDocDescriptorNamer
+                                    public IGuguGagaDescriptorNamer
 {
   D3D12_CPU_DESCRIPTOR_HANDLE realCPUBase;
   D3D12_GPU_DESCRIPTOR_HANDLE realGPUBase;
@@ -515,9 +515,9 @@ public:
   ULONG STDMETHODCALLTYPE Release() { return WrappedDeviceChild12::Release(); }
   HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject)
   {
-    if(riid == __uuidof(IRenderDocDescriptorNamer))
+    if(riid == __uuidof(IGuguGagaDescriptorNamer))
     {
-      *ppvObject = (IRenderDocDescriptorNamer *)this;
+      *ppvObject = (IGuguGagaDescriptorNamer *)this;
       // allocate names array now
       GetNames();
       AddRef();
@@ -586,7 +586,7 @@ public:
   uint32_t GetUnwrappedIncrement() const { return increment; }
 
   //////////////////////////////
-  // implement IRenderDocDescriptorNamer
+  // implement IGuguGagaDescriptorNamer
 
   virtual HRESULT STDMETHODCALLTYPE SetName(UINT DescriptorIndex, LPCSTR Name)
   {

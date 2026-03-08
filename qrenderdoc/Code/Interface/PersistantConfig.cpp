@@ -275,7 +275,7 @@ void PersistantConfig::applyValues(const QVariantMap &values)
     m_Legacy->_##oldName = values[lit(#oldName)].value<variantType>(); \
     if(!processed)                                                     \
     {                                                                  \
-      SDObject *setting = RENDERDOC_SetConfigSetting(newName);         \
+      SDObject *setting = GUGUGAGA_SetConfigSetting(newName);         \
       if(setting)                                                      \
         setting->data = m_Legacy->_##oldName;                          \
       saveConfig = true;                                               \
@@ -300,7 +300,7 @@ void PersistantConfig::applyValues(const QVariantMap &values)
         QStringList searchPaths = settings[lit("shader.debug.searchPaths")].toString().split(
             QLatin1Char(';'), QString::SkipEmptyParts);
 
-        SDObject *debug = RENDERDOC_SetConfigSetting("DXBC.Debug.SearchDirPaths");
+        SDObject *debug = GUGUGAGA_SetConfigSetting("DXBC.Debug.SearchDirPaths");
 
         debug->DeleteChildren();
         debug->ReserveChildren(searchPaths.size());
@@ -317,7 +317,7 @@ void PersistantConfig::applyValues(const QVariantMap &values)
   }
 
   if(saveConfig)
-    RENDERDOC_SaveConfigSettings();
+    GUGUGAGA_SaveConfigSettings();
 
   for(const rdcpair<rdcstr, CustomPersistentStorage *> &ps : GetCustomStorage())
     ps.second->load(values[QString(ps.first)]);
@@ -392,11 +392,11 @@ void PersistantConfig::UpdateEnumeratedProtocolDevices()
   rdcarray<RemoteHost> enumeratedDevices;
 
   rdcarray<rdcstr> protocols;
-  RENDERDOC_GetSupportedDeviceProtocols(&protocols);
+  GUGUGAGA_GetSupportedDeviceProtocols(&protocols);
 
   for(const rdcstr &p : protocols)
   {
-    IDeviceProtocolController *protocol = RENDERDOC_GetDeviceProtocolController(p);
+    IDeviceProtocolController *protocol = GUGUGAGA_GetDeviceProtocolController(p);
 
     rdcarray<rdcstr> devices = protocol->GetDevices();
 
@@ -559,7 +559,7 @@ bool PersistantConfig::Load(const rdcstr &filename)
     searchPaths << appDir.absoluteFilePath(lit("../../plugins-win32/spirv/"));
 #elif defined(Q_OS_LINUX)
     // linux installation
-    searchPaths << appDir.absoluteFilePath(lit("../share/renderdoc/plugins/spirv/"));
+    searchPaths << appDir.absoluteFilePath(lit("../share/gugugaga/plugins/spirv/"));
     // linux local
     searchPaths << appDir.absoluteFilePath(lit("../../plugins-linux64/spirv/"));
 #endif

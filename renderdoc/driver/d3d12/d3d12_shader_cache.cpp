@@ -349,16 +349,16 @@ D3D12ShaderCache::D3D12ShaderCache(WrappedID3D12Device *device)
 
   bool unopt = false;
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
-    static const GUID IRenderDoc_uuid = {
+    static const GUID IGuguGaga_uuid = {
         0xa7aa6116, 0x9c8d, 0x4bba, {0x90, 0x83, 0xb4, 0xd8, 0x16, 0xb7, 0x1b, 0x78}};
 
-    // if we're being self-captured, the 'real' device will respond to renderdoc's UUID. Enable
+    // if we're being self-captured, the 'real' device will respond to gugugaga's UUID. Enable
     // debug shaders
     IUnknown *dummy = NULL;
     if(device->GetReal())
-      device->GetReal()->QueryInterface(IRenderDoc_uuid, (void **)&dummy);
+      device->GetReal()->QueryInterface(IGuguGaga_uuid, (void **)&dummy);
 
     if(dummy != NULL)
     {
@@ -443,7 +443,7 @@ rdcstr D3D12ShaderCache::GetShaderBlob(const char *source, const char *entry,
     if(dxc == NULL)
     {
       return "Couldn't locate dxcompiler.dll. Ensure you have a Windows 10 SDK installed or place "
-             "dxcompiler.dll in RenderDoc's plugins/d3d12 folder.";
+             "dxcompiler.dll in GuguGaga's plugins/d3d12 folder.";
     }
     else
     {

@@ -44,7 +44,7 @@ struct FunctionHook
 // Each subsystem that wants to hook libraries creates a LibraryHook instance. That registers with
 // LibraryHooks via the singleton in global constructors, but does nothing initially.
 //
-// Early in init, during RenderDoc's initialisation, the last thing that happens is a call to
+// Early in init, during GuguGaga's initialisation, the last thing that happens is a call to
 // LibraryHooks::RegisterHooks(). This iterates through the LibraryHook instances and calls
 // RegisterHooks on each of them.
 //
@@ -139,7 +139,7 @@ struct FunctionHook
 struct LibraryHook;
 
 // this singleton allows you to compile in code that defines a hook for a given library
-// (and it will be registered). Then when the renderdoc library is initialised in the target
+// (and it will be registered). Then when the gugugaga library is initialised in the target
 // program RegisterHooks() will be called to set up the hooks.
 class LibraryHooks
 {

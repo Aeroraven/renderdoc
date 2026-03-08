@@ -1,4 +1,4 @@
 [Thumbnailer Entry]
-TryExec=/usr/bin/renderdoccmd
-Exec=/usr/bin/renderdoccmd thumb -f png -s %s -o %o %i
-MimeType=application/x-renderdoc-capture;
+TryExec=/usr/bin/gugugagacmd
+Exec=/usr/bin/gugugagacmd thumb -f png -s %s -o %o %i
+MimeType=application/x-gugugaga-capture;

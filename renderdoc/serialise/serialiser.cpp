@@ -26,7 +26,7 @@
 #define SERIALISER_IMPL
 
 #include "serialiser.h"
-#include "api/replay/renderdoc_replay.h"
+#include "api/replay/gugugaga_replay.h"
 #include "core/core.h"
 #include "strings/string_utils.h"
 
@@ -379,9 +379,9 @@ uint32_t Serialiser<SerialiserMode::Writing>::BeginChunk(uint32_t chunkID, uint6
       {
         if(m_ChunkMetadata.callstack.empty())
         {
-          bool collect = RenderDoc::Inst().GetCaptureOptions().captureCallstacks;
+          bool collect = GuguGaga::Inst().GetCaptureOptions().captureCallstacks;
 
-          if(RenderDoc::Inst().GetCaptureOptions().captureCallstacksOnlyActions)
+          if(GuguGaga::Inst().GetCaptureOptions().captureCallstacksOnlyActions)
             collect = collect && m_ActionChunk;
 
           if(collect)
@@ -579,7 +579,7 @@ void Serialiser<SerialiserMode::Writing>::EndChunk()
 
 template <>
 void Serialiser<SerialiserMode::Writing>::WriteStructuredFile(const SDFile &file,
-                                                              RENDERDOC_ProgressCallback progress)
+                                                              GUGUGAGA_ProgressCallback progress)
 {
   Serialiser<SerialiserMode::Writing> scratchWriter(
       new StreamWriter(StreamWriter::DefaultScratchSize), Ownership::Stream);

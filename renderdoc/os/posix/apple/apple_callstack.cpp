@@ -80,7 +80,7 @@ bool GetLoadedModules(byte *buf, size_t &size)
 }
 
 StackResolver *MakeResolver(bool interactive, byte *moduleDB, size_t DBSize,
-                            RENDERDOC_ProgressCallback progress)
+                            GUGUGAGA_ProgressCallback progress)
 {
   RDCERR("Callstack resolving not supported on Apple.");
   return NULL;

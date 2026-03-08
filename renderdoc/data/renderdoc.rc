@@ -67,8 +67,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION RENDERDOC_VERSION_MAJOR,RENDERDOC_VERSION_MINOR,0,0
- PRODUCTVERSION RENDERDOC_VERSION_MAJOR,RENDERDOC_VERSION_MINOR,0,0
+ FILEVERSION GUGUGAGA_VERSION_MAJOR,GUGUGAGA_VERSION_MINOR,0,0
+ PRODUCTVERSION GUGUGAGA_VERSION_MAJOR,GUGUGAGA_VERSION_MINOR,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -83,7 +83,7 @@ BEGIN
     BEGIN
         BLOCK "080904b0"
         BEGIN
-            VALUE "CompanyName", "Baldur Karlsson"
+            VALUE "CompanyName", "GuguGaga Team"
             VALUE "FileDescription", "Core DLL for GuguGaga"
             VALUE "FileVersion", MAJOR_MINOR_VERSION_STRING ".0.0"
             VALUE "InternalName", "gugugaga"
@@ -120,7 +120,7 @@ RESOURCE_depth_copy_hlsl   TYPE_EMBED   "hlsl/depth_copy.hlsl"
 RESOURCE_raytracing_hlsl   TYPE_EMBED   "hlsl/raytracing.hlsl"
 RESOURCE_hlsl_quadswizzle_hlsl  TYPE_EMBED   "hlsl/quadswizzle.hlsl"
 
-#ifdef RENDERDOC_BAKED_DXC_SHADERS
+#ifdef GUGUGAGA_BAKED_DXC_SHADERS
 
 #if !defined(CONCAT)
 #define CONCAT2(a, b) a##b

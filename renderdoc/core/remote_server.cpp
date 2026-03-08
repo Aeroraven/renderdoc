@@ -26,7 +26,7 @@
 #include "remote_server.h"
 #include <utility>
 #include "android/android.h"
-#include "api/replay/renderdoc_replay.h"
+#include "api/replay/gugugaga_replay.h"
 #include "api/replay/version.h"
 #include "common/threading.h"
 #include "core/core.h"
@@ -48,7 +48,7 @@ RDOC_CONFIG(bool, RemoteServer_DebugLogging, false,
 #define MAKE_REMOTE_SERVER_VERSION(maj, min) uint32_t((maj)*1000) + (min)
 
 static const uint32_t RemoteServerProtocolVersion =
-    MAKE_REMOTE_SERVER_VERSION(RENDERDOC_VERSION_MAJOR, RENDERDOC_VERSION_MINOR);
+    MAKE_REMOTE_SERVER_VERSION(GUGUGAGA_VERSION_MAJOR, GUGUGAGA_VERSION_MINOR);
 
 enum class RemoteServerPacket
 {
@@ -281,7 +281,7 @@ static bool HandleHandshakeClient(ActiveClient &activeClient, ClientThread *thre
 }
 
 static void ActiveRemoteClientThread(ClientThread *threadData,
-                                     RENDERDOC_PreviewWindowCallback previewWindow)
+                                     GUGUGAGA_PreviewWindowCallback previewWindow)
 {
   Threading::SetCurrentThreadName("ActiveRemoteClientThread");
 
@@ -308,7 +308,7 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
     reader.ConfigureStructuredExport(&GetRemoteServerChunkName, false, 0, 1.0);
     writer.ConfigureStructuredExport(&GetRemoteServerChunkName, false, 0, 1.0);
 
-    rdcstr filename = FileIO::GetTempFolderFilename() + "/RenderDoc/RemoteServer_Server.log";
+    rdcstr filename = FileIO::GetTempFolderFilename() + "/GuguGaga/RemoteServer_Server.log";
 
     RDCLOG("Logging remote server work to '%s'", filename.c_str());
 
@@ -360,7 +360,7 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
     {
       reader.EndChunk();
 
-      std::map<RDCDriver, rdcstr> drivers = RenderDoc::Inst().GetRemoteDrivers();
+      std::map<RDCDriver, rdcstr> drivers = GuguGaga::Inst().GetRemoteDrivers();
       uint32_t count = (uint32_t)drivers.size();
 
       WRITE_DATA_SCOPE();
@@ -491,7 +491,7 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
     {
       reader.EndChunk();
 
-      rdcarray<GPUDevice> gpus = RenderDoc::Inst().GetAvailableGPUs();
+      rdcarray<GPUDevice> gpus = GuguGaga::Inst().GetAvailableGPUs();
 
       {
         WRITE_DATA_SCOPE();
@@ -535,12 +535,12 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
 
       if(result == ResultCode::Succeeded)
       {
-        if(RenderDoc::Inst().HasRemoteDriver(rdc->GetDriver()))
+        if(GuguGaga::Inst().HasRemoteDriver(rdc->GetDriver()))
         {
           bool kill = false;
           float progress = 0.0f;
 
-          RenderDoc::Inst().SetProgressCallback<LoadProgress>([&progress](float p) { progress = p; });
+          GuguGaga::Inst().SetProgressCallback<LoadProgress>([&progress](float p) { progress = p; });
 
           Threading::ThreadHandle ticker = Threading::CreateThread([&writer, &kill, &progress]() {
             while(!kill)
@@ -555,10 +555,10 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
           });
 
           // This has to be before the driver is created for the capture
-          RenderDoc::Inst().ClearTrackedFiles();
+          GuguGaga::Inst().ClearTrackedFiles();
           if(rdc->SectionIndex(SectionType::EmbeddedExternalFiles) >= 0)
           {
-            ResultDetails ret = RenderDoc::Inst().ReadExternalFiles(rdc);
+            ResultDetails ret = GuguGaga::Inst().ReadExternalFiles(rdc);
             if(!ret.OK())
             {
               RDCERR("ReadExternalFiles failed Code:'%s' Message:'%s'", ToStr(ret.code).c_str(),
@@ -567,15 +567,15 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
           }
 
           // if we have a replay driver, try to create it so we can display a local preview e.g.
-          if(RenderDoc::Inst().HasReplayDriver(rdc->GetDriver()))
+          if(GuguGaga::Inst().HasReplayDriver(rdc->GetDriver()))
           {
-            result = RenderDoc::Inst().CreateReplayDriver(rdc, opts, &replayDriver);
+            result = GuguGaga::Inst().CreateReplayDriver(rdc, opts, &replayDriver);
             if(replayDriver)
               remoteDriver = replayDriver;
           }
           else
           {
-            result = RenderDoc::Inst().CreateRemoteDriver(rdc, opts, &remoteDriver);
+            result = GuguGaga::Inst().CreateRemoteDriver(rdc, opts, &remoteDriver);
           }
 
           if(result != ResultCode::Succeeded || remoteDriver == NULL)
@@ -595,7 +595,7 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
             }
           }
 
-          RenderDoc::Inst().SetProgressCallback<LoadProgress>(RENDERDOC_ProgressCallback());
+          GuguGaga::Inst().SetProgressCallback<LoadProgress>(GUGUGAGA_ProgressCallback());
 
           kill = true;
           Threading::JoinThread(ticker);
@@ -933,7 +933,7 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
       RDResult result;
       if(rdc)
       {
-        result = RenderDoc::Inst().EmbedExternalFiles(rdc);
+        result = GuguGaga::Inst().EmbedExternalFiles(rdc);
       }
       else
       {
@@ -954,7 +954,7 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
       RDResult result;
       if(rdc)
       {
-        result = RenderDoc::Inst().RemoveExternalFiles(rdc);
+        result = GuguGaga::Inst().RemoveExternalFiles(rdc);
       }
       else
       {
@@ -975,7 +975,7 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
       bool res = false;
       if(rdc)
       {
-        res = RenderDoc::Inst().HasEmbeddedFiles(rdc);
+        res = GuguGaga::Inst().HasEmbeddedFiles(rdc);
       }
       else
       {
@@ -995,7 +995,7 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
       bool res = false;
       if(rdc)
       {
-        res = RenderDoc::Inst().HasTrackedFileData();
+        res = GuguGaga::Inst().HasTrackedFileData();
       }
       else
       {
@@ -1015,7 +1015,7 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
       rdcarray<rdcstr> res;
       if(rdc)
       {
-        res = RenderDoc::Inst().GetTrackedFileNicknames();
+        res = GuguGaga::Inst().GetTrackedFileNicknames();
       }
       else
       {
@@ -1063,9 +1063,9 @@ static void ActiveRemoteClientThread(ClientThread *threadData,
   SAFE_DELETE(client);
 }
 
-void RenderDoc::BecomeRemoteServer(const rdcstr &listenhost, uint16_t port,
+void GuguGaga::BecomeRemoteServer(const rdcstr &listenhost, uint16_t port,
                                    std::function<bool()> killReplay,
-                                   RENDERDOC_PreviewWindowCallback previewWindow)
+                                   GUGUGAGA_PreviewWindowCallback previewWindow)
 {
   Network::Socket *sock = Network::CreateServerSocket(listenhost, port, 1);
 
@@ -1137,7 +1137,7 @@ void RenderDoc::BecomeRemoteServer(const rdcstr &listenhost, uint16_t port,
   {
     RDCLOG("No whitelist IP ranges configured - using default private IP ranges.");
     RDCLOG(
-        "Create a config file remoteserver.conf in ~/.renderdoc or %%APPDATA%%/renderdoc to "
+        "Create a config file remoteserver.conf in ~/.gugugaga or %%APPDATA%%/gugugaga to "
         "narrow "
         "this down or accept connections from more ranges.");
 
@@ -1277,8 +1277,8 @@ void RenderDoc::BecomeRemoteServer(const rdcstr &listenhost, uint16_t port,
   SAFE_DELETE(sock);
 }
 
-extern "C" RENDERDOC_API ResultDetails RENDERDOC_CC
-RENDERDOC_CreateRemoteServerConnection(const rdcstr &URL, IRemoteServer **rend)
+extern "C" GUGUGAGA_API ResultDetails GUGUGAGA_CC
+GUGUGAGA_CreateRemoteServerConnection(const rdcstr &URL, IRemoteServer **rend)
 {
   rdcstr host = "localhost";
   if(!URL.empty())
@@ -1286,9 +1286,9 @@ RENDERDOC_CreateRemoteServerConnection(const rdcstr &URL, IRemoteServer **rend)
 
   rdcstr deviceID = host;
 
-  IDeviceProtocolHandler *protocol = RenderDoc::Inst().GetDeviceProtocol(deviceID);
+  IDeviceProtocolHandler *protocol = GuguGaga::Inst().GetDeviceProtocol(deviceID);
 
-  uint16_t port = RenderDoc_RemoteServerPort;
+  uint16_t port = GuguGaga_RemoteServerPort;
 
   if(protocol)
   {
@@ -1394,10 +1394,10 @@ RENDERDOC_CreateRemoteServerConnection(const rdcstr &URL, IRemoteServer **rend)
   return RDResult(ResultCode::Succeeded);
 }
 
-extern "C" RENDERDOC_API ResultDetails RENDERDOC_CC
-RENDERDOC_CheckRemoteServerConnection(const rdcstr &URL)
+extern "C" GUGUGAGA_API ResultDetails GUGUGAGA_CC
+GUGUGAGA_CheckRemoteServerConnection(const rdcstr &URL)
 {
-  return RENDERDOC_CreateRemoteServerConnection(URL, NULL);
+  return GUGUGAGA_CreateRemoteServerConnection(URL, NULL);
 }
 
 #undef WRITE_DATA_SCOPE
@@ -1416,7 +1416,7 @@ RemoteServer::RemoteServer(Network::Socket *sock, const rdcstr &deviceID)
     reader->ConfigureStructuredExport(&GetRemoteServerChunkName, false, 0, 1.0);
     writer->ConfigureStructuredExport(&GetRemoteServerChunkName, false, 0, 1.0);
 
-    rdcstr filename = FileIO::GetTempFolderFilename() + "/RenderDoc/RemoteServer_Client.log";
+    rdcstr filename = FileIO::GetTempFolderFilename() + "/GuguGaga/RemoteServer_Client.log";
 
     RDCLOG("Logging remote server work to '%s'", filename.c_str());
 
@@ -1436,7 +1436,7 @@ RemoteServer::RemoteServer(Network::Socket *sock, const rdcstr &deviceID)
   writer->SetStreamingMode(true);
   reader->SetStreamingMode(true);
 
-  std::map<RDCDriver, rdcstr> m = RenderDoc::Inst().GetReplayDrivers();
+  std::map<RDCDriver, rdcstr> m = GuguGaga::Inst().GetReplayDrivers();
 
   m_Proxies.reserve(m.size());
   for(auto it = m.begin(); it != m.end(); ++it)
@@ -1669,7 +1669,7 @@ ExecuteResult RemoteServer::ExecuteAndInject(const rdcstr &app, const rdcstr &wo
 }
 
 void RemoteServer::CopyCaptureFromRemote(const rdcstr &remotepath, const rdcstr &localpath,
-                                         RENDERDOC_ProgressCallback progress)
+                                         GUGUGAGA_ProgressCallback progress)
 {
   {
     WRITE_DATA_SCOPE();
@@ -1702,7 +1702,7 @@ void RemoteServer::CopyCaptureFromRemote(const rdcstr &remotepath, const rdcstr 
   }
 }
 
-rdcstr RemoteServer::CopyCaptureToRemote(const rdcstr &filename, RENDERDOC_ProgressCallback progress)
+rdcstr RemoteServer::CopyCaptureToRemote(const rdcstr &filename, GUGUGAGA_ProgressCallback progress)
 {
   FILE *fileHandle = FileIO::fopen(filename, FileIO::ReadBinary);
 
@@ -1753,7 +1753,7 @@ void RemoteServer::TakeOwnershipCapture(const rdcstr &filename)
 
 rdcpair<ResultDetails, IReplayController *> RemoteServer::OpenCapture(
     uint32_t proxyid, const rdcstr &filename, const ReplayOptions &opts,
-    RENDERDOC_ProgressCallback progress)
+    GUGUGAGA_ProgressCallback progress)
 {
   rdcpair<ResultDetails, IReplayController *> ret;
   ret.first = ResultCode::InternalError;
@@ -1769,7 +1769,7 @@ rdcpair<ResultDetails, IReplayController *> RemoteServer::OpenCapture(
 
   LogReplayOptions(opts);
 
-  // if the proxy id is ~0U, then we just don't care so let RenderDoc pick the most
+  // if the proxy id is ~0U, then we just don't care so let GuguGaga pick the most
   // appropriate supported proxy for the current platform.
   RDCDriver proxydrivertype = proxyid == ~0U ? RDCDriver::Unknown : m_Proxies[proxyid].first;
 
@@ -1828,7 +1828,7 @@ rdcpair<ResultDetails, IReplayController *> RemoteServer::OpenCapture(
   RDCLOG("Capture ready on replay host");
 
   IReplayDriver *proxyDriver = NULL;
-  result = RenderDoc::Inst().CreateProxyReplayDriver(proxydrivertype, &proxyDriver);
+  result = GuguGaga::Inst().CreateProxyReplayDriver(proxydrivertype, &proxyDriver);
 
   if(result != ResultCode::Succeeded || !proxyDriver)
   {
@@ -2161,7 +2161,7 @@ bool RemoteServer::HasCallstacks()
   return hasCallstacks;
 }
 
-ResultDetails RemoteServer::InitResolver(bool interactive, RENDERDOC_ProgressCallback progress)
+ResultDetails RemoteServer::InitResolver(bool interactive, GUGUGAGA_ProgressCallback progress)
 {
   {
     WRITE_DATA_SCOPE();

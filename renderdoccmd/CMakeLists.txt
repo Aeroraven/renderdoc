@@ -1,10 +1,10 @@
 set(sources
-    renderdoccmd.cpp
-    renderdoccmd.h
+    gugugagacmd.cpp
+    gugugagacmd.h
     3rdparty/cmdline/cmdline.h
     )
-set(includes PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty ${CMAKE_SOURCE_DIR}/renderdoc/api)
-set(libraries PRIVATE renderdoc)
+set(includes PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty ${CMAKE_SOURCE_DIR}/gugugaga/api)
+set(libraries PRIVATE gugugaga)
 
 if(PythonLibs_FOUND)
     add_definitions(-DPYTHON_VERSION_MINOR=${PYTHON_VERSION_MINOR})
@@ -13,9 +13,9 @@ else()
 endif()
 
 if(APPLE)
-    list(APPEND sources renderdoccmd_apple.cpp apple/cocoa_window.mm)
+    list(APPEND sources gugugagacmd_apple.cpp apple/cocoa_window.mm)
 
-    set_property(SOURCE renderdoccmd_apple.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-shadow")
+    set_property(SOURCE gugugagacmd_apple.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-shadow")
 
     find_library(COCOA_LIBRARY Cocoa)
     list(APPEND libraries PRIVATE ${COCOA_LIBRARY})
@@ -25,7 +25,7 @@ if(APPLE)
 
 elseif(ANDROID)
     string(REPLACE "\\" "/" GLUE_SOURCE "${ANDROID_NDK_ROOT_PATH}/sources/android/native_app_glue/android_native_app_glue.c")
-    list(APPEND sources renderdoccmd_android.cpp "${GLUE_SOURCE}")
+    list(APPEND sources gugugagacmd_android.cpp "${GLUE_SOURCE}")
     include_directories(${ANDROID_NDK_ROOT_PATH}/sources/android/native_app_glue)
     list(APPEND libraries PRIVATE -llog -landroid)
     set(LINKER_FLAGS "-Wl,--no-as-needed")
@@ -34,15 +34,15 @@ elseif(ANDROID)
         set(LINKER_FLAGS "${LINKER_FLAGS} -fsanitize=address")
     endif()
 
-    set_source_files_properties(renderdoccmd.cpp PROPERTIES COMPILE_FLAGS "-fexceptions -frtti")
-    set_source_files_properties(renderdoccmd_android.cpp PROPERTIES COMPILE_FLAGS "-fexceptions")
+    set_source_files_properties(gugugagacmd.cpp PROPERTIES COMPILE_FLAGS "-fexceptions -frtti")
+    set_source_files_properties(gugugagacmd_android.cpp PROPERTIES COMPILE_FLAGS "-fexceptions")
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set_property(SOURCE renderdoccmd_android.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-shadow")
+    set_property(SOURCE gugugagacmd_android.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-shadow")
 endif()
 
 elseif(UNIX)
-    list(APPEND sources renderdoccmd_linux.cpp)
+    list(APPEND sources gugugagacmd_linux.cpp)
 
     if(FREEBSD)
         list(APPEND libraries PRIVATE -L/usr/local/lib)
@@ -50,7 +50,7 @@ elseif(UNIX)
     endif()
 
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        set_property(SOURCE renderdoccmd_linux.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-shadow")
+        set_property(SOURCE gugugagacmd_linux.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-shadow")
     endif()
 
     if(ENABLE_XLIB)
@@ -72,7 +72,7 @@ endif()
 
 if(ANDROID)
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${LINKER_FLAGS}")
-    add_library(renderdoccmd SHARED ${sources})
+    add_library(gugugagacmd SHARED ${sources})
 else()
     set(CMAKE_SKIP_BUILD_RPATH TRUE)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
@@ -84,21 +84,21 @@ else()
     endif()
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LINKER_FLAGS}")
 
-    add_executable(renderdoccmd ${sources})
+    add_executable(gugugagacmd ${sources})
     
     if(INTERNAL_SELF_CAPTURE)
-        set_target_properties(renderdoccmd PROPERTIES OUTPUT_NAME "rdocselfcmd")
+        set_target_properties(gugugagacmd PROPERTIES OUTPUT_NAME "rdocselfcmd")
     endif()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set_property(SOURCE renderdoccmd.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-shadow")
+    set_property(SOURCE gugugagacmd.cpp APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-shadow")
 endif()
 
-target_include_directories(renderdoccmd ${includes})
-target_link_libraries(renderdoccmd ${libraries})
+target_include_directories(gugugagacmd ${includes})
+target_link_libraries(gugugagacmd ${libraries})
 
-install (TARGETS renderdoccmd DESTINATION bin)
+install (TARGETS gugugagacmd DESTINATION bin)
 
 if(ANDROID)
     # Android sets this to off becuase Android is always terrible forever.
@@ -129,10 +129,10 @@ if(ANDROID)
     message(STATUS "Using Java of version ${Java_VERSION}")
 
     if(STRIP_ANDROID_LIBRARY AND ANDROID_STRIP_TOOL AND RELEASE_MODE)
-        add_custom_command(TARGET renderdoccmd POST_BUILD
-            COMMAND echo Stripping $<TARGET_FILE:renderdoccmd>
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:renderdoccmd> $<TARGET_FILE:renderdoccmd>.dbg
-            COMMAND ${ANDROID_STRIP_TOOL} --strip-unneeded $<TARGET_FILE:renderdoccmd>)
+        add_custom_command(TARGET gugugagacmd POST_BUILD
+            COMMAND echo Stripping $<TARGET_FILE:gugugagacmd>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:gugugagacmd> $<TARGET_FILE:gugugagacmd>.dbg
+            COMMAND ${ANDROID_STRIP_TOOL} --strip-unneeded $<TARGET_FILE:gugugagacmd>)
     endif()
 
     set(ANDROID_BUILD_TOOLS_VERSION "" CACHE STRING "Version of Android build-tools to use instead of the default")
@@ -202,7 +202,7 @@ if(ANDROID)
 
     # APK_VERSION_CODE corresponds to android:versionCode, an internal integer value that can be queried. Higher numbers indicate more recent versions.
     # APK_VERSION_NAME corresponds to android:versionName, a string value that is displayed to the user.
-    set(APK_VERSION_CODE "${RENDERDOC_VERSION_MAJOR}${RENDERDOC_VERSION_MINOR}")
+    set(APK_VERSION_CODE "${GUGUGAGA_VERSION_MAJOR}${GUGUGAGA_VERSION_MINOR}")
     set(APK_VERSION_NAME ${GIT_COMMIT_HASH})
     message(STATUS "Building APK versionCode ${APK_VERSION_CODE}, versionName ${APK_VERSION_NAME}")
 
@@ -219,29 +219,29 @@ if(ANDROID)
         message(FATAL_ERROR "ABI ${ANDROID_ABI} is not supported.")
     endif()
 
-    set(RENDERDOC_ANDROID_PACKAGE_NAME "org.renderdoc.renderdoccmd.${ABI_EXTENSION_NAME}")
+    set(GUGUGAGA_ANDROID_PACKAGE_NAME "org.gugugaga.gugugagacmd.${ABI_EXTENSION_NAME}")
 
-    set(APK_FILE ${CMAKE_BINARY_DIR}/bin/${RENDERDOC_ANDROID_PACKAGE_NAME}.apk)
+    set(APK_FILE ${CMAKE_BINARY_DIR}/bin/${GUGUGAGA_ANDROID_PACKAGE_NAME}.apk)
     add_custom_target(apk ALL
                       DEPENDS ${APK_FILE})
                   
     option(ENABLE_CUSTOM_WRAP_SCRIPT "Enable custom wrap.sh on Android to workaround Android bug" ON)
 
     # Copy in android package files, replacing the package name with the architecture-specific package name
-    configure_file(android/Loader.java ${CMAKE_CURRENT_BINARY_DIR}/src/org/renderdoc/renderdoccmd/Loader.java)
+    configure_file(android/Loader.java ${CMAKE_CURRENT_BINARY_DIR}/src/org/gugugaga/gugugagacmd/Loader.java)
     configure_file(android/AndroidManifest.xml ${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml)
     configure_file(android/icon.png ${CMAKE_CURRENT_BINARY_DIR}/res/drawable/icon.png COPYONLY)
 
     add_custom_command(OUTPUT ${APK_FILE}
-                       DEPENDS renderdoc
-                       DEPENDS renderdoccmd
+                       DEPENDS gugugaga
+                       DEPENDS gugugagacmd
                        DEPENDS ${KEYSTORE}
                        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                        COMMAND ${CMAKE_COMMAND} -E make_directory libs/lib/${ANDROID_ABI}
                        COMMAND ${CMAKE_COMMAND} -E make_directory obj
                        COMMAND ${CMAKE_COMMAND} -E make_directory bin
-                       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:renderdoc> libs/lib/${ANDROID_ABI}/$<TARGET_FILE_NAME:renderdoc>
-                       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:renderdoccmd> libs/lib/${ANDROID_ABI}/$<TARGET_FILE_NAME:renderdoccmd>
+                       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:gugugaga> libs/lib/${ANDROID_ABI}/$<TARGET_FILE_NAME:gugugaga>
+                       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:gugugagacmd> libs/lib/${ANDROID_ABI}/$<TARGET_FILE_NAME:gugugagacmd>
                        )
     
     if(ENABLE_CUSTOM_WRAP_SCRIPT)
@@ -302,16 +302,16 @@ if(ANDROID)
     if(NOT EXISTS ${D8_SCRIPT})
         set(DEX_COMMAND ${BUILD_TOOLS}/dx${TOOL_SCRIPT_EXTENSION} --dex --output=bin/classes.dex ./obj)
     else()
-        set(DEX_COMMAND ${D8_SCRIPT} --output ./bin/ ./obj/org/renderdoc/renderdoccmd/${ABI_EXTENSION_NAME}/*.class)
+        set(DEX_COMMAND ${D8_SCRIPT} --output ./bin/ ./obj/org/gugugaga/gugugagacmd/${ABI_EXTENSION_NAME}/*.class)
     endif()
 
     add_custom_command(OUTPUT ${APK_FILE} APPEND
                        COMMAND ${BUILD_TOOLS}/aapt package -f -m -S res -J src -M AndroidManifest.xml -I ${ANDROID_JAR}
-                       COMMAND ${JAVA_BIN}/javac -d ./obj -source ${JAVA_TARGET} -target ${JAVA_TARGET} -bootclasspath ${RT_JAR} -classpath "${CLASS_PATH}" -sourcepath src src/org/renderdoc/renderdoccmd/*.java
+                       COMMAND ${JAVA_BIN}/javac -d ./obj -source ${JAVA_TARGET} -target ${JAVA_TARGET} -bootclasspath ${RT_JAR} -classpath "${CLASS_PATH}" -sourcepath src src/org/gugugaga/gugugagacmd/*.java
                        COMMAND ${DEX_COMMAND}
-                       COMMAND ${BUILD_TOOLS}/aapt package -f -M AndroidManifest.xml --version-code ${APK_VERSION_CODE} --version-name ${APK_VERSION_NAME} -S res -I ${ANDROID_JAR} -F RenderDocCmd-unaligned.apk bin libs
-                       COMMAND ${BUILD_TOOLS}/zipalign -f 4 RenderDocCmd-unaligned.apk RenderDocCmd.apk
-                       COMMAND ${BUILD_TOOLS}/apksigner${TOOL_SCRIPT_EXTENSION} sign --ks ${KEYSTORE} --ks-pass pass:android --key-pass pass:android --ks-key-alias rdocandroidkey RenderDocCmd.apk
-                       COMMAND ${CMAKE_COMMAND} -E copy RenderDocCmd.apk ${APK_FILE})
+                       COMMAND ${BUILD_TOOLS}/aapt package -f -M AndroidManifest.xml --version-code ${APK_VERSION_CODE} --version-name ${APK_VERSION_NAME} -S res -I ${ANDROID_JAR} -F GuguGagaCmd-unaligned.apk bin libs
+                       COMMAND ${BUILD_TOOLS}/zipalign -f 4 GuguGagaCmd-unaligned.apk GuguGagaCmd.apk
+                       COMMAND ${BUILD_TOOLS}/apksigner${TOOL_SCRIPT_EXTENSION} sign --ks ${KEYSTORE} --ks-pass pass:android --key-pass pass:android --ks-key-alias rdocandroidkey GuguGagaCmd.apk
+                       COMMAND ${CMAKE_COMMAND} -E copy GuguGagaCmd.apk ${APK_FILE})
 
 endif()

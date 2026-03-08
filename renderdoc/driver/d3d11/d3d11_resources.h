@@ -75,8 +75,8 @@ bool CanQuery(base *b)
   return SUCCEEDED(check) && d != NULL;
 }
 
-extern const GUID RENDERDOC_ID3D11ShaderGUID_ShaderDebugMagicValue;
-extern const GUID RENDERDOC_DeleteSelf;
+extern const GUID GUGUGAGA_ID3D11ShaderGUID_ShaderDebugMagicValue;
+extern const GUID GUGUGAGA_DeleteSelf;
 
 template <typename NestedType, typename NestedType1 = NestedType, typename NestedType2 = NestedType1>
 class WrappedDeviceChild11 : public NestedType2
@@ -358,10 +358,10 @@ public:
       /* [annotation] */
       __in_bcount_opt(DataSize) const void *pData)
   {
-    if(guid == RENDERDOC_ID3D11ShaderGUID_ShaderDebugMagicValue)
+    if(guid == GUGUGAGA_ID3D11ShaderGUID_ShaderDebugMagicValue)
       return m_pDevice->SetShaderDebugPath(this, (const char *)pData);
 
-    if(guid == RENDERDOC_DeleteSelf)
+    if(guid == GUGUGAGA_DeleteSelf)
     {
       delete this;
       return S_OK;
@@ -533,7 +533,7 @@ public:
                       WrappedID3D11Device *device)
       : WrappedResource11(id, real, device)
   {
-    if(RenderDoc::Inst().IsReplayApp())
+    if(GuguGaga::Inst().IsReplayApp())
     {
       RDCASSERT(m_BufferList.find(GetResourceID()) == m_BufferList.end());
       m_BufferList[GetResourceID()] = BufferEntry(this, byteLength);
@@ -551,7 +551,7 @@ public:
 
   virtual ~WrappedID3D11Buffer()
   {
-    if(RenderDoc::Inst().IsReplayApp())
+    if(GuguGaga::Inst().IsReplayApp())
     {
       if(m_BufferList.find(GetResourceID()) != m_BufferList.end())
         m_BufferList.erase(GetResourceID());
@@ -588,7 +588,7 @@ public:
   {
     if(type != TEXDISPLAY_UNKNOWN)
     {
-      if(RenderDoc::Inst().IsReplayApp())
+      if(GuguGaga::Inst().IsReplayApp())
       {
         RDCASSERT(m_TextureList.find(GetResourceID()) == m_TextureList.end());
         m_TextureList[GetResourceID()] = TextureEntry(this, type);
@@ -598,7 +598,7 @@ public:
 
   virtual ~WrappedTexture()
   {
-    if(RenderDoc::Inst().IsReplayApp())
+    if(GuguGaga::Inst().IsReplayApp())
     {
       if(m_TextureList.find(GetResourceID()) != m_TextureList.end())
         m_TextureList.erase(GetResourceID());

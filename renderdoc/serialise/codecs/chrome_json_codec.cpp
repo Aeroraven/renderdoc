@@ -29,7 +29,7 @@
 #include "serialise/rdcfile.h"
 
 RDResult exportChrome(const rdcstr &filename, const RDCFile &rdc, const SDFile &structData,
-                      RENDERDOC_ProgressCallback progress)
+                      GUGUGAGA_ProgressCallback progress)
 {
   FILE *f = FileIO::fopen(filename, FileIO::WriteText);
 

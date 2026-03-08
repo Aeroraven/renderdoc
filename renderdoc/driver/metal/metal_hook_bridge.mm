@@ -45,7 +45,7 @@
 
 id<MTLDevice> METAL_EXPORT_NAME(MTLCreateSystemDefaultDevice)(void)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     if(!METAL.MTLCreateSystemDefaultDevice)
       METAL.PopulateForReplay();

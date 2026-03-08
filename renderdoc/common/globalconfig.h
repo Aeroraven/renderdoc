@@ -60,7 +60,7 @@
 
 // translate from build system defines, so they don't have to be defined to anything in
 // particular
-#if defined(RENDERDOC_PLATFORM_WIN32)
+#if defined(GUGUGAGA_PLATFORM_WIN32)
 
 #define RDOC_WIN32 OPTION_ON
 #define RDOC_ANDROID OPTION_OFF
@@ -69,7 +69,7 @@
 #define RDOC_POSIX OPTION_OFF
 #define RDOC_SWITCH OPTION_OFF
 
-#elif defined(RENDERDOC_PLATFORM_ANDROID)
+#elif defined(GUGUGAGA_PLATFORM_ANDROID)
 
 #define RDOC_WIN32 OPTION_OFF
 #define RDOC_ANDROID OPTION_ON
@@ -78,7 +78,7 @@
 #define RDOC_POSIX OPTION_ON
 #define RDOC_SWITCH OPTION_OFF
 
-#elif defined(RENDERDOC_PLATFORM_LINUX)
+#elif defined(GUGUGAGA_PLATFORM_LINUX)
 
 #define RDOC_WIN32 OPTION_OFF
 #define RDOC_ANDROID OPTION_OFF
@@ -87,7 +87,7 @@
 #define RDOC_POSIX OPTION_ON
 #define RDOC_SWITCH OPTION_OFF
 
-#elif defined(RENDERDOC_PLATFORM_APPLE)
+#elif defined(GUGUGAGA_PLATFORM_APPLE)
 
 #define RDOC_WIN32 OPTION_OFF
 #define RDOC_ANDROID OPTION_OFF
@@ -96,7 +96,7 @@
 #define RDOC_POSIX OPTION_ON
 #define RDOC_SWITCH OPTION_OFF
 
-#elif defined(RENDERDOC_PLATFORM_SWITCH)
+#elif defined(GUGUGAGA_PLATFORM_SWITCH)
 
 #define RDOC_WIN32 OPTION_OFF
 #define RDOC_ANDROID OPTION_OFF
@@ -112,25 +112,25 @@
 #endif
 
 // is size_t a real separate type, not just typedef'd to uint32_t or uint64_t (or equivalent)?
-#if defined(RENDERDOC_PLATFORM_APPLE)
+#if defined(GUGUGAGA_PLATFORM_APPLE)
 #define RDOC_SIZET_SEP_TYPE OPTION_ON
 #else
 #define RDOC_SIZET_SEP_TYPE OPTION_OFF
 #endif
 
-#if defined(RENDERDOC_WINDOWING_XLIB)
+#if defined(GUGUGAGA_WINDOWING_XLIB)
 #define RDOC_XLIB OPTION_ON
 #else
 #define RDOC_XLIB OPTION_OFF
 #endif
 
-#if defined(RENDERDOC_WINDOWING_XCB)
+#if defined(GUGUGAGA_WINDOWING_XCB)
 #define RDOC_XCB OPTION_ON
 #else
 #define RDOC_XCB OPTION_OFF
 #endif
 
-#if defined(RENDERDOC_WINDOWING_WAYLAND)
+#if defined(GUGUGAGA_WINDOWING_WAYLAND)
 #define RDOC_WAYLAND OPTION_ON
 #else
 #define RDOC_WAYLAND OPTION_OFF
@@ -140,23 +140,23 @@
 // Global constants
 enum
 {
-  RenderDoc_FirstTargetControlPort = 38920,
-  RenderDoc_LastTargetControlPort = RenderDoc_FirstTargetControlPort + 7,
-  RenderDoc_RemoteServerPort = 39920,
+  GuguGaga_FirstTargetControlPort = 38920,
+  GuguGaga_LastTargetControlPort = GuguGaga_FirstTargetControlPort + 7,
+  GuguGaga_RemoteServerPort = 39920,
 
-  RenderDoc_ForwardPortBase = 38950,
-  RenderDoc_ForwardTargetControlOffset = 0,
-  RenderDoc_ForwardRemoteServerOffset = 9,
-  RenderDoc_ForwardPortStride = 10,
+  GuguGaga_ForwardPortBase = 38950,
+  GuguGaga_ForwardTargetControlOffset = 0,
+  GuguGaga_ForwardRemoteServerOffset = 9,
+  GuguGaga_ForwardPortStride = 10,
 };
 
-#define RENDERDOC_VULKAN_LAYER_NAME "VK_LAYER_GUGUGAGA_Capture"
-#define RENDERDOC_VULKAN_LAYER_VAR "ENABLE_VULKAN_RENDERDOC_CAPTURE"
+#define GUGUGAGA_VULKAN_LAYER_NAME "VK_LAYER_GUGUGAGA_Capture"
+#define GUGUGAGA_VULKAN_LAYER_VAR "ENABLE_VULKAN_GUGUGAGA_CAPTURE"
 
-#define RENDERDOC_ANDROID_LIBRARY "libVkLayer_GLES_RenderDoc.so"
+#define GUGUGAGA_ANDROID_LIBRARY "libVkLayer_GLES_GuguGaga.so"
 
 // This MUST match the package name in the build process that generates per-architecture packages
-#define RENDERDOC_ANDROID_PACKAGE_BASE "org.renderdoc.renderdoccmd"
+#define GUGUGAGA_ANDROID_PACKAGE_BASE "org.gugugaga.gugugagacmd"
 
 /////////////////////////////////////////////////
 // Debugging features configuration

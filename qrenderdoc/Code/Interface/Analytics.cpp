@@ -35,7 +35,7 @@
 #include "Windows/Dialogs/AnalyticsPromptDialog.h"
 #include "QRDInterface.h"
 
-#if RENDERDOC_ANALYTICS_ENABLE
+#if GUGUGAGA_ANALYTICS_ENABLE
 
 template <>
 inline rdcliteral TypeName<int32_t>()
@@ -232,7 +232,7 @@ static struct AnalyticsDocumentation
 
   struct
   {
-    DOCUMENT_ANALYTIC(RenderDocVersion, "The RenderDoc build version used to submit the report.");
+    DOCUMENT_ANALYTIC(GuguGagaVersion, "The GuguGaga build version used to submit the report.");
     DOCUMENT_ANALYTIC(DistributionVersion, "The distribution version, if this is a linux build.");
     DOCUMENT_ANALYTIC(OSVersion, "OS version as reported by Qt.");
     DOCUMENT_ANALYTIC(Bitness, "Whether the build is 64-bit or 32-bit.");
@@ -264,7 +264,7 @@ static struct AnalyticsDocumentation
     DOCUMENT_ANALYTIC(CustomTextureVisualise,
                       "Did the user use a custom texture visualisation shader?");
     DOCUMENT_ANALYTIC(ImageViewer,
-                      "Did the user employ RenderDoc as an image (DDS/PNG/HDR) viewer?");
+                      "Did the user employ GuguGaga as an image (DDS/PNG/HDR) viewer?");
     DOCUMENT_ANALYTIC(CaptureComments,
                       "Did the user make and save any comments in a capture file?");
     DOCUMENT_ANALYTIC(AndroidRemoteReplay, "Did the user use Android remote replay functionality?");
@@ -314,7 +314,7 @@ static struct AnalyticsDocumentation
     DOCUMENT_ANALYTIC(MultiGPU, "Did any capture make use of multiple GPUs?");
     DOCUMENT_ANALYTIC(D3D12Bundle, "Did any D3D12 capture use bundles?");
     DOCUMENT_ANALYTIC(DXILShaders, "Did any D3D12 capture use DXIL shaders?");
-    DOCUMENT_ANALYTIC(CustomAnnotations, "Did any capture use RenderDoc's custom annotations?");
+    DOCUMENT_ANALYTIC(CustomAnnotations, "Did any capture use GuguGaga's custom annotations?");
   } DOCUMENT_ANALYTIC_SECTION(CaptureFeatures, "Capture API Usage");
 } docs;
 
@@ -341,7 +341,7 @@ void AnalyticsSerialise(Analytics &serdb, QVariantMap &values, AnalyticsSerialis
 
   ANALYTIC_SECTION(Metadata);
   {
-    ANALYTIC_SERIALISE(Metadata.RenderDocVersion);
+    ANALYTIC_SERIALISE(Metadata.GuguGagaVersion);
     ANALYTIC_SERIALISE(Metadata.DistributionVersion);
     ANALYTIC_SERIALISE(Metadata.OSVersion);
     ANALYTIC_SERIALISE(Metadata.Bitness);
@@ -595,7 +595,7 @@ void Analytics::Prompt(ICaptureContext &ctx, PersistantConfig &config)
 
       postData.addQueryItem(lit("report"), jsonReport);
 
-      QNetworkRequest request(QUrl(lit("https://renderdoc.org/analytics")));
+      QNetworkRequest request(QUrl(lit("https://gugugaga.org/analytics")));
 
       request.setHeader(QNetworkRequest::ContentTypeHeader,
                         lit("application/x-www-form-urlencoded"));
@@ -611,7 +611,7 @@ void Analytics::Prompt(ICaptureContext &ctx, PersistantConfig &config)
   }
 }
 
-#else    // RENDERDOC_ANALYTICS_ENABLE
+#else    // GUGUGAGA_ANALYTICS_ENABLE
 
 namespace Analytics
 {

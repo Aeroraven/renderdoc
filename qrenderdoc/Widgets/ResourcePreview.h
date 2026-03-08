@@ -25,7 +25,7 @@
 #pragma once
 
 #include <QFrame>
-#include "renderdoc_replay.h"
+#include "gugugaga_replay.h"
 
 namespace Ui
 {

@@ -206,7 +206,7 @@ void GLResourceManager::MarkFBOAttachmentsReferenced(ResourceId fboid, GLResourc
 
 void GLResourceManager::SetInternalResource(GLResource res)
 {
-  if(!RenderDoc::Inst().IsReplayApp())
+  if(!GuguGaga::Inst().IsReplayApp())
   {
     GLResourceRecord *record = GetResourceRecord(res);
     if(record)

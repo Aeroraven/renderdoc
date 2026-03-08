@@ -23,8 +23,8 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-#include "renderdoccmd.h"
-#include <app/renderdoc_app.h>
+#include "gugugagacmd.h"
+#include <app/gugugaga_app.h>
 #include <gugugagashim.h>
 #include <windows.h>
 #include <string>
@@ -64,7 +64,7 @@ static std::wstring conv(const std::string &str)
 
 HINSTANCE hInstance = NULL;
 
-#if defined(RELEASE) && RENDERDOC_OFFICIAL_BUILD
+#if defined(RELEASE) && GUGUGAGA_OFFICIAL_BUILD
 #define CRASH_HANDLER 1
 #else
 #define CRASH_HANDLER 0
@@ -129,7 +129,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void Daemonise()
 {
-  // nothing really to do, windows version of renderdoccmd is already 'detached'
+  // nothing really to do, windows version of gugugagacmd is already 'detached'
 }
 
 WindowingData DisplayRemoteServerPreview(bool active, const rdcarray<WindowingSystem> &systems)
@@ -299,7 +299,7 @@ public:
           mz_zip_reader_file_stat(&zip, i, &zstat);
 
           const char *fn = zstat.m_filename;
-          // skip first directory because it's RenderDoc_Version_Bitness/
+          // skip first directory because it's GuguGaga_Version_Bitness/
           fn = strchr(fn, '/');
           if(fn)
             fn++;
@@ -342,7 +342,7 @@ public:
           mz_zip_reader_file_stat(&zip, i, &zstat);
 
           const char *fn = zstat.m_filename;
-          // skip first directory because it's RenderDoc_Version_Bitness/
+          // skip first directory because it's GuguGaga_Version_Bitness/
           fn = strchr(fn, '/');
           if(fn)
             fn++;
@@ -390,7 +390,7 @@ public:
           mz_zip_reader_file_stat(&zip, i, &zstat);
 
           const char *fn = zstat.m_filename;
-          // skip first directory because it's RenderDoc_Version_Bitness/
+          // skip first directory because it's GuguGaga_Version_Bitness/
           fn = strchr(fn, '/');
           if(fn)
             fn++;
@@ -509,10 +509,10 @@ public:
           show.vt = VT_I4;
           show.lVal = SW_SHOWNORMAL;
 
-          std::wstring qrenderdoc = wide_path + L"/qgugugaga.exe";
+          std::wstring qgugugaga = wide_path + L"/qgugugaga.exe";
 
-          BSTR path = SysAllocStringLen(qrenderdoc.c_str(), (UINT)qrenderdoc.size());
-          memcpy(path, qrenderdoc.c_str(), qrenderdoc.size());
+          BSTR path = SysAllocStringLen(qgugugaga.c_str(), (UINT)qgugugaga.size());
+          memcpy(path, qgugugaga.c_str(), qgugugaga.size());
 
           VARIANT param = {};
           param.vt = VT_BSTR;
@@ -583,7 +583,7 @@ public:
 
     // create each parent directory separately, and use \\s
 
-    dumpFolder += L"RenderDoc";
+    dumpFolder += L"GuguGaga";
     CreateDirectoryW(dumpFolder.c_str(), NULL);
 
     dumpFolder += L"\\dumps";
@@ -690,7 +690,7 @@ public:
 
       std::string reportPath = conv(dumpFolder) + "\\" + dumpId + ".zip";
 
-      RENDERDOC_CreateBugReport(rdcstr(conv(wlogpath).c_str()), rdcstr(conv(wdump).c_str()),
+      GUGUGAGA_CreateBugReport(rdcstr(conv(wlogpath).c_str()), rdcstr(conv(wdump).c_str()),
                                 rdcstr(reportPath.c_str()));
 
       for(size_t i = 0; i < reportPath.size(); i++)
@@ -947,5 +947,5 @@ int main(int, char *)
   // possible
   add_command("globalhook", new GlobalHookCommand());
 
-  return renderdoccmd(env, argv);
+  return gugugagacmd(env, argv);
 }

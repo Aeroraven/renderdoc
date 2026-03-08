@@ -251,7 +251,7 @@ private:
       while(*cur)
       {
         // if it is NOT the vulkan env var, append it to our block
-        if(wcsncmp(cur, CONCAT(L, RENDERDOC_VULKAN_LAYER_VAR), sizeof(RENDERDOC_VULKAN_LAYER_VAR) - 1))
+        if(wcsncmp(cur, CONCAT(L, GUGUGAGA_VULKAN_LAYER_VAR), sizeof(GUGUGAGA_VULKAN_LAYER_VAR) - 1))
         {
           envW += cur;
           envW.push_back(L'\0');
@@ -274,7 +274,7 @@ private:
       while(*cur)
       {
         // if it is NOT the vulkan env var, append it to our block
-        if(strncmp(cur, RENDERDOC_VULKAN_LAYER_VAR, sizeof(RENDERDOC_VULKAN_LAYER_VAR) - 1))
+        if(strncmp(cur, GUGUGAGA_VULKAN_LAYER_VAR, sizeof(GUGUGAGA_VULKAN_LAYER_VAR) - 1))
         {
           envA += cur;
           envA.push_back('\0');
@@ -300,11 +300,11 @@ private:
 
       // inherit logfile and capture options
       rdcpair<RDResult, uint32_t> res = Process::InjectIntoProcess(
-          lpProcessInformation->dwProcessId, {}, RenderDoc::Inst().GetCaptureFileTemplate(),
-          RenderDoc::Inst().GetCaptureOptions(), false);
+          lpProcessInformation->dwProcessId, {}, GuguGaga::Inst().GetCaptureFileTemplate(),
+          GuguGaga::Inst().GetCaptureOptions(), false);
 
       if(res.first == ResultCode::Succeeded)
-        RenderDoc::Inst().AddChildProcess((uint32_t)lpProcessInformation->dwProcessId, res.second);
+        GuguGaga::Inst().AddChildProcess((uint32_t)lpProcessInformation->dwProcessId, res.second);
     }
 
     if(resume)
@@ -326,7 +326,7 @@ private:
 
   static bool ShouldInject(LPCWSTR lpApplicationName, LPCWSTR lpCommandLine)
   {
-    if(!RenderDoc::Inst().GetCaptureOptions().hookIntoChildren)
+    if(!GuguGaga::Inst().GetCaptureOptions().hookIntoChildren)
       return false;
 
     bool inject = true;
@@ -360,7 +360,7 @@ private:
 
   static bool ShouldInject(LPCSTR lpApplicationName, LPCSTR lpCommandLine)
   {
-    if(!RenderDoc::Inst().GetCaptureOptions().hookIntoChildren)
+    if(!GuguGaga::Inst().GetCaptureOptions().hookIntoChildren)
       return false;
 
     return ShouldInject(lpApplicationName ? StringFormat::UTF82Wide(lpApplicationName).c_str() : NULL,

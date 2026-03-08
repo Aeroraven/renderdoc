@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2018-2026 Baldur Karlsson
+ * Copyright (c) 2018-2026 GuguGaga Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -64,7 +64,7 @@ ExtensionManager::ExtensionManager(ICaptureContext &ctx)
 
   if(m_Extensions.isEmpty())
   {
-    QString contrib_url = lit("https://github.com/baldurk/renderdoc-contrib");
+    QString contrib_url = lit("https://github.com/GuguGaga/gugugaga-contrib");
     ui->extensions->addTopLevelItem(
         new RDTreeWidgetItem({QString(), tr("No extensions found available"), QString()}));
     ui->extensions->addTopLevelItem(new RDTreeWidgetItem(

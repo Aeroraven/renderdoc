@@ -127,7 +127,7 @@ int GetIdentPort(pid_t childPid)
             i++;
 
           const int port = atoi(&result[tokenStart]);
-          if(port >= RenderDoc_FirstTargetControlPort && port <= RenderDoc_LastTargetControlPort)
+          if(port >= GuguGaga_FirstTargetControlPort && port <= GuguGaga_LastTargetControlPort)
           {
             return port;
           }
@@ -224,5 +224,5 @@ uint64_t Process::GetMemoryUsage()
 // <Carbon/Carbon.h> and "core/core.h"
 bool ShouldOutputDebugMon()
 {
-  return OSUtility::DebuggerPresent() && RenderDoc::Inst().IsReplayApp();
+  return OSUtility::DebuggerPresent() && GuguGaga::Inst().IsReplayApp();
 }

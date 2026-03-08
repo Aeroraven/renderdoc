@@ -74,7 +74,7 @@ __attribute__((visibility("default"))) void *dlopen(const char *filename, int fl
     return ret;
   }
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
     return realdlopen(filename, flag);
 
   // don't do any hook processing inside here even if we call dlopen again
@@ -170,7 +170,7 @@ __attribute__((visibility("default"))) int execve(const char *pathname, char *co
     return passthru(pathname, argv, envp);
   }
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
     return realexecve(pathname, argv, envp);
 
   rdcarray<char *> modifiedEnv;
@@ -178,7 +178,7 @@ __attribute__((visibility("default"))) int execve(const char *pathname, char *co
 
   // if we're not hooking children just call to the real one, but ensure we remove any hooking env
   // vars that were kept around after initialisation
-  if(!RenderDoc::Inst().GetCaptureOptions().hookIntoChildren)
+  if(!GuguGaga::Inst().GetCaptureOptions().hookIntoChildren)
   {
     GetUnhookedEnvp(envp, envpStr, modifiedEnv);
     return realexecve(pathname, argv, modifiedEnv.data());
@@ -197,7 +197,7 @@ __attribute__((visibility("default"))) int execvpe(const char *pathname, char *c
     return passthru(pathname, argv, envp);
   }
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
     return realexecvpe(pathname, argv, envp);
 
   rdcarray<char *> modifiedEnv;
@@ -205,7 +205,7 @@ __attribute__((visibility("default"))) int execvpe(const char *pathname, char *c
 
   // if we're not hooking children just call to the real one, but ensure we remove any hooking env
   // vars that were kept around after initialisation
-  if(!RenderDoc::Inst().GetCaptureOptions().hookIntoChildren)
+  if(!GuguGaga::Inst().GetCaptureOptions().hookIntoChildren)
   {
     GetUnhookedEnvp(envp, envpStr, modifiedEnv);
     return realexecvpe(pathname, argv, modifiedEnv.data());
@@ -223,11 +223,11 @@ __attribute__((visibility("default"))) pid_t fork()
     return passthru();
   }
 
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
     return realfork();
 
   // if we're not hooking children just call to the real one, we don't have to do anything
-  if(!RenderDoc::Inst().GetCaptureOptions().hookIntoChildren)
+  if(!GuguGaga::Inst().GetCaptureOptions().hookIntoChildren)
   {
     // this is a nasty hack. We set this env var when we inject into a process, but because we don't
     // know when vulkan may be initialised we need to leave it on indefinitely. If we're not
@@ -239,7 +239,7 @@ __attribute__((visibility("default"))) pid_t fork()
 
     pid_t ret = realfork();
     if(ret == 0)
-      direct_setenv(RENDERDOC_VULKAN_LAYER_VAR, "", true);
+      direct_setenv(GUGUGAGA_VULKAN_LAYER_VAR, "", true);
 
     return ret;
   }
@@ -272,7 +272,7 @@ __attribute__((visibility("default"))) pid_t fork()
       if(ident)
       {
         RDCLOG("Identified child process %u with ident %u", ret, ident);
-        RenderDoc::Inst().AddChildProcess((uint32_t)ret, (uint32_t)ident);
+        GuguGaga::Inst().AddChildProcess((uint32_t)ret, (uint32_t)ident);
       }
       else
       {
@@ -292,7 +292,7 @@ __attribute__((visibility("default"))) pid_t fork()
 
         // don't accept a return value of our own ident, that means we've checked too early and exec
         // hasn't run yet
-        const uint32_t ownIdent = RenderDoc::Inst().GetTargetControlIdent();
+        const uint32_t ownIdent = GuguGaga::Inst().GetTargetControlIdent();
         uint32_t ident = ownIdent;
         for(uint32_t i = 0; i < 10 && ident == ownIdent; i++)
         {
@@ -306,17 +306,17 @@ __attribute__((visibility("default"))) pid_t fork()
 
         RDCLOG("PID %u has ident %u", ret, ident);
 
-        RenderDoc::Inst().AddChildProcess((uint32_t)ret, (uint32_t)ident);
-        RenderDoc::Inst().CompleteChildThread((uint32_t)ret);
+        GuguGaga::Inst().AddChildProcess((uint32_t)ret, (uint32_t)ident);
+        GuguGaga::Inst().CompleteChildThread((uint32_t)ret);
       });
-      RenderDoc::Inst().AddChildThread((uint32_t)ret, handle);
+      GuguGaga::Inst().AddChildThread((uint32_t)ret, handle);
     }
   }
 
   return ret;
 }
 
-#if defined(RENDERDOC_HOOK_DLSYM)
+#if defined(GUGUGAGA_HOOK_DLSYM)
 
 #pragma message("ALERT: dlsym() hooking enabled! This is unreliable & relies on glibc internals.")
 

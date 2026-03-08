@@ -67,7 +67,7 @@ static void EnsureRealLibraryLoaded()
 {
   if(glxhook.handle == RTLD_NEXT)
   {
-    if(!RenderDoc::Inst().IsReplayApp())
+    if(!GuguGaga::Inst().IsReplayApp())
       RDCLOG("Loading libGL at the last second");
 
     void *handle = Process::LoadModule("libGL.so.1");
@@ -76,15 +76,15 @@ static void EnsureRealLibraryLoaded()
     if(!handle)
       handle = Process::LoadModule("libGLX.so.0");
 
-    if(RenderDoc::Inst().IsReplayApp())
+    if(GuguGaga::Inst().IsReplayApp())
       glxhook.handle = handle;
   }
 }
 
-HOOK_EXPORT GLXContext glXCreateContext_renderdoc_hooked(Display *dpy, XVisualInfo *vis,
+HOOK_EXPORT GLXContext glXCreateContext_gugugaga_hooked(Display *dpy, XVisualInfo *vis,
                                                          GLXContext shareList, Bool direct)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     if(!GLX.glXCreateContext)
       GLX.PopulateForReplay();
@@ -138,11 +138,11 @@ HOOK_EXPORT GLXContext glXCreateContext_renderdoc_hooked(Display *dpy, XVisualIn
   return ret;
 }
 
-HOOK_EXPORT GLXContext glXCreateNewContext_renderdoc_hooked(Display *dpy, GLXFBConfig config,
+HOOK_EXPORT GLXContext glXCreateNewContext_gugugaga_hooked(Display *dpy, GLXFBConfig config,
                                                             int renderType, GLXContext shareList,
                                                             Bool direct)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     if(!GLX.glXCreateNewContext)
       GLX.PopulateForReplay();
@@ -200,9 +200,9 @@ HOOK_EXPORT GLXContext glXCreateNewContext_renderdoc_hooked(Display *dpy, GLXFBC
   return ret;
 }
 
-HOOK_EXPORT void glXDestroyContext_renderdoc_hooked(Display *dpy, GLXContext ctx)
+HOOK_EXPORT void glXDestroyContext_gugugaga_hooked(Display *dpy, GLXContext ctx)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     if(!GLX.glXDestroyContext)
       GLX.PopulateForReplay();
@@ -221,11 +221,11 @@ HOOK_EXPORT void glXDestroyContext_renderdoc_hooked(Display *dpy, GLXContext ctx
   GLX.glXDestroyContext(dpy, ctx);
 }
 
-HOOK_EXPORT GLXContext glXCreateContextAttribsARB_renderdoc_hooked(Display *dpy, GLXFBConfig config,
+HOOK_EXPORT GLXContext glXCreateContextAttribsARB_gugugaga_hooked(Display *dpy, GLXFBConfig config,
                                                                    GLXContext shareList, Bool direct,
                                                                    const int *attribList)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     if(!GLX.glXCreateContextAttribsARB)
       GLX.PopulateForReplay();
@@ -251,7 +251,7 @@ HOOK_EXPORT GLXContext glXCreateContextAttribsARB_renderdoc_hooked(Display *dpy,
 
       if(name == GLX_CONTEXT_FLAGS_ARB)
       {
-        if(RenderDoc::Inst().GetCaptureOptions().apiValidation)
+        if(GuguGaga::Inst().GetCaptureOptions().apiValidation)
           val |= GLX_CONTEXT_DEBUG_BIT_ARB;
         else
           val &= ~GLX_CONTEXT_DEBUG_BIT_ARB;
@@ -266,7 +266,7 @@ HOOK_EXPORT GLXContext glXCreateContextAttribsARB_renderdoc_hooked(Display *dpy,
       attribVec.push_back(val);
     }
 
-    if(!flagsFound && RenderDoc::Inst().GetCaptureOptions().apiValidation)
+    if(!flagsFound && GuguGaga::Inst().GetCaptureOptions().apiValidation)
     {
       attribVec.push_back(GLX_CONTEXT_FLAGS_ARB);
       attribVec.push_back(GLX_CONTEXT_DEBUG_BIT_ARB);
@@ -349,9 +349,9 @@ HOOK_EXPORT GLXContext glXCreateContextAttribsARB_renderdoc_hooked(Display *dpy,
   return ret;
 }
 
-HOOK_EXPORT Bool glXMakeCurrent_renderdoc_hooked(Display *dpy, GLXDrawable drawable, GLXContext ctx)
+HOOK_EXPORT Bool glXMakeCurrent_gugugaga_hooked(Display *dpy, GLXDrawable drawable, GLXContext ctx)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     if(!GLX.glXMakeCurrent || !GLX.glXGetProcAddress)
       GLX.PopulateForReplay();
@@ -428,10 +428,10 @@ HOOK_EXPORT Bool glXMakeCurrent_renderdoc_hooked(Display *dpy, GLXDrawable drawa
   return ret;
 }
 
-HOOK_EXPORT Bool glXMakeContextCurrent_renderdoc_hooked(Display *dpy, GLXDrawable draw,
+HOOK_EXPORT Bool glXMakeContextCurrent_gugugaga_hooked(Display *dpy, GLXDrawable draw,
                                                         GLXDrawable read, GLXContext ctx)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     if(!GLX.glXMakeContextCurrent || !GLX.glXGetProcAddress)
       GLX.PopulateForReplay();
@@ -507,9 +507,9 @@ HOOK_EXPORT Bool glXMakeContextCurrent_renderdoc_hooked(Display *dpy, GLXDrawabl
   return ret;
 }
 
-HOOK_EXPORT void glXSwapBuffers_renderdoc_hooked(Display *dpy, GLXDrawable drawable)
+HOOK_EXPORT void glXSwapBuffers_gugugaga_hooked(Display *dpy, GLXDrawable drawable)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     if(!GLX.glXSwapBuffers)
       GLX.PopulateForReplay();
@@ -538,9 +538,9 @@ HOOK_EXPORT void glXSwapBuffers_renderdoc_hooked(Display *dpy, GLXDrawable drawa
   GLX.glXSwapBuffers(dpy, drawable);
 }
 
-HOOK_EXPORT __GLXextFuncPtr glXGetProcAddress_renderdoc_hooked(const GLubyte *f)
+HOOK_EXPORT __GLXextFuncPtr glXGetProcAddress_gugugaga_hooked(const GLubyte *f)
 {
-  if(RenderDoc::Inst().IsReplayApp())
+  if(GuguGaga::Inst().IsReplayApp())
   {
     if(!GLX.glXGetProcAddress)
       GLX.PopulateForReplay();
@@ -565,23 +565,23 @@ HOOK_EXPORT __GLXextFuncPtr glXGetProcAddress_renderdoc_hooked(const GLubyte *f)
 
   // return our glX hooks
   if(!strcmp(func, "glXCreateContext"))
-    return (__GLXextFuncPtr)&glXCreateContext_renderdoc_hooked;
+    return (__GLXextFuncPtr)&glXCreateContext_gugugaga_hooked;
   if(!strcmp(func, "glXCreateNewContext"))
-    return (__GLXextFuncPtr)&glXCreateNewContext_renderdoc_hooked;
+    return (__GLXextFuncPtr)&glXCreateNewContext_gugugaga_hooked;
   if(!strcmp(func, "glXDestroyContext"))
-    return (__GLXextFuncPtr)&glXDestroyContext_renderdoc_hooked;
+    return (__GLXextFuncPtr)&glXDestroyContext_gugugaga_hooked;
   if(!strcmp(func, "glXCreateContextAttribsARB"))
-    return (__GLXextFuncPtr)&glXCreateContextAttribsARB_renderdoc_hooked;
+    return (__GLXextFuncPtr)&glXCreateContextAttribsARB_gugugaga_hooked;
   if(!strcmp(func, "glXMakeCurrent"))
-    return (__GLXextFuncPtr)&glXMakeCurrent_renderdoc_hooked;
+    return (__GLXextFuncPtr)&glXMakeCurrent_gugugaga_hooked;
   if(!strcmp(func, "glXMakeContextCurrent"))
-    return (__GLXextFuncPtr)&glXMakeContextCurrent_renderdoc_hooked;
+    return (__GLXextFuncPtr)&glXMakeContextCurrent_gugugaga_hooked;
   if(!strcmp(func, "glXSwapBuffers"))
-    return (__GLXextFuncPtr)&glXSwapBuffers_renderdoc_hooked;
+    return (__GLXextFuncPtr)&glXSwapBuffers_gugugaga_hooked;
   if(!strcmp(func, "glXGetProcAddress"))
-    return (__GLXextFuncPtr)&glXGetProcAddress_renderdoc_hooked;
+    return (__GLXextFuncPtr)&glXGetProcAddress_gugugaga_hooked;
   if(!strcmp(func, "glXGetProcAddressARB"))
-    return (__GLXextFuncPtr)&glXGetProcAddress_renderdoc_hooked;
+    return (__GLXextFuncPtr)&glXGetProcAddress_gugugaga_hooked;
 
   // any other GLX functions are safe to pass through unchanged
   if(!strncmp(func, "glX", 3))
@@ -591,65 +591,65 @@ HOOK_EXPORT __GLXextFuncPtr glXGetProcAddress_renderdoc_hooked(const GLubyte *f)
   return (__GLXextFuncPtr)HookedGetProcAddress(func, (void *)realFunc);
 }
 
-HOOK_EXPORT __GLXextFuncPtr glXGetProcAddressARB_renderdoc_hooked(const GLubyte *f)
+HOOK_EXPORT __GLXextFuncPtr glXGetProcAddressARB_gugugaga_hooked(const GLubyte *f)
 {
-  return glXGetProcAddress_renderdoc_hooked(f);
+  return glXGetProcAddress_gugugaga_hooked(f);
 }
 
 // on posix systems, someone might declare a global variable with the same name as a function. When
 // doing this, it might mean that our code for "&glXSwapBuffers" looking up that global symbol will
 // instead find the location fo the function pointer instead of our hook function. For this reason
-// we always refer to the _renderdoc_hooked name, but we still must export the functions under their
+// we always refer to the _gugugaga_hooked name, but we still must export the functions under their
 // real names and just forward to the hook implementation.
 
 HOOK_EXPORT GLXContext glXCreateContext(Display *dpy, XVisualInfo *vis, GLXContext shareList,
                                         Bool direct)
 {
-  return glXCreateContext_renderdoc_hooked(dpy, vis, shareList, direct);
+  return glXCreateContext_gugugaga_hooked(dpy, vis, shareList, direct);
 }
 
 HOOK_EXPORT GLXContext glXCreateNewContext(Display *dpy, GLXFBConfig config, int renderType,
                                            GLXContext shareList, Bool direct)
 {
-  return glXCreateNewContext_renderdoc_hooked(dpy, config, renderType, shareList, direct);
+  return glXCreateNewContext_gugugaga_hooked(dpy, config, renderType, shareList, direct);
 }
 
 HOOK_EXPORT void glXDestroyContext(Display *dpy, GLXContext ctx)
 {
-  return glXDestroyContext_renderdoc_hooked(dpy, ctx);
+  return glXDestroyContext_gugugaga_hooked(dpy, ctx);
 }
 
 HOOK_EXPORT GLXContext glXCreateContextAttribsARB(Display *dpy, GLXFBConfig config,
                                                   GLXContext shareList, Bool direct,
                                                   const int *attribList)
 {
-  return glXCreateContextAttribsARB_renderdoc_hooked(dpy, config, shareList, direct, attribList);
+  return glXCreateContextAttribsARB_gugugaga_hooked(dpy, config, shareList, direct, attribList);
 }
 
 HOOK_EXPORT Bool glXMakeCurrent(Display *dpy, GLXDrawable drawable, GLXContext ctx)
 {
-  return glXMakeCurrent_renderdoc_hooked(dpy, drawable, ctx);
+  return glXMakeCurrent_gugugaga_hooked(dpy, drawable, ctx);
 }
 
 HOOK_EXPORT Bool glXMakeContextCurrent(Display *dpy, GLXDrawable draw, GLXDrawable read,
                                        GLXContext ctx)
 {
-  return glXMakeContextCurrent_renderdoc_hooked(dpy, draw, read, ctx);
+  return glXMakeContextCurrent_gugugaga_hooked(dpy, draw, read, ctx);
 }
 
 HOOK_EXPORT void glXSwapBuffers(Display *dpy, GLXDrawable drawable)
 {
-  return glXSwapBuffers_renderdoc_hooked(dpy, drawable);
+  return glXSwapBuffers_gugugaga_hooked(dpy, drawable);
 }
 
 HOOK_EXPORT __GLXextFuncPtr glXGetProcAddress(const GLubyte *f)
 {
-  return glXGetProcAddress_renderdoc_hooked(f);
+  return glXGetProcAddress_gugugaga_hooked(f);
 }
 
 HOOK_EXPORT __GLXextFuncPtr glXGetProcAddressARB(const GLubyte *f)
 {
-  return glXGetProcAddressARB_renderdoc_hooked(f);
+  return glXGetProcAddressARB_gugugaga_hooked(f);
 }
 
 // on posix systems we need to export the whole of the GLX API, since we will have redirected any
@@ -767,7 +767,7 @@ static void GLXHooked(void *handle, const char *)
   glxhook.handle = handle;
 
   // as a hook callback this is only called while capturing
-  RDCASSERT(!RenderDoc::Inst().IsReplayApp());
+  RDCASSERT(!GuguGaga::Inst().IsReplayApp());
 
 // fetch non-hooked functions into our dispatch table
 #define GLX_FETCH(func) \
@@ -820,7 +820,7 @@ void GLXHook::RegisterHooks()
 #define GLX_REGISTER(func)            \
   LibraryHooks::RegisterFunctionHook( \
       "libGL.so",                     \
-      FunctionHook(STRINGIZE(func), (void **)&GLX.func, (void *)&CONCAT(func, _renderdoc_hooked)));
+      FunctionHook(STRINGIZE(func), (void **)&GLX.func, (void *)&CONCAT(func, _gugugaga_hooked)));
   GLX_HOOKED_SYMBOLS(GLX_REGISTER)
 #undef GLX_REGISTER
 }

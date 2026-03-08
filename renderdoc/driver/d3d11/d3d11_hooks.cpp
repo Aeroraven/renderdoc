@@ -113,9 +113,9 @@ private:
     RDCDEBUG("Call to Create_Internal Flags %x", Flags);
 
     // we should no longer go through here in the replay application
-    RDCASSERT(!RenderDoc::Inst().IsReplayApp());
+    RDCASSERT(!GuguGaga::Inst().IsReplayApp());
 
-    if(RenderDoc::Inst().GetCaptureOptions().apiValidation)
+    if(GuguGaga::Inst().GetCaptureOptions().apiValidation)
       Flags |= D3D11_CREATE_DEVICE_DEBUG;
     else
       Flags &= ~D3D11_CREATE_DEVICE_DEBUG;
@@ -129,7 +129,7 @@ private:
       pUsedSwapDesc = &swapDesc;
     }
 
-    if(pUsedSwapDesc && !RenderDoc::Inst().GetCaptureOptions().allowFullscreen)
+    if(pUsedSwapDesc && !GuguGaga::Inst().GetCaptureOptions().allowFullscreen)
     {
       pUsedSwapDesc->Windowed = TRUE;
     }

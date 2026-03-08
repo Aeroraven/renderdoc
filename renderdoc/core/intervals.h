@@ -26,7 +26,7 @@
 
 #include <map>
 #include "api/replay/rdcflatmap.h"
-#include "api/replay/renderdoc_replay.h"
+#include "api/replay/gugugaga_replay.h"
 #include "common/common.h"
 
 template <typename T>

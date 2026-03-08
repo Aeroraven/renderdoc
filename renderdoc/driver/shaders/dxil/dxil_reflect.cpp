@@ -1875,7 +1875,7 @@ rdcstr Program::GetDebugStatus()
               case DXOp::TextureGatherRaw:
                 // Gather raw elements from 4 texels with no type conversions (SRV type is constrained)
 
-              // SM 6.8 : when SM6.8 is supporting by RenderDoc
+              // SM 6.8 : when SM6.8 is supporting by GuguGaga
               case DXOp::StartVertexLocation:
                 // SV_BaseVertexLocation
                 // BaseVertexLocation from DrawIndexedInstanced or StartVertexLocation from DrawInstanced

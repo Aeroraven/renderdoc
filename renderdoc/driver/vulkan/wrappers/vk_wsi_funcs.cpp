@@ -934,7 +934,7 @@ bool WrappedVulkan::Serialise_vkQueuePresentKHR(SerialiserType &ser, VkQueue que
 
       DeviceOwnedWindow devWnd(LayerDisp(m_Instance), swapInfo.wndHandle);
 
-      const bool activeWindow = RenderDoc::Inst().IsActiveWindow(devWnd);
+      const bool activeWindow = GuguGaga::Inst().IsActiveWindow(devWnd);
 
       if(activeWindow || PresentedImage == ResourceId())
         PresentedImage = GetResID(swapInfo.images[pPresentInfo->pImageIndices[i]].userSwapImage);
@@ -1158,11 +1158,11 @@ void WrappedVulkan::HandlePresent(VkQueue queue, const VkPresentInfoKHR *pPresen
 
   if(IsBackgroundCapturing(m_State))
   {
-    uint32_t overlay = RenderDoc::Inst().GetOverlayBits();
+    uint32_t overlay = GuguGaga::Inst().GetOverlayBits();
 
     const bool fakeBackbuffers = AccelerationStructures() || DescriptorBuffers();
 
-    if(fakeBackbuffers || (overlay & eRENDERDOC_Overlay_Enabled))
+    if(fakeBackbuffers || (overlay & eGUGUGAGA_Overlay_Enabled))
     {
       VkRenderPass rp = swapInfo.rp;
       VkImage unwrappedRealSwapImage = swapInfo.images[imgIndex].unwrappedRealSwapImage;
@@ -1340,7 +1340,7 @@ void WrappedVulkan::HandlePresent(VkQueue queue, const VkPresentInfoKHR *pPresen
       }
 
       rdcstr overlayText =
-          RenderDoc::Inst().GetOverlayText(RDCDriver::Vulkan, devWnd, m_FrameCounter, 0);
+          GuguGaga::Inst().GetOverlayText(RDCDriver::Vulkan, devWnd, m_FrameCounter, 0);
 
       if(m_LastCaptureFailed > 0 && Timing::GetUnixTimestamp() - m_LastCaptureFailed < 5)
         overlayText += StringFormat::Fmt("\nCapture failed: %s",
@@ -1370,7 +1370,7 @@ void WrappedVulkan::HandlePresent(VkQueue queue, const VkPresentInfoKHR *pPresen
         DoPipelineBarrier(cmd, 1, &tmpBarrier);
       }
 
-      if(!overlayText.empty() && (overlay & eRENDERDOC_Overlay_Enabled))
+      if(!overlayText.empty() && (overlay & eGUGUGAGA_Overlay_Enabled))
       {
         m_TextRenderer->BeginText(textstate);
 
@@ -1498,7 +1498,7 @@ void WrappedVulkan::vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surfac
     PackedWindowHandle *wnd = (PackedWindowHandle *)wrapper->record;
     Keyboard::RemoveInputWindow(wnd->system, wnd->handle);
 
-    RenderDoc::Inst().RemoveFrameCapturer(DeviceOwnedWindow(LayerDisp(m_Instance), wnd->handle));
+    GuguGaga::Inst().RemoveFrameCapturer(DeviceOwnedWindow(LayerDisp(m_Instance), wnd->handle));
 
     delete wnd;
   }

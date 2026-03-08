@@ -1046,7 +1046,7 @@ void LiveCapture::on_previewSplit_splitterMoved(int pos, int index)
 
 void LiveCapture::on_apiIcon_clicked(QMouseEvent *event)
 {
-  QDesktopServices::openUrl(QUrl(lit("https://renderdoc.org/docs/in_application_api.html")));
+  QDesktopServices::openUrl(QUrl(lit("https://gugugaga.org/docs/in_application_api.html")));
 }
 
 void LiveCapture::captures_keyPress(QKeyEvent *e)
@@ -1259,7 +1259,7 @@ void LiveCapture::selfClose()
 void LiveCapture::connectionThreadEntry()
 {
   ITargetControl *conn =
-      RENDERDOC_CreateTargetControl(m_Hostname, m_RemoteIdent, GetSystemUsername(), true);
+      GUGUGAGA_CreateTargetControl(m_Hostname, m_RemoteIdent, GetSystemUsername(), true);
   m_Connected.release();
 
   if(!conn || !conn->Connected())

@@ -277,7 +277,7 @@ private:
     if(!m_MarkedActive)
     {
       m_MarkedActive = true;
-      RenderDoc::Inst().AddActiveDriver(GetDriverType(), false);
+      GuguGaga::Inst().AddActiveDriver(GetDriverType(), false);
     }
   }
 
@@ -602,8 +602,8 @@ private:
   void CreateReplayBackbuffer(const GLInitParams &params, ResourceId fboId, GLuint &fbo,
                               rdcstr bbname);
 
-  RenderDoc::FramePixels *SaveBackbufferImage();
-  std::map<void *, RenderDoc::FramePixels *> m_BackbufferImages;
+  GuguGaga::FramePixels *SaveBackbufferImage();
+  std::map<void *, GuguGaga::FramePixels *> m_BackbufferImages;
 
   void BuildGLExtensions();
   void BuildGLESExtensions();
@@ -720,14 +720,14 @@ public:
 
   template <typename SerialiserType>
   bool Serialise_SetCommandAnnotation(SerialiserType &ser, rdcstr key,
-                                      RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                      RENDERDOC_AnnotationValue value);
+                                      GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+                                      GUGUGAGA_AnnotationValue value);
 
-  uint32_t SetObjectAnnotation(void *object, const char *key, RENDERDOC_AnnotationType valueType,
-                               uint32_t valueVectorWidth, const RENDERDOC_AnnotationValue *value);
+  uint32_t SetObjectAnnotation(void *object, const char *key, GUGUGAGA_AnnotationType valueType,
+                               uint32_t valueVectorWidth, const GUGUGAGA_AnnotationValue *value);
   uint32_t SetCommandAnnotation(void *queueOrCommandBuffer, const char *key,
-                                RENDERDOC_AnnotationType valueType, uint32_t valueVectorWidth,
-                                const RENDERDOC_AnnotationValue *value);
+                                GUGUGAGA_AnnotationType valueType, uint32_t valueVectorWidth,
+                                const GUGUGAGA_AnnotationValue *value);
 
   // map with key being mip level, value being stored data
   typedef std::map<int, bytebuf> CompressedDataStore;

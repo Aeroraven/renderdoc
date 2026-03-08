@@ -347,7 +347,7 @@ void GLReplay::InitDebugData()
 
   m_HighlightCache.driver = m_pDriver->GetReplay();
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.0f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.0f);
 
   {
     WindowingData window = {WindowingSystem::Headless};
@@ -503,7 +503,7 @@ void GLReplay::InitDebugData()
     ConfigureTexDisplayProgramBindings(DebugData.texRemapProg[i]);
   }
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.2f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.2f);
 
   if(GLCoreVersion >= 43 && !IsGLES)
   {
@@ -784,7 +784,7 @@ void GLReplay::InitDebugData()
   cs = GenerateGLSLShader(GetEmbeddedResource(glsl_debug_math_comp), shaderType, glslCSVer);
   DebugData.shaderDebugMathProg = CreateCShaderProgram(cs);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.4f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.4f);
 
   drv.glGenBuffers(ARRAY_COUNT(DebugData.UBOs), DebugData.UBOs);
   for(size_t i = 0; i < ARRAY_COUNT(DebugData.UBOs); i++)
@@ -846,7 +846,7 @@ void GLReplay::InitDebugData()
   drv.glGenVertexArrays(1, &DebugData.emptyVAO);
   drv.glBindVertexArray(DebugData.emptyVAO);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.6f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.6f);
 
   // histogram/minmax data
   {
@@ -963,7 +963,7 @@ void GLReplay::InitDebugData()
                                "GL_ARB_compute_shader not supported, disabling mesh picking.");
   }
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.8f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 0.8f);
 
   DebugData.pickResultBuf = 0;
 
@@ -1160,7 +1160,7 @@ void GLReplay::InitDebugData()
   if(HasExt[ARB_transform_feedback2])
     drv.glBindTransformFeedback(eGL_TRANSFORM_FEEDBACK, 0);
 
-  RenderDoc::Inst().SetProgress(LoadProgress::DebugManagerInit, 1.0f);
+  GuguGaga::Inst().SetProgress(LoadProgress::DebugManagerInit, 1.0f);
 
   if(!HasExt[ARB_gpu_shader5])
   {

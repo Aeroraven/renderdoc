@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 #include "android/android.h"
-#include "api/replay/renderdoc_replay.h"
+#include "api/replay/gugugaga_replay.h"
 #include "common/threading.h"
 #include "core/core.h"
 #include "jpeg-compressor/jpgd.h"
@@ -116,7 +116,7 @@ rdcstr DoStringise(const PacketType &el)
 #define WRITE_DATA_SCOPE() WriteSerialiser &ser = writer;
 #define READ_DATA_SCOPE() ReadSerialiser &ser = reader;
 
-void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *client)
+void GuguGaga::TargetControlClientThread(uint32_t version, Network::Socket *client)
 {
   Threading::SetCurrentThreadName("TargetControlClientThread");
 
@@ -128,7 +128,7 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
   writer.SetStreamingMode(true);
   reader.SetStreamingMode(true);
 
-  rdcstr target = RenderDoc::Inst().GetCurrentTarget();
+  rdcstr target = GuguGaga::Inst().GetCurrentTarget();
   uint32_t mypid = Process::GetCurrentPID();
 
   {
@@ -144,8 +144,8 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
     SAFE_DELETE(client);
 
     {
-      SCOPED_LOCK(RenderDoc::Inst().m_SingleClientLock);
-      RenderDoc::Inst().m_SingleClientName = "";
+      SCOPED_LOCK(GuguGaga::Inst().m_SingleClientLock);
+      GuguGaga::Inst().m_SingleClientName = "";
     }
 
     Threading::ReleaseModuleExitThread();
@@ -153,7 +153,7 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
   }
 
   float captureProgress = -1.0f;
-  RenderDoc::Inst().SetProgressCallback<CaptureProgress>(
+  GuguGaga::Inst().SetProgressCallback<CaptureProgress>(
       [&captureProgress](float p) { captureProgress = p; });
 
   const int pingtime = 1000;       // ping every 1000ms
@@ -161,7 +161,7 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
   const int progresstime = 100;    // update capture progress every 100ms
   int curtime = 0;
 
-  RenderDoc::Inst().ValidateCaptures();
+  GuguGaga::Inst().ValidateCaptures();
 
   rdcarray<CaptureData> captures;
   rdcarray<rdcpair<uint32_t, uint32_t> > children;
@@ -171,7 +171,7 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
 
   while(client)
   {
-    if(RenderDoc::Inst().m_ControlClientThreadShutdown || !client->Connected())
+    if(GuguGaga::Inst().m_ControlClientThreadShutdown || !client->Connected())
     {
       SAFE_DELETE(client);
       break;
@@ -180,12 +180,12 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
     Threading::Sleep(ticktime);
     curtime += ticktime;
 
-    std::map<RDCDriver, RDCDriverStatus> curdrivers = RenderDoc::Inst().GetActiveDrivers();
+    std::map<RDCDriver, RDCDriverStatus> curdrivers = GuguGaga::Inst().GetActiveDrivers();
 
-    rdcarray<CaptureData> caps = RenderDoc::Inst().GetCaptures();
-    rdcarray<rdcpair<uint32_t, uint32_t> > childprocs = RenderDoc::Inst().GetChildProcesses();
+    rdcarray<CaptureData> caps = GuguGaga::Inst().GetCaptures();
+    rdcarray<rdcpair<uint32_t, uint32_t> > childprocs = GuguGaga::Inst().GetChildProcesses();
 
-    uint32_t curWindows = RenderDoc::Inst().GetCapturableWindowCount();
+    uint32_t curWindows = GuguGaga::Inst().GetCapturableWindowCount();
 
     if(curdrivers != drivers)
     {
@@ -231,7 +231,7 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
 
       bytebuf buf;
 
-      ICaptureFile *file = RENDERDOC_OpenCaptureFile();
+      ICaptureFile *file = GUGUGAGA_OpenCaptureFile();
       if(file->OpenFile(captures.back().path, "rdc", NULL).OK())
       {
         buf = file->GetThumbnail(FileType::JPG, 0).data;
@@ -312,11 +312,11 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
       bool requestShow = false;
 
       {
-        SCOPED_LOCK(RenderDoc::Inst().m_SingleClientLock);
-        if(RenderDoc::Inst().m_RequestControllerShow)
+        SCOPED_LOCK(GuguGaga::Inst().m_SingleClientLock);
+        if(GuguGaga::Inst().m_RequestControllerShow)
         {
-          requestShow = RenderDoc::Inst().m_RequestControllerShow;
-          RenderDoc::Inst().m_RequestControllerShow = false;
+          requestShow = GuguGaga::Inst().m_RequestControllerShow;
+          GuguGaga::Inst().m_RequestControllerShow = false;
         }
       }
 
@@ -355,7 +355,7 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
         READ_DATA_SCOPE();
         SERIALISE_ELEMENT(numFrames);
 
-        RenderDoc::Inst().TriggerCapture(numFrames);
+        GuguGaga::Inst().TriggerCapture(numFrames);
       }
       else if(type == ePacket_QueueCapture)
       {
@@ -367,7 +367,7 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
         SERIALISE_ELEMENT(numFrames);
 
         for(uint32_t f = 0; f < numFrames; f++)
-          RenderDoc::Inst().QueueCapture(frameNum + f);
+          GuguGaga::Inst().QueueCapture(frameNum + f);
       }
       else if(type == ePacket_DeleteCapture)
       {
@@ -377,11 +377,11 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
         SERIALISE_ELEMENT(id);
 
         // this means it will be deleted on shutdown
-        RenderDoc::Inst().MarkCaptureRetrieved(id);
+        GuguGaga::Inst().MarkCaptureRetrieved(id);
       }
       else if(type == ePacket_CopyCapture)
       {
-        caps = RenderDoc::Inst().GetCaptures();
+        caps = GuguGaga::Inst().GetCaptures();
 
         uint32_t id;
 
@@ -404,12 +404,12 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
           if(fileStream.IsErrored() || ser.IsErrored())
             SAFE_DELETE(client);
           else
-            RenderDoc::Inst().MarkCaptureRetrieved(id);
+            GuguGaga::Inst().MarkCaptureRetrieved(id);
         }
       }
       else if(type == ePacket_CycleActiveWindow)
       {
-        RenderDoc::Inst().CycleActiveWindow();
+        GuguGaga::Inst().CycleActiveWindow();
       }
 
       reader.EndChunk();
@@ -419,30 +419,30 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
     }
   }
 
-  RenderDoc::Inst().SetProgressCallback<CaptureProgress>(RENDERDOC_ProgressCallback());
+  GuguGaga::Inst().SetProgressCallback<CaptureProgress>(GUGUGAGA_ProgressCallback());
 
   // give up our connection
   {
-    SCOPED_LOCK(RenderDoc::Inst().m_SingleClientLock);
-    RenderDoc::Inst().m_SingleClientName = "";
+    SCOPED_LOCK(GuguGaga::Inst().m_SingleClientLock);
+    GuguGaga::Inst().m_SingleClientName = "";
   }
 
   Threading::ReleaseModuleExitThread();
 }
 
-void RenderDoc::TargetControlServerThread(Network::Socket *sock)
+void GuguGaga::TargetControlServerThread(Network::Socket *sock)
 {
   Threading::SetCurrentThreadName("TargetControlServerThread");
 
   Threading::KeepModuleAlive();
 
-  RenderDoc::Inst().m_SingleClientName = "";
+  GuguGaga::Inst().m_SingleClientName = "";
 
   Threading::ThreadHandle clientThread = 0;
 
-  RenderDoc::Inst().m_ControlClientThreadShutdown = false;
+  GuguGaga::Inst().m_ControlClientThreadShutdown = false;
 
-  while(!RenderDoc::Inst().m_TargetControlThreadShutdown)
+  while(!GuguGaga::Inst().m_TargetControlThreadShutdown)
   {
     Network::Socket *client = sock->AcceptClient(0);
 
@@ -499,25 +499,25 @@ void RenderDoc::TargetControlServerThread(Network::Socket *sock)
 
     // see if we have a client
     {
-      SCOPED_LOCK(RenderDoc::Inst().m_SingleClientLock);
-      existingClient = RenderDoc::Inst().m_SingleClientName;
+      SCOPED_LOCK(GuguGaga::Inst().m_SingleClientLock);
+      existingClient = GuguGaga::Inst().m_SingleClientName;
     }
 
     if(!existingClient.empty() && kick)
     {
       // forcibly close communication thread which will kill the connection
-      RenderDoc::Inst().m_ControlClientThreadShutdown = true;
+      GuguGaga::Inst().m_ControlClientThreadShutdown = true;
       Threading::JoinThread(clientThread);
       Threading::CloseThread(clientThread);
       clientThread = 0;
-      RenderDoc::Inst().m_ControlClientThreadShutdown = false;
+      GuguGaga::Inst().m_ControlClientThreadShutdown = false;
       existingClient = "";
     }
 
     if(existingClient.empty())
     {
-      SCOPED_LOCK(RenderDoc::Inst().m_SingleClientLock);
-      RenderDoc::Inst().m_SingleClientName = newClient;
+      SCOPED_LOCK(GuguGaga::Inst().m_SingleClientLock);
+      GuguGaga::Inst().m_SingleClientName = newClient;
     }
 
     // if we've claimed client status, spawn a thread to communicate
@@ -535,12 +535,12 @@ void RenderDoc::TargetControlServerThread(Network::Socket *sock)
 
       ser.SetStreamingMode(true);
 
-      rdcstr target = RenderDoc::Inst().GetCurrentTarget();
+      rdcstr target = GuguGaga::Inst().GetCurrentTarget();
       {
         SCOPED_SERIALISE_CHUNK(ePacket_Busy);
         SERIALISE_ELEMENT(TargetControlProtocolVersion);
         SERIALISE_ELEMENT(target);
-        SERIALISE_ELEMENT(RenderDoc::Inst().m_SingleClientName);
+        SERIALISE_ELEMENT(GuguGaga::Inst().m_SingleClientName);
       }
 
       // don't care about errors, we're going to close the connection either way
@@ -548,7 +548,7 @@ void RenderDoc::TargetControlServerThread(Network::Socket *sock)
     }
   }
 
-  RenderDoc::Inst().m_ControlClientThreadShutdown = true;
+  GuguGaga::Inst().m_ControlClientThreadShutdown = true;
   // don't join, just close the thread, as we can't wait while in the middle of module unloading
   Threading::CloseThread(clientThread);
   clientThread = 0;
@@ -721,7 +721,7 @@ public:
       SAFE_DELETE(m_Socket);
   }
 
-  TargetControlMessage ReceiveMessage(RENDERDOC_ProgressCallback progress)
+  TargetControlMessage ReceiveMessage(GUGUGAGA_ProgressCallback progress)
   {
     TargetControlMessage msg;
     if(m_Socket == NULL)
@@ -961,7 +961,7 @@ private:
   std::map<uint32_t, rdcstr> m_CaptureCopies;
 };
 
-extern "C" RENDERDOC_API ITargetControl *RENDERDOC_CC RENDERDOC_CreateTargetControl(
+extern "C" GUGUGAGA_API ITargetControl *GUGUGAGA_CC GUGUGAGA_CreateTargetControl(
     const rdcstr &URL, uint32_t ident, const rdcstr &clientName, bool forceConnection)
 {
   rdcstr host = "localhost";
@@ -971,7 +971,7 @@ extern "C" RENDERDOC_API ITargetControl *RENDERDOC_CC RENDERDOC_CreateTargetCont
   rdcstr deviceID = host;
   uint16_t port = ident & 0xffff;
 
-  IDeviceProtocolHandler *protocol = RenderDoc::Inst().GetDeviceProtocol(deviceID);
+  IDeviceProtocolHandler *protocol = GuguGaga::Inst().GetDeviceProtocol(deviceID);
 
   if(protocol)
   {

@@ -33,7 +33,7 @@
 #include "Interface/QRDInterface.h"
 #include "ReplayManager.h"
 
-#if defined(RENDERDOC_PLATFORM_LINUX)
+#if defined(GUGUGAGA_PLATFORM_LINUX)
 #include <QX11Info>
 #endif
 
@@ -416,7 +416,7 @@ private:
 
   WindowingSystem m_CurWinSystem = WindowingSystem::Unknown;
 
-#if defined(RENDERDOC_PLATFORM_LINUX)
+#if defined(GUGUGAGA_PLATFORM_LINUX)
   wl_display *m_WaylandDisplay = NULL;
   xcb_connection_t *m_XCBConnection = NULL;
   Display *m_X11Display = NULL;

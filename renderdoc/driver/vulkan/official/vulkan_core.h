@@ -9301,7 +9301,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSharedSwapchainsKHR(
 #define VK_KHR_SAMPLER_MIRROR_CLAMP_TO_EDGE_SPEC_VERSION 3
 #define VK_KHR_SAMPLER_MIRROR_CLAMP_TO_EDGE_EXTENSION_NAME "VK_KHR_sampler_mirror_clamp_to_edge"
 
-#if 0 // RenderDoc modification, don't require video headers
+#if 0 // GuguGaga modification, don't require video headers
 
 
 // VK_KHR_video_queue is a preprocessor guard. Do not pass it to API calls.
@@ -10170,7 +10170,7 @@ typedef struct VkVideoDecodeH264DpbSlotInfoKHR {
     const StdVideoDecodeH264ReferenceInfo*    pStdReferenceInfo;
 } VkVideoDecodeH264DpbSlotInfoKHR;
 
-#endif // RenderDoc modification, don't require video headers
+#endif // GuguGaga modification, don't require video headers
 
 
 // VK_KHR_dynamic_rendering is a preprocessor guard. Do not pass it to API calls.
@@ -11422,7 +11422,7 @@ typedef struct VkPhysicalDeviceShaderClockFeaturesKHR {
 } VkPhysicalDeviceShaderClockFeaturesKHR;
 
 
-#if 0 // RenderDoc modification, don't require video headers
+#if 0 // GuguGaga modification, don't require video headers
 
 // VK_KHR_video_decode_h265 is a preprocessor guard. Do not pass it to API calls.
 #define VK_KHR_video_decode_h265 1
@@ -11476,7 +11476,7 @@ typedef struct VkVideoDecodeH265DpbSlotInfoKHR {
 } VkVideoDecodeH265DpbSlotInfoKHR;
 
 
-#endif // RenderDoc modification, don't require video headers
+#endif // GuguGaga modification, don't require video headers
 
 
 // VK_KHR_global_priority is a preprocessor guard. Do not pass it to API calls.
@@ -12056,7 +12056,7 @@ typedef struct VkPhysicalDevicePresentIdFeaturesKHR {
 } VkPhysicalDevicePresentIdFeaturesKHR;
 
 
-#if 0 // RenderDoc modification, don't require video headers
+#if 0 // GuguGaga modification, don't require video headers
 
 
 // VK_KHR_video_encode_queue is a preprocessor guard. Do not pass it to API calls.
@@ -12247,7 +12247,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEncodeVideoKHR(
 #endif
 
 
-#endif // RenderDoc modification, don't require video headers
+#endif // GuguGaga modification, don't require video headers
 
 // VK_KHR_synchronization2 is a preprocessor guard. Do not pass it to API calls.
 #define VK_KHR_synchronization2 1
@@ -13088,7 +13088,7 @@ typedef struct VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR {
 } VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR;
 
 
-#if 0 // RenderDoc modification, don't require video headers
+#if 0 // GuguGaga modification, don't require video headers
 
 
 // VK_KHR_video_decode_av1 is a preprocessor guard. Do not pass it to API calls.
@@ -13387,7 +13387,7 @@ typedef struct VkVideoInlineQueryInfoKHR {
 } VkVideoInlineQueryInfoKHR;
 
 
-#endif // RenderDoc modification, don't require video headers
+#endif // GuguGaga modification, don't require video headers
 
 
 // VK_KHR_vertex_attribute_divisor is a preprocessor guard. Do not pass it to API calls.
@@ -13740,7 +13740,7 @@ typedef struct VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR {
 } VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR;
 
 
-#if 0 // RenderDoc modification, don't require video headers
+#if 0 // GuguGaga modification, don't require video headers
 
 // VK_KHR_video_encode_quantization_map is a preprocessor guard. Do not pass it to API calls.
 #define VK_KHR_video_encode_quantization_map 1
@@ -13810,7 +13810,7 @@ typedef struct VkVideoFormatAV1QuantizationMapPropertiesKHR {
     VkVideoEncodeAV1SuperblockSizeFlagsKHR    compatibleSuperblockSizes;
 } VkVideoFormatAV1QuantizationMapPropertiesKHR;
 
-#endif // RenderDoc modification, don't require video headers
+#endif // GuguGaga modification, don't require video headers
 
 
 // VK_KHR_shader_relaxed_extended_instruction is a preprocessor guard. Do not pass it to API calls.
@@ -13949,7 +13949,7 @@ typedef struct VkQueueFamilyOwnershipTransferPropertiesKHR {
     uint32_t           optimalImageTransferToQueueFamilies;
 } VkQueueFamilyOwnershipTransferPropertiesKHR;
 
-#if 0 // RenderDoc modification, don't require video headers
+#if 0 // GuguGaga modification, don't require video headers
 
 
 // VK_KHR_video_maintenance2 is a preprocessor guard. Do not pass it to API calls.
@@ -13984,7 +13984,7 @@ typedef struct VkVideoDecodeAV1InlineSessionParametersInfoKHR {
 } VkVideoDecodeAV1InlineSessionParametersInfoKHR;
 
 
-#endif // RenderDoc modification, don't require video headers
+#endif // GuguGaga modification, don't require video headers
 
 
 // VK_KHR_depth_clamp_zero_one is a preprocessor guard. Do not pass it to API calls.

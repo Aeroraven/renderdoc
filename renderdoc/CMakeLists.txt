@@ -1,7 +1,7 @@
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(RDOC_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(RDOC_DEFINITIONS PRIVATE -DRENDERDOC_EXPORTS)
+set(RDOC_DEFINITIONS PRIVATE -DGUGUGAGA_EXPORTS)
 set(RDOC_INCLUDES
     PRIVATE ${RDOC_SOURCE_DIR}
     PRIVATE ${RDOC_SOURCE_DIR}/3rdparty)
@@ -10,7 +10,7 @@ set(RDOC_LIBRARIES)
 option(ENABLE_DLSYM_HOOKING "Enable dlsym() hooking via glibc internals" OFF)
 
 if(ENABLE_DLSYM_HOOKING)
-    set(RDOC_DEFINITIONS ${RDOC_DEFINITIONS} PRIVATE -DRENDERDOC_HOOK_DLSYM)
+    set(RDOC_DEFINITIONS ${RDOC_DEFINITIONS} PRIVATE -DGUGUGAGA_HOOK_DLSYM)
     message(WARNING "Enabling dlsym() hooking - may cause issues, segfaults, crashes, or bad behaviour. Only enable if absolutely required")
 endif()
 
@@ -99,7 +99,7 @@ if(NOT "x${CMAKE_THREAD_LIBS_INIT}" STREQUAL "x")
 endif()
 
 set(sources
-    api/app/renderdoc_app.h
+    api/app/gugugaga_app.h
     api/replay/apidefs.h
     api/replay/capture_options.h
     api/replay/common_pipestate.h
@@ -120,8 +120,8 @@ set(sources
     api/replay/version.h
     api/replay/gl_pipestate.h
     api/replay/vk_pipestate.h
-    api/replay/renderdoc_replay.h
-    api/replay/renderdoc_tostr.inl
+    api/replay/gugugaga_replay.h
+    api/replay/gugugaga_tostr.inl
     common/common.cpp
     common/common.h
     common/custom_assert.h
@@ -191,7 +191,7 @@ set(sources
     replay/capture_options.cpp
     replay/dummy_driver.cpp
     replay/dummy_driver.h
-    replay/renderdoc_serialise.inl
+    replay/gugugaga_serialise.inl
     replay/capture_file.cpp
     replay/entry_points.cpp
     replay/replay_driver.cpp
@@ -523,28 +523,28 @@ if(UNIX)
     endforeach()
 endif()
 
-set(renderdoc_objects)
+set(gugugaga_objects)
 
 if(ENABLE_METAL)
     add_subdirectory(driver/metal)
-    list(APPEND renderdoc_objects $<TARGET_OBJECTS:rdoc_metal>)
+    list(APPEND gugugaga_objects $<TARGET_OBJECTS:rdoc_metal>)
 endif()
 
 if(ENABLE_GL OR ENABLE_GLES)
     add_subdirectory(driver/gl)
-    list(APPEND renderdoc_objects $<TARGET_OBJECTS:rdoc_gl>)
+    list(APPEND gugugaga_objects $<TARGET_OBJECTS:rdoc_gl>)
 endif()
 
 if(ENABLE_VULKAN)
     add_subdirectory(driver/vulkan)
-    list(APPEND renderdoc_objects $<TARGET_OBJECTS:rdoc_vulkan>)
+    list(APPEND gugugaga_objects $<TARGET_OBJECTS:rdoc_vulkan>)
 endif()
 
 if(ENABLE_GL OR ENABLE_GLES OR ENABLE_VULKAN)
     list(APPEND sources data/glsl_shaders.cpp data/glsl_shaders.h)
 
     add_subdirectory(driver/shaders/spirv)
-    list(APPEND renderdoc_objects $<TARGET_OBJECTS:rdoc_spirv>)
+    list(APPEND gugugaga_objects $<TARGET_OBJECTS:rdoc_spirv>)
 endif()
 
 option(USE_INTERCEPTOR_LIB OFF)
@@ -560,9 +560,9 @@ if(ANDROID AND USE_INTERCEPTOR_LIB )
     else()
         message(STATUS "LLVM ${LLVM_PACKAGE_VERSION} found - enabling android hooking using interceptor-lib.")
         add_subdirectory(3rdparty/interceptor-lib)
-        list(APPEND renderdoc_objects $<TARGET_OBJECTS:interceptor_lib>)
+        list(APPEND gugugaga_objects $<TARGET_OBJECTS:interceptor_lib>)
         link_directories(${LLVM_DIR}/../..)
-        set(RDOC_DEFINITIONS ${RDOC_DEFINITIONS} PRIVATE -DRENDERDOC_HAVE_INTERCEPTOR_LIB)
+        set(RDOC_DEFINITIONS ${RDOC_DEFINITIONS} PRIVATE -DGUGUGAGA_HAVE_INTERCEPTOR_LIB)
 
         foreach(lib ${interceptor_libs})
             list(APPEND RDOC_LIBRARIES PRIVATE -l${lib})
@@ -576,63 +576,63 @@ endif()
 
 # always pull in the amd folder
 add_subdirectory(driver/ihv/amd)
-list(APPEND renderdoc_objects $<TARGET_OBJECTS:rdoc_amd>)
+list(APPEND gugugaga_objects $<TARGET_OBJECTS:rdoc_amd>)
 
 # pull in the intel folder for GL perf queries
 if(ENABLE_GL OR ENABLE_GLES)
     add_subdirectory(driver/ihv/intel)
-    list(APPEND renderdoc_objects $<TARGET_OBJECTS:rdoc_intel>)
+    list(APPEND gugugaga_objects $<TARGET_OBJECTS:rdoc_intel>)
 endif()
 
 # pull in the ARM folder for perf query
 if(ENABLE_GL OR ENABLE_GLES)
     add_subdirectory(driver/ihv/arm)
-    list(APPEND renderdoc_objects $<TARGET_OBJECTS:rdoc_arm>)
+    list(APPEND gugugaga_objects $<TARGET_OBJECTS:rdoc_arm>)
 endif()
 
 # pull in the NVIDIA folder
 if(ENABLE_GL OR ENABLE_GLES OR ENABLE_VULKAN)
     add_subdirectory(driver/ihv/nv)
-    list(APPEND renderdoc_objects $<TARGET_OBJECTS:rdoc_nv>)
+    list(APPEND gugugaga_objects $<TARGET_OBJECTS:rdoc_nv>)
 endif()
 
 add_library(rdoc OBJECT ${sources})
 target_compile_definitions(rdoc ${RDOC_DEFINITIONS})
 target_include_directories(rdoc ${RDOC_INCLUDES})
 
-list(APPEND renderdoc_objects
+list(APPEND gugugaga_objects
     $<TARGET_OBJECTS:rdoc>
     ${data_objects})
 
 add_library(rdoc_version OBJECT replay/version.cpp)
 target_compile_definitions(rdoc_version PRIVATE -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
 
-list(APPEND renderdoc_objects
+list(APPEND gugugaga_objects
     $<TARGET_OBJECTS:rdoc_version>)
 
 # posix_libentry must be the last so that library_loaded is called after
 # static objects are constructed. We guarantee this happens after even
 # any other static libraries that we link by making it its own static
 # library and appending it to the end of the link list.
-add_library(renderdoc_libentry STATIC os/posix/posix_libentry.cpp)
-target_compile_definitions(renderdoc_libentry ${RDOC_DEFINITIONS})
-target_include_directories(renderdoc_libentry ${RDOC_INCLUDES})
+add_library(gugugaga_libentry STATIC os/posix/posix_libentry.cpp)
+target_compile_definitions(gugugaga_libentry ${RDOC_DEFINITIONS})
+target_include_directories(gugugaga_libentry ${RDOC_INCLUDES})
 link_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # On apple we need to pass the force_load parameter here - if we set it with LINK_FLAGS below
-# it gets applied too early (even if the -lrenderdoc_libentry is later)
+# it gets applied too early (even if the -lgugugaga_libentry is later)
 if(APPLE)
-    list(APPEND RDOC_LIBRARIES PRIVATE "-Wl,-force_load,$<TARGET_FILE:renderdoc_libentry>")
+    list(APPEND RDOC_LIBRARIES PRIVATE "-Wl,-force_load,$<TARGET_FILE:gugugaga_libentry>")
 else()
-    list(APPEND RDOC_LIBRARIES PRIVATE -lrenderdoc_libentry)
+    list(APPEND RDOC_LIBRARIES PRIVATE -lgugugaga_libentry)
 endif()
 
-add_library(renderdoc SHARED ${renderdoc_objects})
-target_compile_definitions(renderdoc ${RDOC_DEFINITIONS})
-target_include_directories(renderdoc ${RDOC_INCLUDES})
-target_link_libraries(renderdoc ${RDOC_LIBRARIES})
+add_library(gugugaga SHARED ${gugugaga_objects})
+target_compile_definitions(gugugaga ${RDOC_DEFINITIONS})
+target_include_directories(gugugaga ${RDOC_INCLUDES})
+target_link_libraries(gugugaga ${RDOC_LIBRARIES})
 
-add_dependencies(renderdoc renderdoc_libentry)
+add_dependencies(gugugaga gugugaga_libentry)
 
 if(UNIX AND NOT ANDROID AND NOT APPLE)
     set(RDOC_LINK_FLAGS "-Wl,--undefined,force_include_libentry -Wl,--version-script,${CMAKE_CURRENT_SOURCE_DIR}/${RDOC_BASE_NAME}.version")
@@ -642,24 +642,24 @@ if(UNIX AND NOT ANDROID AND NOT APPLE)
     endif()
 
     if(NOT RELEASE_MODE)
-        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/librenderdoc.so-gdb.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/librenderdoc.so-gdb.py)
+        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libgugugaga.so-gdb.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libgugugaga.so-gdb.py)
     endif()
 
-    set_target_properties(renderdoc PROPERTIES LINK_FLAGS "${RDOC_LINK_FLAGS}")
-    set_target_properties(renderdoc PROPERTIES SKIP_BUILD_RPATH TRUE)
+    set_target_properties(gugugaga PROPERTIES LINK_FLAGS "${RDOC_LINK_FLAGS}")
+    set_target_properties(gugugaga PROPERTIES SKIP_BUILD_RPATH TRUE)
 endif()
 
 # On macOS set the rpath so that linked libraries are relative to the executable, not absolute
 if(APPLE)
-    set_target_properties(renderdoc PROPERTIES MACOSX_RPATH TRUE)
-    set_target_properties(renderdoc PROPERTIES SKIP_BUILD_RPATH TRUE)
-    set_target_properties(renderdoc PROPERTIES INSTALL_RPATH "@executable_path/../lib")
-    set_target_properties(renderdoc PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
-    set_target_properties(renderdoc PROPERTIES BUILD_WITH_INSTALL_NAME_DIR TRUE)
+    set_target_properties(gugugaga PROPERTIES MACOSX_RPATH TRUE)
+    set_target_properties(gugugaga PROPERTIES SKIP_BUILD_RPATH TRUE)
+    set_target_properties(gugugaga PROPERTIES INSTALL_RPATH "@executable_path/../lib")
+    set_target_properties(gugugaga PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
+    set_target_properties(gugugaga PROPERTIES BUILD_WITH_INSTALL_NAME_DIR TRUE)
 endif()
 
 if(INTERNAL_SELF_CAPTURE)
-    set_target_properties(renderdoc PROPERTIES OUTPUT_NAME "rdocself")
+    set_target_properties(gugugaga PROPERTIES OUTPUT_NAME "rdocself")
 endif()
 
 if(ANDROID)
@@ -667,19 +667,19 @@ if(ANDROID)
     if(ENABLE_ASAN)
         set(RDOC_LINK_FLAGS "${RDOC_LINK_FLAGS} -fsanitize=address")
     endif()
-    set_target_properties(renderdoc PROPERTIES LINK_FLAGS "${RDOC_LINK_FLAGS}")
+    set_target_properties(gugugaga PROPERTIES LINK_FLAGS "${RDOC_LINK_FLAGS}")
     # rename output library
-    set_target_properties(renderdoc PROPERTIES OUTPUT_NAME "VkLayer_GLES_RenderDoc")
+    set_target_properties(gugugaga PROPERTIES OUTPUT_NAME "VkLayer_GLES_GuguGaga")
 
     if(STRIP_ANDROID_LIBRARY AND ANDROID_STRIP_TOOL AND RELEASE_MODE)
-        add_custom_command(TARGET renderdoc POST_BUILD
-            COMMAND echo Stripping $<TARGET_FILE:renderdoc>
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:renderdoc> $<TARGET_FILE:renderdoc>.dbg
-            COMMAND ${ANDROID_STRIP_TOOL} --strip-unneeded $<TARGET_FILE:renderdoc>)
+        add_custom_command(TARGET gugugaga POST_BUILD
+            COMMAND echo Stripping $<TARGET_FILE:gugugaga>
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:gugugaga> $<TARGET_FILE:gugugaga>.dbg
+            COMMAND ${ANDROID_STRIP_TOOL} --strip-unneeded $<TARGET_FILE:gugugaga>)
     endif()
 endif()
 
-install (TARGETS renderdoc DESTINATION lib${LIB_SUFFIX}/${LIB_SUBFOLDER})
+install (TARGETS gugugaga DESTINATION lib${LIB_SUFFIX}/${LIB_SUBFOLDER})
 
 # Copy in application API header to include
-install (FILES api/app/renderdoc_app.h DESTINATION include RENAME renderdoc_app.h)
+install (FILES api/app/gugugaga_app.h DESTINATION include RENAME gugugaga_app.h)

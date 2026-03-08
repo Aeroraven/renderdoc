@@ -28,7 +28,7 @@
 #include <QStringList>
 #include <QVariantList>
 #include "Code/QRDUtils.h"
-#include "renderdoc_replay.h"
+#include "gugugaga_replay.h"
 
 class QTcpServer;
 class QTcpSocket;
@@ -53,7 +53,7 @@ enum class RGPCommand
 struct RGPInteropInit
 {
   int32_t interop_version = 0;
-  QString interop_name = QStringLiteral("RenderDoc");
+  QString interop_name = QStringLiteral("GuguGaga");
 
   QVariantList toParams(uint32_t version) const
   {

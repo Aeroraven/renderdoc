@@ -46,32 +46,32 @@ RD_TEST(D3D12_Annotations, D3D12GraphicsTest)
 
     if(rdoc)
     {
-      rdoc->SetObjectAnnotation(d, img, "basic.bool", eRENDERDOC_Bool, 0, RDAnnotationHelper(true));
-      rdoc->SetObjectAnnotation(d, img, "basic.int32", eRENDERDOC_Int32, 0, RDAnnotationHelper(-3));
-      rdoc->SetObjectAnnotation(d, img, "basic.int64", eRENDERDOC_Int64, 0,
+      rdoc->SetObjectAnnotation(d, img, "basic.bool", eGUGUGAGA_Bool, 0, RDAnnotationHelper(true));
+      rdoc->SetObjectAnnotation(d, img, "basic.int32", eGUGUGAGA_Int32, 0, RDAnnotationHelper(-3));
+      rdoc->SetObjectAnnotation(d, img, "basic.int64", eGUGUGAGA_Int64, 0,
                                 RDAnnotationHelper(-3000000000000LL));
-      rdoc->SetObjectAnnotation(d, img, "basic.uint32", eRENDERDOC_UInt32, 0, RDAnnotationHelper(3));
-      rdoc->SetObjectAnnotation(d, img, "basic.uint64", eRENDERDOC_UInt64, 0,
+      rdoc->SetObjectAnnotation(d, img, "basic.uint32", eGUGUGAGA_UInt32, 0, RDAnnotationHelper(3));
+      rdoc->SetObjectAnnotation(d, img, "basic.uint64", eGUGUGAGA_UInt64, 0,
                                 RDAnnotationHelper(3000000000000LL));
-      rdoc->SetObjectAnnotation(d, img, "basic.float", eRENDERDOC_Float, 0,
+      rdoc->SetObjectAnnotation(d, img, "basic.float", eGUGUGAGA_Float, 0,
                                 RDAnnotationHelper(3.25f));
-      rdoc->SetObjectAnnotation(d, img, "basic.double", eRENDERDOC_Double, 0,
+      rdoc->SetObjectAnnotation(d, img, "basic.double", eGUGUGAGA_Double, 0,
                                 RDAnnotationHelper(3.25000000001));
-      rdoc->SetObjectAnnotation(d, img, "basic.string", eRENDERDOC_String, 0,
+      rdoc->SetObjectAnnotation(d, img, "basic.string", eGUGUGAGA_String, 0,
                                 RDAnnotationHelper("Hello, World!"));
 
-      RENDERDOC_AnnotationValue val;
+      GUGUGAGA_AnnotationValue val;
       val.apiObject = (void *)DefaultTriVB;
-      rdoc->SetObjectAnnotation(d, img, "basic.object", eRENDERDOC_APIObject, 0, &val);
+      rdoc->SetObjectAnnotation(d, img, "basic.object", eGUGUGAGA_APIObject, 0, &val);
 
-      rdoc->SetObjectAnnotation(d, img, "basic.object.__offset", eRENDERDOC_UInt32, 0,
+      rdoc->SetObjectAnnotation(d, img, "basic.object.__offset", eGUGUGAGA_UInt32, 0,
                                 RDAnnotationHelper(64));
-      rdoc->SetObjectAnnotation(d, img, "basic.object.__size", eRENDERDOC_UInt32, 0,
+      rdoc->SetObjectAnnotation(d, img, "basic.object.__size", eGUGUGAGA_UInt32, 0,
                                 RDAnnotationHelper(32));
-      rdoc->SetObjectAnnotation(d, img, "basic.object.__rd_format", eRENDERDOC_String, 0,
+      rdoc->SetObjectAnnotation(d, img, "basic.object.__rd_format", eGUGUGAGA_String, 0,
                                 RDAnnotationHelper("float4 vertex_data;"));
 
-      rdoc->SetObjectAnnotation(d, DefaultTriVB, "__rd_format", eRENDERDOC_String, 0,
+      rdoc->SetObjectAnnotation(d, DefaultTriVB, "__rd_format", eGUGUGAGA_String, 0,
                                 RDAnnotationHelper("float3 pos;\n"
                                                    "float4 col;\n"
                                                    "float2 uv;\n"));
@@ -81,26 +81,26 @@ RD_TEST(D3D12_Annotations, D3D12GraphicsTest)
       val.vector.float32[1] = 2.2f;
       val.vector.float32[2] = 3.3f;
       val.vector.float32[3] = 4.4f;    // should be ignored
-      rdoc->SetObjectAnnotation(d, img, "basic.vec3", eRENDERDOC_Float, 3, &val);
+      rdoc->SetObjectAnnotation(d, img, "basic.vec3", eGUGUGAGA_Float, 3, &val);
 
-      rdoc->SetObjectAnnotation(d, img, "deep.nested.path.to.annotation", eRENDERDOC_Int32, 0,
+      rdoc->SetObjectAnnotation(d, img, "deep.nested.path.to.annotation", eGUGUGAGA_Int32, 0,
                                 RDAnnotationHelper(-4));
-      rdoc->SetObjectAnnotation(d, img, "deep.nested.path.to.annotation2", eRENDERDOC_Int32, 0,
+      rdoc->SetObjectAnnotation(d, img, "deep.nested.path.to.annotation2", eGUGUGAGA_Int32, 0,
                                 RDAnnotationHelper(-5));
-      rdoc->SetObjectAnnotation(d, img, "deep.alternate.path.to.annotation", eRENDERDOC_Int32, 0,
+      rdoc->SetObjectAnnotation(d, img, "deep.alternate.path.to.annotation", eGUGUGAGA_Int32, 0,
                                 RDAnnotationHelper(-6));
 
       // deleted paths should not stay around
-      rdoc->SetObjectAnnotation(d, img, "deleteme", eRENDERDOC_Int32, 0, RDAnnotationHelper(-7));
-      rdoc->SetObjectAnnotation(d, img, "deleteme", eRENDERDOC_Empty, 0, NULL);
+      rdoc->SetObjectAnnotation(d, img, "deleteme", eGUGUGAGA_Int32, 0, RDAnnotationHelper(-7));
+      rdoc->SetObjectAnnotation(d, img, "deleteme", eGUGUGAGA_Empty, 0, NULL);
 
-      rdoc->SetObjectAnnotation(d, img, "path.deleted.by.parent", eRENDERDOC_Int32, 0,
+      rdoc->SetObjectAnnotation(d, img, "path.deleted.by.parent", eGUGUGAGA_Int32, 0,
                                 RDAnnotationHelper(-8));
-      rdoc->SetObjectAnnotation(d, img, "path.deleted.by.parent2", eRENDERDOC_Int32, 0,
+      rdoc->SetObjectAnnotation(d, img, "path.deleted.by.parent2", eGUGUGAGA_Int32, 0,
                                 RDAnnotationHelper(-9));
 
       // this will delete all children. `path` will still exist, but will be empty
-      rdoc->SetObjectAnnotation(d, img, "path.deleted", eRENDERDOC_Empty, 0, NULL);
+      rdoc->SetObjectAnnotation(d, img, "path.deleted", eGUGUGAGA_Empty, 0, NULL);
     }
 
     while(Running())
@@ -109,19 +109,19 @@ RD_TEST(D3D12_Annotations, D3D12GraphicsTest)
       {
         // queue annotations are only included when in the captured frame
         if(curFrame == 2)
-          rdoc->SetCommandAnnotation(d, queue, "queue.too_old", eRENDERDOC_Int32, 0,
+          rdoc->SetCommandAnnotation(d, queue, "queue.too_old", eGUGUGAGA_Int32, 0,
                                      RDAnnotationHelper(1000));
 
-        rdoc->SetCommandAnnotation(d, queue, "queue.value", eRENDERDOC_Int32, 0,
+        rdoc->SetCommandAnnotation(d, queue, "queue.value", eGUGUGAGA_Int32, 0,
                                    RDAnnotationHelper(1000));
 
-        rdoc->SetCommandAnnotation(d, queue, "command.overwritten", eRENDERDOC_Int32, 0,
+        rdoc->SetCommandAnnotation(d, queue, "command.overwritten", eGUGUGAGA_Int32, 0,
                                    RDAnnotationHelper(9999));
 
-        rdoc->SetCommandAnnotation(d, queue, "command.inherited", eRENDERDOC_Int32, 0,
+        rdoc->SetCommandAnnotation(d, queue, "command.inherited", eGUGUGAGA_Int32, 0,
                                    RDAnnotationHelper(1234));
 
-        rdoc->SetCommandAnnotation(d, queue, "command.deleted", eRENDERDOC_Int32, 0,
+        rdoc->SetCommandAnnotation(d, queue, "command.deleted", eGUGUGAGA_Int32, 0,
                                    RDAnnotationHelper(50));
       }
 
@@ -133,16 +133,16 @@ RD_TEST(D3D12_Annotations, D3D12GraphicsTest)
 
       if(rdoc)
       {
-        rdoc->SetCommandAnnotation(d, cmd, "new.value", eRENDERDOC_Int32, 0,
+        rdoc->SetCommandAnnotation(d, cmd, "new.value", eGUGUGAGA_Int32, 0,
                                    RDAnnotationHelper(2000));
 
-        rdoc->SetCommandAnnotation(d, cmd, "command.overwritten", eRENDERDOC_Int32, 0,
+        rdoc->SetCommandAnnotation(d, cmd, "command.overwritten", eGUGUGAGA_Int32, 0,
                                    RDAnnotationHelper(-3333));
 
-        rdoc->SetCommandAnnotation(d, cmd, "command.new", eRENDERDOC_Int32, 0,
+        rdoc->SetCommandAnnotation(d, cmd, "command.new", eGUGUGAGA_Int32, 0,
                                    RDAnnotationHelper(3333));
 
-        rdoc->SetCommandAnnotation(d, cmd, "command.deleted", eRENDERDOC_Empty, 0, NULL);
+        rdoc->SetCommandAnnotation(d, cmd, "command.deleted", eGUGUGAGA_Empty, 0, NULL);
       }
 
       setMarker(cmd, "Initial");
@@ -157,7 +157,7 @@ RD_TEST(D3D12_Annotations, D3D12GraphicsTest)
       ClearRenderTargetView(cmd, BBRTV, {0.2f, 0.2f, 0.2f, 1.0f});
 
       if(rdoc)
-        rdoc->SetCommandAnnotation(d, cmd, "command.new", eRENDERDOC_Float, 0,
+        rdoc->SetCommandAnnotation(d, cmd, "command.new", eGUGUGAGA_Float, 0,
                                    RDAnnotationHelper(1.75f));
 
       cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -175,8 +175,8 @@ RD_TEST(D3D12_Annotations, D3D12GraphicsTest)
       // deleting a value is fine if it's re-added before the next event
       if(rdoc)
       {
-        rdoc->SetCommandAnnotation(d, cmd, "new.value", eRENDERDOC_Empty, 0, NULL);
-        rdoc->SetCommandAnnotation(d, cmd, "new.value", eRENDERDOC_Int32, 0,
+        rdoc->SetCommandAnnotation(d, cmd, "new.value", eGUGUGAGA_Empty, 0, NULL);
+        rdoc->SetCommandAnnotation(d, cmd, "new.value", eGUGUGAGA_Int32, 0,
                                    RDAnnotationHelper(4000));
       }
 

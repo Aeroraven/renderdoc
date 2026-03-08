@@ -1,5 +1,5 @@
 import rdtest
-import renderdoc as rd
+import gugugaga as rd
 
 
 class VK_Secondary_CmdBuf(rdtest.TestCase):

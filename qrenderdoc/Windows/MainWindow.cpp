@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2015-2026 Baldur Karlsson
+ * Copyright (c) 2015-2026 GuguGaga Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -263,7 +263,7 @@ MainWindow::MainWindow(ICaptureContext &ctx) : QMainWindow(NULL), ui(new Ui::Mai
               NULL, tr("vkconfig detected - possible incompatibility"),
               tr("Configuration from 'vkconfig' tool detected.\n\n"
                  "This program has caused problems in the past and it is \n"
-                 "strongly recommended that you disable it while using RenderDoc.\n\n"
+                 "strongly recommended that you disable it while using GuguGaga.\n\n"
                  "If this program is not active check the path below for any leftover files:\n\n%1")
                   .arg(vkconfigcheck.absoluteFilePath()));
 
@@ -283,9 +283,9 @@ MainWindow::MainWindow(ICaptureContext &ctx) : QMainWindow(NULL), ui(new Ui::Mai
   m_RemoteProbe = new LambdaThread([this]() {
     // fetch all device protocols to start them processing
     rdcarray<rdcstr> protocols;
-    RENDERDOC_GetSupportedDeviceProtocols(&protocols);
+    GUGUGAGA_GetSupportedDeviceProtocols(&protocols);
     for(const rdcstr &p : protocols)
-      RENDERDOC_GetDeviceProtocolController(p);
+      GUGUGAGA_GetDeviceProtocolController(p);
 
     while(m_RemoteProbeSemaphore.available())
     {
@@ -316,7 +316,7 @@ MainWindow::MainWindow(ICaptureContext &ctx) : QMainWindow(NULL), ui(new Ui::Mai
 #endif
 
   // only allow sending error reports if we have a valid git commit hash
-  rdcstr hash = RENDERDOC_GetCommitHash();
+  rdcstr hash = GUGUGAGA_GetCommitHash();
   if(hash.length() != 40 || hash.find_first_not_of("0123456789abcdef") >= 0)
   {
     qInfo() << "Disabling error reports due to invalid commit hash";
@@ -456,7 +456,7 @@ MainWindow::MainWindow(ICaptureContext &ctx) : QMainWindow(NULL), ui(new Ui::Mai
 #define SELF_HOST_NAME "librdocself.so"
 #endif
 
-  if(RENDERDOC_CanSelfHostedCapture(SELF_HOST_NAME))
+  if(GUGUGAGA_CanSelfHostedCapture(SELF_HOST_NAME))
   {
     QAction *begin = new QAction(tr("Start Self-hosted Capture"), this);
     QAction *end = new QAction(tr("End Self-hosted Capture"), this);
@@ -466,14 +466,14 @@ MainWindow::MainWindow(ICaptureContext &ctx) : QMainWindow(NULL), ui(new Ui::Mai
       begin->setEnabled(false);
       end->setEnabled(true);
 
-      RENDERDOC_StartSelfHostCapture(SELF_HOST_NAME);
+      GUGUGAGA_StartSelfHostCapture(SELF_HOST_NAME);
     });
 
     QObject::connect(end, &QAction::triggered, [begin, end]() {
       begin->setEnabled(true);
       end->setEnabled(false);
 
-      RENDERDOC_EndSelfHostCapture(SELF_HOST_NAME);
+      GUGUGAGA_EndSelfHostCapture(SELF_HOST_NAME);
     });
 
     ui->menu_Tools->addSeparator();
@@ -489,7 +489,7 @@ MainWindow::MainWindow(ICaptureContext &ctx) : QMainWindow(NULL), ui(new Ui::Mai
   ui->menu_Export_As->setEnabled(false);
 
   {
-    ICaptureFile *tmp = RENDERDOC_OpenCaptureFile();
+    ICaptureFile *tmp = GUGUGAGA_OpenCaptureFile();
     rdcarray<CaptureFileFormat> formats = tmp->GetCaptureFileFormats();
 
     for(const CaptureFileFormat &fmt : formats)
@@ -718,8 +718,8 @@ void MainWindow::OnCaptureTrigger(const QString &exe, const QString &workingDir,
   LambdaThread *th = new LambdaThread([this, exe, workingDir, cmdLine, env, opts, callback]() {
     if(isUnshareableDeviceInUse())
     {
-      RDDialog::warning(this, tr("RenderDoc is already capturing an app on this device"),
-                        tr("A running app on this device is already being captured with RenderDoc. "
+      RDDialog::warning(this, tr("GuguGaga is already capturing an app on this device"),
+                        tr("A running app on this device is already being captured with GuguGaga. "
                            "First please close the app then try to launch again."),
                         QMessageBox::Ok);
       return;
@@ -787,7 +787,7 @@ void MainWindow::OnInjectTrigger(uint32_t PID, const rdcarray<EnvironmentModific
   LambdaThread *th = new LambdaThread([this, PID, env, name, opts, callback]() {
     QString capturefile = m_Ctx.TempCaptureFilename(name);
 
-    ExecuteResult ret = RENDERDOC_InjectIntoProcess(PID, env, capturefile, opts, false);
+    ExecuteResult ret = GUGUGAGA_InjectIntoProcess(PID, env, capturefile, opts, false);
 
     GUIInvoke::call(this, [this, PID, ret, callback]() {
       if(ret.result.code != ResultCode::Succeeded)
@@ -830,7 +830,7 @@ void MainWindow::LoadCapture(const QString &filename, const ReplayOptions &opts,
 
     if(local)
     {
-      ICaptureFile *file = RENDERDOC_OpenCaptureFile();
+      ICaptureFile *file = GUGUGAGA_OpenCaptureFile();
 
       ResultDetails result = file->OpenFile(filename, "rdc", NULL);
 
@@ -1214,18 +1214,18 @@ void MainWindow::SetTitle(const QString &filename)
 
   QString text = prefix + lit("GuguGaga ");
 
-  if(RENDERDOC_STABLE_BUILD)
+  if(GUGUGAGA_STABLE_BUILD)
     text += lit(FULL_VERSION_STRING);
   else
     text += tr("Unstable %1 Build (%2 - %3)")
-                .arg(RENDERDOC_IsReleaseBuild() ? lit("Release") : lit("Development"))
+                .arg(GUGUGAGA_IsReleaseBuild() ? lit("Release") : lit("Development"))
                 .arg(lit(FULL_VERSION_STRING))
-                .arg(QString::fromLatin1(RENDERDOC_GetCommitHash()));
+                .arg(QString::fromLatin1(GUGUGAGA_GetCommitHash()));
 
   if(IsRunningAsAdmin())
     text += tr(" (Administrator)");
 
-  if(QString::fromLatin1(RENDERDOC_GetVersionString()) != lit(MAJOR_MINOR_VERSION_STRING))
+  if(QString::fromLatin1(GUGUGAGA_GetVersionString()) != lit(MAJOR_MINOR_VERSION_STRING))
     text += tr(" - !! VERSION MISMATCH DETECTED !!");
 
   setWindowTitle(text);
@@ -1242,9 +1242,9 @@ bool MainWindow::HandleMismatchedVersions()
   {
     qCritical() << "Version mismatch between UI (" << lit(MAJOR_MINOR_VERSION_STRING) << ")"
                 << "and core"
-                << "(" << QString::fromUtf8(RENDERDOC_GetVersionString()) << ")";
+                << "(" << QString::fromUtf8(GUGUGAGA_GetVersionString()) << ")";
 
-#if !RENDERDOC_OFFICIAL_BUILD
+#if !GUGUGAGA_OFFICIAL_BUILD
     RDDialog::critical(
         this, tr("Unofficial build - mismatched versions"),
         tr("You are running an unofficial build with mismatched core and UI versions.\n"
@@ -1252,17 +1252,17 @@ bool MainWindow::HandleMismatchedVersions()
 #else
     QMessageBox::StandardButton res = RDDialog::critical(
         this, tr("Mismatched versions"),
-        tr("RenderDoc has detected mismatched versions between its internal module and UI.\n"
+        tr("GuguGaga has detected mismatched versions between its internal module and UI.\n"
            "This is likely caused by a buggy update in the past which partially updated your "
            "install."
-           "Likely because a program was running with renderdoc while the update happened.\n"
-           "You should reinstall RenderDoc immediately as this configuration is almost guaranteed "
+           "Likely because a program was running with gugugaga while the update happened.\n"
+           "You should reinstall GuguGaga immediately as this configuration is almost guaranteed "
            "to crash.\n\n"
            "Would you like to open the downloads page to reinstall?"),
         QMessageBox::Yes | QMessageBox::No);
 
     if(res == QMessageBox::Yes)
-      QDesktopServices::openUrl(QUrl(lit("https://renderdoc.org/builds")));
+      QDesktopServices::openUrl(QUrl(lit("https://gugugaga.org/builds")));
 
     SetUpdateAvailable();
 #endif
@@ -1274,7 +1274,7 @@ bool MainWindow::HandleMismatchedVersions()
 
 bool MainWindow::IsVersionMismatched()
 {
-  return QString::fromLatin1(RENDERDOC_GetVersionString()) != lit(MAJOR_MINOR_VERSION_STRING);
+  return QString::fromLatin1(GUGUGAGA_GetVersionString()) != lit(MAJOR_MINOR_VERSION_STRING);
 }
 
 void MainWindow::ClearRecentCaptureFiles()
@@ -1441,7 +1441,7 @@ void MainWindow::CheckUpdates(bool forceCheck, UpdateResultMethod callback)
     return;
   }
 
-#if RENDERDOC_OFFICIAL_BUILD
+#if GUGUGAGA_OFFICIAL_BUILD
 
   // if the current version isn't the one we expected, clear any cached update state
   if(m_Ctx.Config().CheckUpdate_CurrentVersion != MAJOR_MINOR_VERSION_STRING)
@@ -1507,7 +1507,7 @@ void MainWindow::CheckUpdates(bool forceCheck, UpdateResultMethod callback)
 
   // call out to the status-check to see when the bug report was last updated
   MakeNetworkRequest(
-      QUrl(lit("https://renderdoc.org/getupdateurl/%1/%2?htmlnotes=1").arg(bitness).arg(versionCheck)),
+      QUrl(lit("https://gugugaga.org/getupdateurl/%1/%2?htmlnotes=1").arg(bitness).arg(versionCheck)),
 
       // on success
       [this, callback](QByteArray replyData) {
@@ -1544,7 +1544,7 @@ void MainWindow::CheckUpdates(bool forceCheck, UpdateResultMethod callback)
         statusProgress->setVisible(false);
         qCritical() << "Network error checking for updates:" << error;
       });
-#else    //! RENDERDOC_OFFICIAL_BUILD
+#else    //! GUGUGAGA_OFFICIAL_BUILD
   {
     if(callback)
       callback(UpdateResult::Unofficial);
@@ -2084,7 +2084,7 @@ void MainWindow::setRemoteHost(int hostIdx)
               RDDialog::critical(
                   this, tr("Unsupported Device Android Version"),
                   tr("This device is older than Android 6.0, the minimum required version for "
-                     "RenderDoc.\n\nThis may break or cause unknown problems - use at your own "
+                     "GuguGaga.\n\nThis may break or cause unknown problems - use at your own "
                      "risk."));
             }
 
@@ -2094,7 +2094,7 @@ void MainWindow::setRemoteHost(int hostIdx)
           {
             RDDialog::critical(
                 this, tr("Unsupported Device"),
-                tr("This device is not able to support RenderDoc. Please consult the documentation "
+                tr("This device is not able to support GuguGaga. Please consult the documentation "
                    "for this type of device to see what the problem may be."));
           }
         });
@@ -2797,7 +2797,7 @@ void MainWindow::on_action_Open_RGP_Profile_triggered()
   if(idx < 0)
     return;
 
-  QString path = QDir::temp().absoluteFilePath(lit("renderdoc_extracted.rgp"));
+  QString path = QDir::temp().absoluteFilePath(lit("gugugaga_extracted.rgp"));
 
   QFile f(path);
   if(f.open(QIODevice::WriteOnly | QIODevice::Truncate))
@@ -2922,21 +2922,21 @@ void MainWindow::on_action_View_Documentation_triggered()
 {
   QFileInfo fi(QGuiApplication::applicationFilePath());
 
-  if(fi.absoluteDir().exists(lit("renderdoc.chm")))
+  if(fi.absoluteDir().exists(lit("gugugaga.chm")))
     QDesktopServices::openUrl(
-        QUrl::fromLocalFile(fi.absoluteDir().absoluteFilePath(lit("renderdoc.chm"))));
+        QUrl::fromLocalFile(fi.absoluteDir().absoluteFilePath(lit("gugugaga.chm"))));
   else
-    QDesktopServices::openUrl(QUrl::fromUserInput(lit("https://renderdoc.org/docs")));
+    QDesktopServices::openUrl(QUrl::fromUserInput(lit("https://gugugaga.org/docs")));
 }
 
 void MainWindow::on_action_Source_on_GitHub_triggered()
 {
-  QDesktopServices::openUrl(QUrl::fromUserInput(lit("https://github.com/baldurk/renderdoc")));
+  QDesktopServices::openUrl(QUrl::fromUserInput(lit("https://github.com/GuguGaga/GuguGaga")));
 }
 
 void MainWindow::on_action_Build_Release_Downloads_triggered()
 {
-  QDesktopServices::openUrl(QUrl::fromUserInput(lit("https://renderdoc.org/builds")));
+  QDesktopServices::openUrl(QUrl::fromUserInput(lit("https://gugugaga.org/builds")));
 }
 
 void MainWindow::on_action_Show_Tips_triggered()
@@ -2976,12 +2976,12 @@ void MainWindow::sendErrorReport(bool forceCaptureInclusion)
     return;
 
   rdcstr report;
-  RENDERDOC_CreateBugReport(RENDERDOC_GetLogFile(), "", report);
+  GUGUGAGA_CreateBugReport(GUGUGAGA_GetLogFile(), "", report);
 
   QVariantMap json;
 
   json[lit("version")] = lit(FULL_VERSION_STRING);
-  json[lit("gitcommit")] = QString::fromLatin1(RENDERDOC_GetCommitHash());
+  json[lit("gitcommit")] = QString::fromLatin1(GUGUGAGA_GetCommitHash());
   json[lit("replaycrash")] = 1;
   json[lit("manual")] = 1;
   json[lit("forcecapture")] = forceCaptureInclusion ? 1 : 0;
@@ -3017,7 +3017,7 @@ void MainWindow::on_action_Check_for_Updates_triggered()
                                   "Would you like to open the builds list in a browser?"));
 
         if(res == QMessageBox::Yes)
-          QDesktopServices::openUrl(lit("https://renderdoc.org/builds"));
+          QDesktopServices::openUrl(lit("https://gugugaga.org/builds"));
         break;
       }
       case UpdateResult::Latest:
@@ -3082,10 +3082,10 @@ void MainWindow::updateToolsMenuOptions()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-  if(RENDERDOC_IsGlobalHookActive())
+  if(GUGUGAGA_IsGlobalHookActive())
   {
     RDDialog::critical(this, tr("Global hook active"),
-                       tr("Cannot close RenderDoc while global hook is active."));
+                       tr("Cannot close GuguGaga while global hook is active."));
     event->ignore();
     return;
   }
@@ -3291,7 +3291,7 @@ void MainWindow::showLaunchError(ResultDetails result)
     case ResultCode::AndroidGrantPermissionsFailed:
       message =
           tr("%1.\n\n"
-             "Please manually allow the RenderDocCmd program storage permissions on your device "
+             "Please manually allow the GuguGagaCmd program storage permissions on your device "
              "to ensure correct functionality.")
               .arg(result.Message());
       break;
@@ -3308,18 +3308,18 @@ void MainWindow::showLaunchError(ResultDetails result)
       message =
           tr("Couldn't correctly verify installed APK version.\n\n"
              "Please check your installation is not corrupted."
-#if !RENDERDOC_OFFICIAL_BUILD
+#if !GUGUGAGA_OFFICIAL_BUILD
              " Or if this is a custom build check that all ABIs are built at the same version as "
              "this program."
 #endif
           );
       break;
     default:
-      message = tr("Error encountered launching RenderDoc remote server: %1.").arg(result.Message());
+      message = tr("Error encountered launching GuguGaga remote server: %1.").arg(result.Message());
       break;
   }
   GUIInvoke::call(this, [this, message]() {
-    RDDialog::warning(this, tr("Problems launching RenderDoc remote server"), message);
+    RDDialog::warning(this, tr("Problems launching GuguGaga remote server"), message);
   });
 }
 
@@ -3333,6 +3333,6 @@ bool MainWindow::isUnshareableDeviceInUse()
   if(m_Ctx.Replay().CurrentRemote().Protocol()->SupportsMultiplePrograms(host))
     return false;
 
-  uint32_t ident = RENDERDOC_EnumerateRemoteTargets(host, 0);
+  uint32_t ident = GUGUGAGA_EnumerateRemoteTargets(host, 0);
   return ident != 0;
 }

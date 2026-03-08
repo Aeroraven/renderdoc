@@ -121,7 +121,7 @@ struct ShaderProcessingTool
   DOCUMENT(R"(Runs this program to disassemble a given shader reflection.
 
 :param QWidget window: A handle to the window to use when showing a progress bar or error messages.
-:param renderdoc.ShaderReflection shader: The shader to disassemble.
+:param gugugaga.ShaderReflection shader: The shader to disassemble.
 :param str args: arguments to pass to the tool. The default arguments can be obtained using
   :meth:`DefaultArguments` which can then be customised as desired. Passing an empty string uses the
   default arguments.
@@ -136,7 +136,7 @@ struct ShaderProcessingTool
 :param QWidget window: A handle to the window to use when showing a progress bar or error messages.
 :param str source: The source code, preprocessed into a single file.
 :param str entryPoint: The name of the entry point in the shader to compile.
-:param renderdoc.ShaderStage stage: The pipeline stage that this shader represents.
+:param gugugaga.ShaderStage stage: The pipeline stage that this shader represents.
 :param str spirvVer: The version of SPIR-V in use for this shader, or an empty string for defaults.
   The current version can be obtained from reflection data via the ``@spirver`` compile flag.
 :param str args: arguments to pass to the tool. The default arguments can be obtained using
@@ -156,7 +156,7 @@ private:
 DECLARE_REFLECTION_STRUCT(ShaderProcessingTool);
 
 #if !defined(SWIG)
-#define BUGREPORT_URL "https://renderdoc.org/bugreporter"
+#define BUGREPORT_URL "https://gugugaga.org/bugreporter"
 #endif
 
 DOCUMENT("Describes a submitted bug report.");
@@ -292,7 +292,7 @@ DECLARE_REFLECTION_STRUCT(BugReport);
       "A :class:`ReplayOptions` containing the configured default replay options to use in most "  \
       "scenarios when no specific options are given.\n"                                            \
       "\n:"                                                                                        \
-      "type: renderdoc.ReplayOptions");                                                            \
+      "type: gugugaga.ReplayOptions");                                                            \
   CONFIG_SETTING(public, QVariant, ReplayOptions, DefaultReplayOptions)                            \
                                                                                                    \
   DOCUMENT(                                                                                        \
@@ -891,7 +891,7 @@ propagated and will not be forgotten in the case of crash or otherwise unexpecte
   DOCUMENT(R"(Closes the config file so that subsequent calls to Save() will not write to disk at
 the file the config was loaded from.
 
-This function is rarely directly used, except in the case where RenderDoc is relaunching itself and
+This function is rarely directly used, except in the case where GuguGaga is relaunching itself and
 wants to avoid file locking conflicts between the closing instance saving, and the loading instance
 loading. It can explicitly save and close before relaunching.
 )");

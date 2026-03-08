@@ -24,17 +24,17 @@
 
 #pragma once
 
-// This file controls the telemetry/analytics functionality in RenderDoc.
+// This file controls the telemetry/analytics functionality in GuguGaga.
 //
 // If you don't care about any details and just want to make sure this is turned off for your builds
-// then go below to #define RENDERDOC_ANALYTICS_ENABLE and change it to 0. That will cease all
+// then go below to #define GUGUGAGA_ANALYTICS_ENABLE and change it to 0. That will cease all
 // recording and reporting of analytics data. It won't delete any previously recorded analytics and
 // won't stop any other builds from working, since the code that knows about what the analytics is
 // will be compiled out.
 //
 // -------------------------------------------------------------------------------------------------
 //
-// RenderDoc's analytics works in two phases: Data is recorded first to an internal database that
+// GuguGaga's analytics works in two phases: Data is recorded first to an internal database that
 // can contain more information than will be sent, to allow for accurate tracking before
 // aggregation. This isn't as scary as it sounds - e.g. consider the 'UsageLevel' stat that's
 // reported, which is a number in the range 1 to 31 indicating how many days in the month the
@@ -50,14 +50,14 @@
 // Once the report is sent, the database is reset and begins the next period.
 
 // this is the root switch that can turn off *all* analytics code globally
-#define RENDERDOC_ANALYTICS_ENABLE 1
+#define GUGUGAGA_ANALYTICS_ENABLE 1
 
 // we don't want any of this to be accessible to script, only code.
 #if !defined(SWIG) && !defined(SWIG_GENERATED)
 
 // We also compile out all of the code if analytics are disabled so there's not even a code
 // reference to where the data is collected.
-#if RENDERDOC_ANALYTICS_ENABLE
+#if GUGUGAGA_ANALYTICS_ENABLE
 
 struct AnalyticsAverage
 {
@@ -145,7 +145,7 @@ struct Analytics
   struct
   {
     // The version string (MAJOR_MINOR_VERSION_STRING) of this build.
-    QString RenderDocVersion;
+    QString GuguGagaVersion;
 
     // The distribution information (DISTRIBUTION_NAME) for this build.
     QString DistributionVersion;
@@ -159,7 +159,7 @@ struct Analytics
     // whether a development build has been run - either a nightly build or a local build.
     bool DevelBuildRun = false;
 
-    // whether an official build has been run - whether distributed from the RenderDoc website or
+    // whether an official build has been run - whether distributed from the GuguGaga website or
     // through a linux distribution
     bool OfficialBuildRun = false;
 

@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License (MIT)
  *
- * Copyright (c) 2017-2026 Baldur Karlsson
+ * Copyright (c) 2017-2026 GuguGaga Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -177,10 +177,10 @@ rdcstr DisassembleDXBC(const bytebuf &shaderBytes, const rdcstr &target)
 
 ; Currently )" NEW_DLL_NAME
            R"( from AMD's driver package is required for GCN disassembly and it cannot be
-; distributed with RenderDoc.
+; distributed with GuguGaga.
 
 ; To see instructions on how to download and configure it on your system, go to:
-; https://github.com/baldurk/renderdoc/wiki/GCN-ISA)";
+; https://github.com/GuguGaga/GuguGaga/wiki/GCN-ISA)";
 
   // if shaderBytes is empty we're testing support, so return empty string - indicating no error
   // initialising

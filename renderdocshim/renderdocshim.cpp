@@ -26,7 +26,7 @@
 // so that when inserted into an application it has as small an overhead/impact
 // as possible. Ideally it would be present only to be a pass-through hook and
 // the first time only to allocate a little, check if this process should be hooked
-// and load the renderdoc dll.
+// and load the gugugaga dll.
 //
 // The no-CRT restriction causes some awkward bits and pieces but the dll is simple
 // enough that it's not a big issue.

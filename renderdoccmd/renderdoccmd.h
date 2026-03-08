@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <replay/renderdoc_replay.h>
+#include <replay/gugugaga_replay.h>
 #include "cmdline/cmdline.h"
 
 struct Command
@@ -49,8 +49,8 @@ void add_version_line(const std::string &str);
 void add_command(const std::string &name, Command *cmd);
 void add_alias(const std::string &alias, const std::string &command);
 
-int renderdoccmd(GlobalEnvironment &env, int argc, char **argv);
-int renderdoccmd(GlobalEnvironment &env, std::vector<std::string> &argv);
+int gugugagacmd(GlobalEnvironment &env, int argc, char **argv);
+int gugugagacmd(GlobalEnvironment &env, std::vector<std::string> &argv);
 
 void readCapOpts(const std::string &str, CaptureOptions *opts);
 

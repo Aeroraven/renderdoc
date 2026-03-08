@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="renderdoccmd.cpp" />
-    <ClCompile Include="renderdoccmd_win32.cpp" />
+    <ClCompile Include="gugugagacmd.cpp" />
+    <ClCompile Include="gugugagacmd_win32.cpp" />
     <ClCompile Include="..\renderdoc\3rdparty\miniz\miniz.c">
       <Filter>3rdparty</Filter>
     </ClCompile>
-    <ClCompile Include="renderdoccmd_linux.cpp" />
-    <ClCompile Include="renderdoccmd_android.cpp" />
-    <ClCompile Include="renderdoccmd_apple.cpp" />
+    <ClCompile Include="gugugagacmd_linux.cpp" />
+    <ClCompile Include="gugugagacmd_android.cpp" />
+    <ClCompile Include="gugugagacmd_apple.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -20,7 +20,7 @@
     <ClInclude Include="..\renderdoc\3rdparty\miniz\miniz.h">
       <Filter>3rdparty</Filter>
     </ClInclude>
-    <ClInclude Include="renderdoccmd.h" />
+    <ClInclude Include="gugugagacmd.h" />
     <ClInclude Include="3rdparty\cmdline\cmdline.h">
       <Filter>3rdparty</Filter>
     </ClInclude>
@@ -39,7 +39,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="renderdoccmd.rc">
+    <ResourceCompile Include="gugugagacmd.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>

@@ -24,7 +24,7 @@
 
 #pragma once
 
-#ifdef RENDERDOC_QT_COMPAT
+#ifdef GUGUGAGA_QT_COMPAT
 
 typedef rdcarray<rdcpair<rdcstr, QVariant> > ExtensionCallbackData;
 #define make_pyarg rdcpair<rdcstr, QVariant>
@@ -364,11 +364,11 @@ DECLARE_REFLECTION_STRUCT(ExtensionMetadata);
 typedef struct _object PyObject;
 
 DOCUMENT(R"(Python can have direct access to Qt via PySide2, but this is not always available in
-all RenderDoc builds. To aid extensions to manipulate widgets in a simple but portable fashion this
-helper exposes a small subset of Qt via RenderDoc's python bindings.
+all GuguGaga builds. To aid extensions to manipulate widgets in a simple but portable fashion this
+helper exposes a small subset of Qt via GuguGaga's python bindings.
 
 The intention is not to allow fully flexible building of Qt panels, but to allow access to some
-basic UI building tools for simple data input and display which can be used on any RenderDoc build.
+basic UI building tools for simple data input and display which can be used on any GuguGaga build.
 
 This manager is retrieved by calling :meth:`ExtensionManager.GetMiniQtHelper`.
 
@@ -490,7 +490,7 @@ should only be used for debugging as the name may change even if for the same ty
 .. note::
   The widget returned may not be a widget created through this helper interface if the specified
   widget has been docked somewhere. Beware making changes to any widgets returned as you may modify
-  the RenderDoc UI itself.
+  the GuguGaga UI itself.
 
 :param QWidget widget: The widget to query.
 :return: The handle to the parent widget with a matching name, or ``None`` if this widget is either
@@ -775,7 +775,7 @@ The data must be in RGB(A) format with the first byte of each texel being R.
   virtual void SetLabelImage(QWidget *widget, const bytebuf &data, int32_t width, int32_t height,
                              bool alpha) = 0;
 
-  DOCUMENT(R"(Create a widget suitable for rendering to with a :class:`renderdoc.ReplayOutput`. This
+  DOCUMENT(R"(Create a widget suitable for rendering to with a :class:`gugugaga.ReplayOutput`. This
 widget takes care of painting on demand and recreating the internal display widget when necessary,
 however this means you must use :meth:`GetWidgetWindowingData` to retrieve the windowing data for
 creating the output as well as call :meth:`SetWidgetReplayOutput` to notify the widget of the
@@ -787,13 +787,13 @@ current output.
   virtual QWidget *CreateOutputRenderingWidget() = 0;
 
   DOCUMENT(R"(Return the opaque pointer of windowing data suitable for passing to
-:meth:`~renderdoc.ReplayController.CreateOutput` or other functions that expect windowing data.
+:meth:`~gugugaga.ReplayController.CreateOutput` or other functions that expect windowing data.
 
 If the widget is not a output rendering widget created with :meth:`CreateOutputRenderingWidget` this
 function will fail and return an invalid set of windowing data.
 
 It's important to note that the windowing data is not valid forever, so this function should be
-called as close to where you call :meth:`~renderdoc.ReplayController.CreateOutput` as possible.
+called as close to where you call :meth:`~gugugaga.ReplayController.CreateOutput` as possible.
 Also don't fetch windowing data unless you are going to create an output, because this function will
 cause the widget to go into an undefined state unless an output is created to render onto it.
 
@@ -802,7 +802,7 @@ cause the widget to go into an undefined state unless an output is created to re
 
 :param QWidget widget: The widget to create windowing data for.
 :return: The windowing data.
-:rtype: renderdoc.WindowingData
+:rtype: gugugaga.WindowingData
 )");
   virtual WindowingData GetWidgetWindowingData(QWidget *widget) = 0;
 
@@ -816,7 +816,7 @@ When a capture is closed and all outputs are destroyed, the widget will automati
 output so there is no need to do that manually.
 
 :param QWidget widget: The widget to set the output for.
-:param renderdoc.ReplayOutput output: The new output to set, or ``None`` to unset any previous
+:param gugugaga.ReplayOutput output: The new output to set, or ``None`` to unset any previous
   output.
 )");
   virtual void SetWidgetReplayOutput(QWidget *widget, IReplayOutput *output) = 0;
