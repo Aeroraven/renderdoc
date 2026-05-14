@@ -351,10 +351,6 @@ private:
         inject = false;
       }
     }
-    if(inject)
-    {
-      std::abort();
-    }
     return inject;
   }
 
