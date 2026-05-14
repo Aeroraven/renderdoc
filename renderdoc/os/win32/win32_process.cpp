@@ -1005,6 +1005,37 @@ rdcpair<RDResult, uint32_t> Process::InjectIntoProcess(uint32_t pid,
     InjectFunctionCall(hProcess, loc, "INTERNAL_GetTargetControlIdent", &result.second,
                        sizeof(result.second));
 
+    if(result.second == 0)
+    {
+      const uint32_t identRetryTimeoutMS = 2000;
+      const uint32_t identRetrySleepMS = 10;
+      uint32_t waitedMS = 0;
+
+      RDCLOG("Waiting for target control ident from process %u", pid);
+
+      while(result.second == 0 && waitedMS < identRetryTimeoutMS)
+      {
+        Sleep(identRetrySleepMS);
+        waitedMS += identRetrySleepMS;
+
+        InjectFunctionCall(hProcess, loc, "INTERNAL_GetTargetControlIdent", &result.second,
+                           sizeof(result.second));
+      }
+
+      if(result.second != 0)
+      {
+        RDCLOG("Process %u target control ident became %u after %u ms", pid, result.second,
+               waitedMS);
+      }
+      else
+      {
+        SET_ERROR_RESULT(result.first, ResultCode::NetworkIOFailed,
+                         "Injected into process, but target control ident did not become ready. "
+                         "The process may still be initialising or could not open a target "
+                         "control socket.");
+      }
+    }
+
     if(!env.empty())
     {
       for(const EnvironmentModification &e : env)

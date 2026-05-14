@@ -24,6 +24,7 @@
  ******************************************************************************/
 
 #include <winsock2.h>
+#include <shellapi.h>
 #include "core/core.h"
 #include "hooks/hooks.h"
 #include "os/os_specific.h"
@@ -70,6 +71,11 @@ typedef BOOL(WINAPI *PFN_CREATE_PROCESS_WITH_LOGON_W)(LPCWSTR lpUsername, LPCWST
                                                       LPSTARTUPINFOW lpStartupInfo,
                                                       LPPROCESS_INFORMATION lpProcessInformation);
 
+typedef HINSTANCE(WINAPI *PFN_SHELL_EXECUTE_W)(HWND hwnd, LPCWSTR lpOperation, LPCWSTR lpFile,
+                                               LPCWSTR lpParameters, LPCWSTR lpDirectory,
+                                               INT nShowCmd);
+typedef BOOL(WINAPI *PFN_SHELL_EXECUTE_EX_W)(SHELLEXECUTEINFOW *pExecInfo);
+
 class SysHook : LibraryHook
 {
 public:
@@ -89,6 +95,7 @@ public:
     LibraryHooks::RegisterLibraryHook("api-ms-win-core-processthreads-l1-1-0.dll", NULL);
     LibraryHooks::RegisterLibraryHook("api-ms-win-core-processthreads-l1-1-1.dll", NULL);
     LibraryHooks::RegisterLibraryHook("api-ms-win-core-processthreads-l1-1-2.dll", NULL);
+    LibraryHooks::RegisterLibraryHook("shell32.dll", NULL);
     LibraryHooks::RegisterLibraryHook("ws2_32.dll", NULL);
 
     // we want to hook CreateProcess purely so that we can recursively insert our hooks (if we so
@@ -124,6 +131,9 @@ public:
                                   API112CreateProcessW_hook);
     API112CreateProcessAsUserW.Register("api-ms-win-core-processthreads-l1-1-0.dll",
                                         "CreateProcessAsUserW", API112CreateProcessAsUserW_hook);
+
+    ShellExecuteW.Register("shell32.dll", "ShellExecuteW", ShellExecuteW_hook);
+    ShellExecuteExW.Register("shell32.dll", "ShellExecuteExW", ShellExecuteExW_hook);
 
     WSAStartup.Register("ws2_32.dll", "WSAStartup", WSAStartup_hook);
     WSACleanup.Register("ws2_32.dll", "WSACleanup", WSACleanup_hook);
@@ -167,9 +177,21 @@ private:
   HookedFunction<PFN_CREATE_PROCESS_AS_USER_W> API112CreateProcessAsUserW;
 
   HookedFunction<PFN_CREATE_PROCESS_WITH_LOGON_W> CreateProcessWithLogonW;
+  HookedFunction<PFN_SHELL_EXECUTE_W> ShellExecuteW;
+  HookedFunction<PFN_SHELL_EXECUTE_EX_W> ShellExecuteExW;
 
   HookedFunction<PFN_WSASTARTUP> WSAStartup;
   HookedFunction<PFN_WSACLEANUP> WSACleanup;
+
+  static rdcstr SafeWideLogString(LPCWSTR str)
+  {
+    return str ? StringFormat::Wide2UTF8(str) : "<null>";
+  }
+
+  static rdcstr SafeAnsiLogString(LPCSTR str)
+  {
+    return str ? str : "<null>";
+  }
 
   static int WSAAPI WSAStartup_hook(WORD wVersionRequested, LPWSADATA lpWSAData)
   {
@@ -202,6 +224,8 @@ private:
                        std::function<BOOL(DWORD dwCreationFlags, LPVOID pEnvironment,
                                           LPPROCESS_INFORMATION lpProcessInformation)>
                            realFunc,
+                       const rdcstr &applicationName, const rdcstr &commandLine,
+                       const rdcstr &currentDirectory,
                        DWORD dwCreationFlags, bool inject, LPVOID pEnvironment,
                        LPPROCESS_INFORMATION lpProcessInformation)
   {
@@ -222,6 +246,10 @@ private:
     {
       *lpProcessInformation = dummy;
     }
+
+    RDCLOG("%s request app=%s cmd=%s dir=%s flags=0x%08x inject=%s", entryPoint,
+           applicationName.c_str(), commandLine.c_str(), currentDirectory.c_str(), dwCreationFlags,
+           inject ? "true" : "false");
 
     bool resume = (dwCreationFlags & CREATE_SUSPENDED) == 0;
     dwCreationFlags |= CREATE_SUSPENDED;
@@ -292,7 +320,12 @@ private:
 
     RDCDEBUG("Calling real %s", entryPoint);
     BOOL ret = realFunc(dwCreationFlags, env, lpProcessInformation);
+    DWORD retError = ret ? ERROR_SUCCESS : GetLastError();
     RDCDEBUG("Called real %s", entryPoint);
+
+    RDCLOG("%s result ret=%s err=%u pid=%u tid=%u flags=0x%08x inject=%s", entryPoint,
+           ret ? "true" : "false", retError, lpProcessInformation->dwProcessId,
+           lpProcessInformation->dwThreadId, dwCreationFlags, inject ? "true" : "false");
 
     if(ret && inject)
     {
@@ -302,6 +335,10 @@ private:
       rdcpair<RDResult, uint32_t> res = Process::InjectIntoProcess(
           lpProcessInformation->dwProcessId, {}, GuguGaga::Inst().GetCaptureFileTemplate(),
           GuguGaga::Inst().GetCaptureOptions(), false);
+
+      rdcstr injectStatus = !res.first.message.empty() ? res.first.message : ToStr(res.first.code);
+      RDCLOG("%s child PID %u injection result: %s (ident %u)", entryPoint,
+             lpProcessInformation->dwProcessId, injectStatus.c_str(), res.second);
 
       if(res.first == ResultCode::Succeeded)
         GuguGaga::Inst().AddChildProcess((uint32_t)lpProcessInformation->dwProcessId, res.second);
@@ -377,6 +414,8 @@ private:
                                            lpThreadAttributes, bInheritHandles, flags, env,
                                            lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeAnsiLogString(lpApplicationName), SafeAnsiLogString(lpCommandLine),
+        SafeAnsiLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -398,6 +437,8 @@ private:
                                            lpThreadAttributes, bInheritHandles, flags, env,
                                            lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeWideLogString(lpApplicationName), SafeWideLogString(lpCommandLine),
+        SafeWideLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -416,6 +457,8 @@ private:
               lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
               bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeAnsiLogString(lpApplicationName), SafeAnsiLogString(lpCommandLine),
+        SafeAnsiLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -434,6 +477,8 @@ private:
               lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
               bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeWideLogString(lpApplicationName), SafeWideLogString(lpCommandLine),
+        SafeWideLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -452,6 +497,8 @@ private:
               lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
               bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeAnsiLogString(lpApplicationName), SafeAnsiLogString(lpCommandLine),
+        SafeAnsiLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -470,6 +517,8 @@ private:
               lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
               bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeWideLogString(lpApplicationName), SafeWideLogString(lpCommandLine),
+        SafeWideLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -488,6 +537,8 @@ private:
               lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
               bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeAnsiLogString(lpApplicationName), SafeAnsiLogString(lpCommandLine),
+        SafeAnsiLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -506,6 +557,8 @@ private:
               lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
               bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeWideLogString(lpApplicationName), SafeWideLogString(lpCommandLine),
+        SafeWideLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -523,6 +576,8 @@ private:
               hToken, lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
               bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeAnsiLogString(lpApplicationName), SafeAnsiLogString(lpCommandLine),
+        SafeAnsiLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -540,6 +595,8 @@ private:
               hToken, lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
               bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeWideLogString(lpApplicationName), SafeWideLogString(lpCommandLine),
+        SafeWideLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -559,6 +616,8 @@ private:
                                                     lpApplicationName, lpCommandLine, flags, env,
                                                     lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeWideLogString(lpApplicationName), SafeWideLogString(lpCommandLine),
+        SafeWideLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -576,6 +635,8 @@ private:
               hToken, lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
               bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeWideLogString(lpApplicationName), SafeWideLogString(lpCommandLine),
+        SafeWideLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -593,6 +654,8 @@ private:
               hToken, lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
               bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeWideLogString(lpApplicationName), SafeWideLogString(lpCommandLine),
+        SafeWideLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
   }
@@ -610,8 +673,75 @@ private:
               hToken, lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
               bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi);
         },
+        SafeWideLogString(lpApplicationName), SafeWideLogString(lpCommandLine),
+        SafeWideLogString(lpCurrentDirectory),
         dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
         lpProcessInformation);
+  }
+
+  static BOOL WINAPI ShellExecuteExW_hook(SHELLEXECUTEINFOW *pExecInfo)
+  {
+    bool recursive = syshooks.CheckRecurse();
+
+    if(recursive)
+      return syshooks.ShellExecuteExW()(pExecInfo);
+
+    if(pExecInfo)
+    {
+      RDCLOG(
+          "ShellExecuteExW verb=%s file=%s params=%s dir=%s mask=0x%08x show=%d hwnd=0x%p",
+          SafeWideLogString(pExecInfo->lpVerb).c_str(),
+          SafeWideLogString(pExecInfo->lpFile).c_str(),
+          SafeWideLogString(pExecInfo->lpParameters).c_str(),
+          SafeWideLogString(pExecInfo->lpDirectory).c_str(), pExecInfo->fMask, pExecInfo->nShow,
+          pExecInfo->hwnd);
+    }
+    else
+    {
+      RDCLOG("ShellExecuteExW called with null SHELLEXECUTEINFOW");
+    }
+
+    BOOL ret = syshooks.ShellExecuteExW()(pExecInfo);
+    DWORD retError = ret ? ERROR_SUCCESS : GetLastError();
+
+    HANDLE childProcess = (ret && pExecInfo) ? pExecInfo->hProcess : NULL;
+    DWORD childPID = childProcess ? GetProcessId(childProcess) : 0;
+    bool inject = pExecInfo && ShouldInject(pExecInfo->lpFile, pExecInfo->lpParameters);
+
+    RDCLOG("ShellExecuteExW result ret=%s err=%u hProcess=0x%p pid=%u mask=0x%08x inject=%s",
+           ret ? "true" : "false", retError, childProcess, childPID,
+           pExecInfo ? pExecInfo->fMask : 0, inject ? "true" : "false");
+
+    if(ret && inject && childProcess && childPID != 0)
+    {
+      rdcpair<RDResult, uint32_t> res = Process::InjectIntoProcess(
+          childPID, {}, GuguGaga::Inst().GetCaptureFileTemplate(),
+          GuguGaga::Inst().GetCaptureOptions(), false);
+
+      rdcstr injectStatus = !res.first.message.empty() ? res.first.message : ToStr(res.first.code);
+      RDCLOG("ShellExecuteExW child PID %u injection result: %s (ident %u)", childPID,
+             injectStatus.c_str(), res.second);
+
+      if(res.first == ResultCode::Succeeded)
+        GuguGaga::Inst().AddChildProcess(childPID, res.second);
+    }
+
+    syshooks.EndRecurse();
+
+    return ret;
+  }
+
+  static HINSTANCE WINAPI ShellExecuteW_hook(HWND hwnd, LPCWSTR lpOperation, LPCWSTR lpFile,
+                                             LPCWSTR lpParameters, LPCWSTR lpDirectory,
+                                             INT nShowCmd)
+  {
+    RDCLOG("ShellExecuteW verb=%s file=%s params=%s dir=%s show=%d hwnd=0x%p",
+           SafeWideLogString(lpOperation).c_str(), SafeWideLogString(lpFile).c_str(),
+           SafeWideLogString(lpParameters).c_str(), SafeWideLogString(lpDirectory).c_str(),
+           nShowCmd, hwnd);
+
+    return syshooks.ShellExecuteW()(hwnd, lpOperation, lpFile, lpParameters, lpDirectory,
+                                    nShowCmd);
   }
 };
 
