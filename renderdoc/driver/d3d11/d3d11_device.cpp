@@ -51,6 +51,7 @@ WrappedID3D11Device::WrappedID3D11Device(ID3D11Device *realDevice, D3D11InitPara
       m_WrappedNVAPI(*this),
       m_WrappedAGS(*this)
 {
+  RDCLOG("WrappedID3D11Device ctor real=%p wrapped=%p", realDevice, this);
   GuguGaga::Inst().RegisterMemoryRegion(this, sizeof(WrappedID3D11Device));
 
   // if there's no other device, claim it!
@@ -261,6 +262,9 @@ WrappedID3D11Device::WrappedID3D11Device(ID3D11Device *realDevice, D3D11InitPara
 
 WrappedID3D11Device::~WrappedID3D11Device()
 {
+  RDCLOG("WrappedID3D11Device dtor real=%p wrapped=%p immediate=%p swapchains=%u", m_pDevice, this,
+         m_pImmediateContext, (uint32_t)m_SwapChains.size());
+
   if(m_pCurrentWrappedDevice == this)
     m_pCurrentWrappedDevice = NULL;
 

@@ -43,6 +43,81 @@
 std::map<void **, void *> s_InstalledHooks;
 Threading::CriticalSection installedLock;
 
+static const char *GetBaseFilename(const char *filename)
+{
+  if(filename == NULL)
+    return "";
+
+  const char *slash = strrchr(filename, '\\');
+  const char *fwdslash = strrchr(filename, '/');
+  const char *base = filename;
+
+  if(slash && slash + 1 > base)
+    base = slash + 1;
+  if(fwdslash && fwdslash + 1 > base)
+    base = fwdslash + 1;
+
+  return base;
+}
+
+static bool IsInterestingGraphicsModuleName(const char *filename)
+{
+  if(filename == NULL || filename[0] == 0)
+    return false;
+
+  const char *base = GetBaseFilename(filename);
+
+  return !_stricmp(base, "d3d11.dll") || !_stricmp(base, "d3d12.dll") ||
+         !_stricmp(base, "d3d12core.dll") || !_stricmp(base, "d3d12sdklayers.dll") ||
+         !_stricmp(base, "dxgi.dll") || !_stricmp(base, "dxcore.dll") ||
+         !_stricmp(base, "dcomp.dll") || !_stricmp(base, "opengl32.dll") ||
+         !_stricmp(base, "gdi32.dll") || !_stricmp(base, "vulkan-1.dll") ||
+         !_stricmp(base, "nvapi64.dll") || !_stricmp(base, "nvapi.dll") ||
+         !_stricmp(base, "sl.interposer.dll") || !_stricmp(base, "sl.common.dll");
+}
+
+static bool ContainsInsensitive(const char *haystack, const char *needle)
+{
+  if(haystack == NULL || needle == NULL)
+    return false;
+
+  rdcstr hay = strlower(haystack);
+  rdcstr nee = strlower(needle);
+  return hay.find(nee) != -1;
+}
+
+static bool IsInterestingGraphicsProcName(const char *func)
+{
+  if(func == NULL || func[0] == 0)
+    return false;
+
+  return ContainsInsensitive(func, "d3d") || ContainsInsensitive(func, "dxgi") ||
+         ContainsInsensitive(func, "dxcore") || ContainsInsensitive(func, "vulkan") ||
+         ContainsInsensitive(func, "vk") || ContainsInsensitive(func, "wgl") ||
+         ContainsInsensitive(func, "egl") || ContainsInsensitive(func, "gl") ||
+         ContainsInsensitive(func, "present") || ContainsInsensitive(func, "swapchain") ||
+         ContainsInsensitive(func, "swapbuffers") || ContainsInsensitive(func, "createdevice") ||
+         ContainsInsensitive(func, "createfactory") || ContainsInsensitive(func, "getinterface") ||
+         ContainsInsensitive(func, "openadapter") || ContainsInsensitive(func, "layered") ||
+         ContainsInsensitive(func, "composition") || ContainsInsensitive(func, "nvapi") ||
+         ContainsInsensitive(func, "streamline");
+}
+
+static rdcstr DescribeModuleHandle(HMODULE mod)
+{
+  char modulePath[MAX_PATH] = {};
+  DWORD len = GetModuleFileNameA(mod, modulePath, DWORD(ARRAY_COUNT(modulePath)));
+
+  if(len == 0 || len >= ARRAY_COUNT(modulePath))
+  {
+    char ptrString[64] = {};
+    sprintf_s(ptrString, "%p", mod);
+    return ptrString;
+  }
+
+  return GetBaseFilename(modulePath);
+}
+
 bool ApplyHook(FunctionHook &hook, void **IATentry, bool &already)
 {
   DWORD oldProtection = PAGE_EXECUTE;
@@ -676,6 +751,9 @@ HMODULE WINAPI Hooked_LoadLibraryExA(LPCSTR lpLibFileName, HANDLE fileHandle, DW
   // was excluded from IAT patching
   HMODULE mod = LoadLibraryExA(lpLibFileName, fileHandle, flags);
 
+  if(IsInterestingGraphicsModuleName(lpLibFileName))
+    RDCLOG("LoadLibraryExA graphics module %s flags=0x%08x -> %p", lpLibFileName, flags, mod);
+
 #if ENABLED(VERBOSE_DEBUG_HOOK)
   RDCDEBUG("LoadLibraryA(%s)", lpLibFileName);
 #endif
@@ -736,6 +814,10 @@ HMODULE WINAPI Hooked_LoadLibraryExW(LPCWSTR lpLibFileName, HANDLE fileHandle, D
   // was excluded from IAT patching
   HMODULE mod = LoadLibraryExW(lpLibFileName, fileHandle, flags);
 
+  rdcstr utf8Name = lpLibFileName ? StringFormat::Wide2UTF8(lpLibFileName) : "";
+  if(IsInterestingGraphicsModuleName(utf8Name.c_str()))
+    RDCLOG("LoadLibraryExW graphics module %s flags=0x%08x -> %p", utf8Name.c_str(), flags, mod);
+
   DWORD err = GetLastError();
 
   if(dohook && mod && !IsAPISet(lpLibFileName))
@@ -765,6 +847,20 @@ FARPROC WINAPI Hooked_GetProcAddress(HMODULE mod, LPCSTR func)
 {
   if(mod == NULL || func == NULL || mod == s_HookData->ownmodule)
     return GetProcAddress(mod, func);
+
+  rdcstr moduleName = DescribeModuleHandle(mod);
+  bool interestingModule = IsInterestingGraphicsModuleName(moduleName.c_str());
+  bool ordinal = OrdinalAsString((void *)func);
+  bool interestingProc = !ordinal && IsInterestingGraphicsProcName(func);
+
+  if(interestingModule && (interestingProc || ordinal))
+  {
+    if(ordinal)
+      RDCLOG("GetProcAddress request module=%s ordinal=%u", moduleName.c_str(),
+             (uint32_t)(uintptr_t(func) & 0xffff));
+    else
+      RDCLOG("GetProcAddress request module=%s func=%s", moduleName.c_str(), func);
+  }
 
 #if ENABLED(VERBOSE_DEBUG_HOOK)
   if(OrdinalAsString((void *)func))
@@ -813,9 +909,9 @@ FARPROC WINAPI Hooked_GetProcAddress(HMODULE mod, LPCSTR func)
         RDCDEBUG("Ordinal hook");
 #endif
 
-        uint32_t ordinal = (uint16_t)(uintptr_t(func) & 0xffff);
+        uint32_t ordIndex = (uint16_t)(uintptr_t(func) & 0xffff);
 
-        if(ordinal < it->second.OrdinalBase)
+        if(ordIndex < it->second.OrdinalBase)
         {
           RDCERR("Unexpected ordinal - lower than ordinalbase %u for %s",
                  (uint32_t)it->second.OrdinalBase, it->first.c_str());
@@ -824,9 +920,9 @@ FARPROC WINAPI Hooked_GetProcAddress(HMODULE mod, LPCSTR func)
           return GetProcAddress(mod, func);
         }
 
-        ordinal -= it->second.OrdinalBase;
+        ordIndex -= it->second.OrdinalBase;
 
-        if(ordinal >= it->second.OrdinalNames.size())
+        if(ordIndex >= it->second.OrdinalNames.size())
         {
           RDCERR("Unexpected ordinal - higher than fetched ordinal names (%u) for %s",
                  (uint32_t)it->second.OrdinalNames.size(), it->first.c_str());
@@ -835,7 +931,7 @@ FARPROC WINAPI Hooked_GetProcAddress(HMODULE mod, LPCSTR func)
           return GetProcAddress(mod, func);
         }
 
-        func = it->second.OrdinalNames[ordinal].c_str();
+        func = it->second.OrdinalNames[ordIndex].c_str();
 
 #if ENABLED(VERBOSE_DEBUG_HOOK)
         RDCDEBUG("found ordinal %s", func);
@@ -859,6 +955,16 @@ FARPROC WINAPI Hooked_GetProcAddress(HMODULE mod, LPCSTR func)
         if(realfunc == NULL)
           return NULL;
 
+        if(interestingModule && (interestingProc || ordinal))
+        {
+          if(ordinal)
+            RDCLOG("GetProcAddress hook-hit module=%s ordinal=%u real=%p hook=%p",
+                   moduleName.c_str(), (uint32_t)(uintptr_t(func) & 0xffff), realfunc, found->hook);
+          else
+            RDCLOG("GetProcAddress hook-hit module=%s func=%s real=%p hook=%p",
+                   moduleName.c_str(), func, realfunc, found->hook);
+        }
+
         return (FARPROC)found->hook;
       }
     }
@@ -870,7 +976,19 @@ FARPROC WINAPI Hooked_GetProcAddress(HMODULE mod, LPCSTR func)
 
   SetLastError(S_OK);
 
-  return GetProcAddress(mod, func);
+  FARPROC real = GetProcAddress(mod, func);
+
+  if(interestingModule && (interestingProc || ordinal))
+  {
+    if(ordinal)
+      RDCLOG("GetProcAddress passthrough module=%s ordinal=%u real=%p", moduleName.c_str(),
+             (uint32_t)(uintptr_t(func) & 0xffff), real);
+    else
+      RDCLOG("GetProcAddress passthrough module=%s func=%s real=%p", moduleName.c_str(), func,
+             real);
+  }
+
+  return real;
 }
 static void InitHookData()
 {

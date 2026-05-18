@@ -47,18 +47,6 @@ rdcstr D3D12Core_Override_Path;
 rdcstr D3D12Core_Temp_Path;
 };    // namespace
 
-MIDL_INTERFACE("DFAFDD2C-355F-4CB3-A8B2-EA7F9260148B")
-ID3D12CoreModule : public IUnknown
-{
-public:
-  virtual DWORD STDMETHODCALLTYPE LOEnter(void) = 0;
-  virtual DWORD STDMETHODCALLTYPE LOLeave(void) = 0;
-  virtual DWORD STDMETHODCALLTYPE LOTryEnter(void) = 0;
-  virtual HRESULT STDMETHODCALLTYPE Initialize(DWORD, LPCSTR) = 0;
-  virtual DWORD STDMETHODCALLTYPE GetSDKVersion(void) = 0;
-  virtual HRESULT STDMETHODCALLTYPE GetDllExports(void *) = 0;
-};
-
 struct WrappedCoreModule : public ID3D12CoreModule
 {
   unsigned int m_iRefcount = 0;

@@ -37,6 +37,29 @@ typedef HRESULT(WINAPI *PFN_D3D12_ENABLE_EXPERIMENTAL_FEATURES)(UINT NumFeatures
                                                                 void *pConfigurationStructs,
                                                                 UINT *pConfigurationStructSizes);
 
+static rdcstr DescribeCodeAddress(void *addr)
+{
+  if(!addr)
+    return "NULL";
+
+  HMODULE mod = NULL;
+  if(GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                        (LPCSTR)addr, &mod) &&
+     mod)
+  {
+    char modulePath[MAX_PATH] = {};
+    DWORD len = GetModuleFileNameA(mod, modulePath, MAX_PATH);
+    if(len > 0 && len < MAX_PATH)
+    {
+      uint64_t offs = (uint64_t)((byte *)addr - (byte *)mod);
+      return StringFormat::Fmt("%s+0x%llx", modulePath, offs);
+    }
+  }
+
+  return StringFormat::Fmt("%p", addr);
+}
+
 ID3DDevice *GetD3D12DeviceIfAlloc(IUnknown *dev)
 {
   if(WrappedID3D12CommandQueue::IsAlloc(dev))
@@ -280,6 +303,121 @@ public:
   }
 };
 
+class WrappedCaptureCoreModule : public ID3D12CoreModule
+{
+public:
+  WrappedCaptureCoreModule(ID3D12CoreModule *real) : m_iRefcount(1), m_pReal(real)
+  {
+    RDCLOG("Wrapping capture-side ID3D12CoreModule real=%p", real);
+  }
+
+  ~WrappedCaptureCoreModule()
+  {
+    RDCLOG("Destroying capture-side ID3D12CoreModule wrapper real=%p", m_pReal);
+    SAFE_RELEASE(m_pReal);
+  }
+
+  HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject)
+  {
+    if(ppvObject == NULL)
+      return E_POINTER;
+
+    if(riid == __uuidof(IUnknown) || riid == __uuidof(ID3D12CoreModule))
+    {
+      *ppvObject = (ID3D12CoreModule *)this;
+      AddRef();
+      RDCLOG("WrappedCaptureCoreModule::QueryInterface returning wrapper for riid=%s",
+             ToStr(riid).c_str());
+      return S_OK;
+    }
+
+    HRESULT hr = m_pReal->QueryInterface(riid, ppvObject);
+    RDCLOG("WrappedCaptureCoreModule::QueryInterface passthrough riid=%s hr=0x%08x out=%p",
+           ToStr(riid).c_str(), hr, ppvObject ? *ppvObject : NULL);
+
+    if(SUCCEEDED(hr) && ppvObject && *ppvObject)
+    {
+      void **vtbl = *(void ***)*ppvObject;
+      RDCLOG("WrappedCaptureCoreModule::QueryInterface out object=%p vtbl=%p sameAsReal=%s",
+             *ppvObject, vtbl, *ppvObject == m_pReal ? "true" : "false");
+
+      if(vtbl)
+      {
+        for(size_t i = 0; i < 12; i++)
+        {
+          RDCLOG("WrappedCaptureCoreModule::QueryInterface vtbl[%zu]=%p (%s)", i, vtbl[i],
+                 DescribeCodeAddress(vtbl[i]).c_str());
+        }
+      }
+    }
+
+    return hr;
+  }
+
+  ULONG STDMETHODCALLTYPE AddRef()
+  {
+    InterlockedIncrement(&m_iRefcount);
+    return m_iRefcount;
+  }
+
+  ULONG STDMETHODCALLTYPE Release()
+  {
+    unsigned int ret = InterlockedDecrement(&m_iRefcount);
+    if(ret == 0)
+      delete this;
+    return ret;
+  }
+
+  virtual DWORD STDMETHODCALLTYPE LOEnter(void)
+  {
+    DWORD ret = m_pReal->LOEnter();
+    RDCLOG("WrappedCaptureCoreModule::LOEnter ret=%u", ret);
+    return ret;
+  }
+
+  virtual DWORD STDMETHODCALLTYPE LOLeave(void)
+  {
+    DWORD ret = m_pReal->LOLeave();
+    RDCLOG("WrappedCaptureCoreModule::LOLeave ret=%u", ret);
+    return ret;
+  }
+
+  virtual DWORD STDMETHODCALLTYPE LOTryEnter(void)
+  {
+    DWORD ret = m_pReal->LOTryEnter();
+    RDCLOG("WrappedCaptureCoreModule::LOTryEnter ret=%u", ret);
+    return ret;
+  }
+
+  virtual HRESULT STDMETHODCALLTYPE Initialize(DWORD version, LPCSTR unknown)
+  {
+    RDCLOG("WrappedCaptureCoreModule::Initialize version=%u arg=%s", version,
+           unknown ? unknown : "<null>");
+    HRESULT hr = m_pReal->Initialize(version, unknown);
+    RDCLOG("WrappedCaptureCoreModule::Initialize result hr=0x%08x", hr);
+    return hr;
+  }
+
+  virtual DWORD STDMETHODCALLTYPE GetSDKVersion(void)
+  {
+    DWORD ret = m_pReal->GetSDKVersion();
+    RDCLOG("WrappedCaptureCoreModule::GetSDKVersion ret=%u", ret);
+    return ret;
+  }
+
+  virtual HRESULT STDMETHODCALLTYPE GetDllExports(void *exports)
+  {
+    RDCLOG("WrappedCaptureCoreModule::GetDllExports exports=%p", exports);
+    HRESULT hr = m_pReal->GetDllExports(exports);
+    RDCLOG("WrappedCaptureCoreModule::GetDllExports result hr=0x%08x", hr);
+    return hr;
+  }
+
+private:
+  unsigned int m_iRefcount = 0;
+  ID3D12CoreModule *m_pReal = NULL;
+};
+
 class WrappedID3D12DeviceRemovedExtendedData : public RefCounter12<ID3D12DeviceRemovedExtendedData1>,
                                                public ID3D12DeviceRemovedExtendedData1
 {
@@ -389,16 +527,19 @@ public:
 
   virtual HRESULT STDMETHODCALLTYPE InitializeFromGlobalState(void)
   {
+    RDCLOG("WrappedID3D12DeviceFactory::InitializeFromGlobalState real=%p", m_pReal);
     return m_pReal->InitializeFromGlobalState();
   }
 
   virtual HRESULT STDMETHODCALLTYPE ApplyToGlobalState(void)
   {
+    RDCLOG("WrappedID3D12DeviceFactory::ApplyToGlobalState real=%p", m_pReal);
     return m_pReal->ApplyToGlobalState();
   }
 
   virtual HRESULT STDMETHODCALLTYPE SetFlags(D3D12_DEVICE_FACTORY_FLAGS flags)
   {
+    RDCLOG("WrappedID3D12DeviceFactory::SetFlags real=%p flags=0x%08x", m_pReal, flags);
     return m_pReal->SetFlags(flags);
   }
 
@@ -442,6 +583,9 @@ public:
                                                  D3D_FEATURE_LEVEL FeatureLevel, REFIID riid,
                                                  _COM_Outptr_opt_ void **ppvDevice)
   {
+    RDCLOG("WrappedID3D12DeviceFactory::CreateDevice real=%p adapter=%p feature=0x%04x riid=%s out=%p",
+           m_pReal, adapter, FeatureLevel, ToStr(riid).c_str(), ppvDevice);
+
     if(GuguGaga::Inst().GetCaptureOptions().apiValidation)
     {
       D3D12DevConfiguration tmpConfig = {};
@@ -464,6 +608,9 @@ public:
           return m_pReal->CreateDevice(pAdapter, MinimumFeatureLevel, riid, ppDevice);
         },
         &devConfig, adapter, FeatureLevel, riid, ppvDevice);
+
+    RDCLOG("WrappedID3D12DeviceFactory::CreateDevice result hr=0x%08x out=%p", ret,
+           ppvDevice ? *ppvDevice : NULL);
 
     return ret;
   }
@@ -526,6 +673,9 @@ public:
   virtual HRESULT STDMETHODCALLTYPE CreateDeviceFactory(UINT SDKVersion, _In_ LPCSTR SDKPath,
                                                         REFIID riid, _COM_Outptr_ void **ppvFactory)
   {
+    RDCLOG("WrappedID3D12SDKConfiguration::CreateDeviceFactory sdk=%u path=%s riid=%s out=%p",
+           SDKVersion, SDKPath ? SDKPath : "<null>", ToStr(riid).c_str(), ppvFactory);
+
     if(riid != __uuidof(ID3D12DeviceFactory))
     {
       RDCERR("Unexpected uuid to CreateDeviceFactory: %s", ToStr(riid).c_str());
@@ -537,9 +687,11 @@ public:
     if(SUCCEEDED(hr))
     {
       RDCASSERT(realFactory);
+      RDCLOG("WrappedID3D12SDKConfiguration::CreateDeviceFactory real factory=%p", realFactory);
       *ppvFactory = (ID3D12DeviceFactory *)(new WrappedID3D12DeviceFactory(realFactory));
       return hr;
     }
+    RDCLOG("WrappedID3D12SDKConfiguration::CreateDeviceFactory result hr=0x%08x", hr);
     SAFE_RELEASE(realFactory);
     return hr;
   }
@@ -564,10 +716,12 @@ public:
     }
 
     LibraryHooks::RegisterLibraryHook("d3d12.dll", NULL);
+    LibraryHooks::RegisterLibraryHook("d3d12core.dll", NULL);
 
     CreateDevice.Register("d3d12.dll", "D3D12CreateDevice", D3D12CreateDevice_hook);
     GetDebugInterface.Register("d3d12.dll", "D3D12GetDebugInterface", D3D12GetDebugInterface_hook);
     GetInterface.Register("d3d12.dll", "D3D12GetInterface", D3D12GetInterface_hook);
+    GetInterfaceCore.Register("d3d12core.dll", "D3D12GetInterface", D3D12CoreGetInterface_hook);
     EnableExperimentalFeatures.Register("d3d12.dll", "D3D12EnableExperimentalFeatures",
                                         D3D12EnableExperimentalFeatures_hook);
     GetD3D11On12On7.Register("d3d11on12.dll", "GetD3D11On12On7Interface",
@@ -575,6 +729,53 @@ public:
 
     m_RecurseSlot = Threading::AllocateTLSSlot();
     Threading::SetTLSValue(m_RecurseSlot, NULL);
+  }
+
+  template <typename InterfaceType>
+  static void LogInterfaceSupport(IUnknown *realUnk, const char *origin, const char *name)
+  {
+    if(!realUnk)
+      return;
+
+    InterfaceType *iface = NULL;
+    HRESULT hr = realUnk->QueryInterface(__uuidof(InterfaceType), (void **)&iface);
+
+    RDCLOG("%s probe %s hr=0x%08x iface=%p", origin, name, hr, iface);
+
+    if(iface)
+      iface->Release();
+  }
+
+  static void ProbeKnownInterfaces(IUnknown *realUnk, const char *origin)
+  {
+    LogInterfaceSupport<ID3D12CoreModule>(realUnk, origin, "ID3D12CoreModule");
+    LogInterfaceSupport<ID3D12SDKConfiguration>(realUnk, origin, "ID3D12SDKConfiguration");
+    LogInterfaceSupport<ID3D12SDKConfiguration1>(realUnk, origin, "ID3D12SDKConfiguration1");
+    LogInterfaceSupport<ID3D12DeviceFactory>(realUnk, origin, "ID3D12DeviceFactory");
+    LogInterfaceSupport<ID3D12DeviceConfiguration>(realUnk, origin, "ID3D12DeviceConfiguration");
+    LogInterfaceSupport<ID3D12DeviceConfiguration1>(realUnk, origin,
+                                                    "ID3D12DeviceConfiguration1");
+    LogInterfaceSupport<ID3D12DSRDeviceFactory>(realUnk, origin, "ID3D12DSRDeviceFactory");
+    LogInterfaceSupport<ID3D12Debug>(realUnk, origin, "ID3D12Debug");
+    LogInterfaceSupport<ID3D12Debug1>(realUnk, origin, "ID3D12Debug1");
+    LogInterfaceSupport<ID3D12Tools>(realUnk, origin, "ID3D12Tools");
+    LogInterfaceSupport<ID3D12Tools1>(realUnk, origin, "ID3D12Tools1");
+    LogInterfaceSupport<ID3D12Tools2>(realUnk, origin, "ID3D12Tools2");
+  }
+
+  static void DumpIUnknownVTable(IUnknown *realUnk, const char *origin, size_t numEntries = 12)
+  {
+    if(!realUnk)
+      return;
+
+    void **vtbl = *(void ***)realUnk;
+    RDCLOG("%s unknown interface object=%p vtbl=%p", origin, realUnk, vtbl);
+
+    if(!vtbl)
+      return;
+
+    for(size_t i = 0; i < numEntries; i++)
+      RDCLOG("%s vtbl[%zu]=%p (%s)", origin, i, vtbl[i], DescribeCodeAddress(vtbl[i]).c_str());
   }
 
   static HRESULT GetWrappedInterface(IUnknown *realUnk, REFIID riid, void **ppvInterface)
@@ -635,6 +836,16 @@ public:
       *ppvInterface = (ID3D12Tools2 *)(new WrappedID3D12Tools(real));
       return S_OK;
     }
+    else if(riid == __uuidof(ID3D12CoreModule))
+    {
+      ID3D12CoreModule *real = (ID3D12CoreModule *)realUnk;
+      if(real)
+      {
+        real->AddRef();
+        *ppvInterface = (ID3D12CoreModule *)(new WrappedCaptureCoreModule(real));
+        return S_OK;
+      }
+    }
     else if(riid == __uuidof(ID3D12DeviceRemovedExtendedData))
     {
       *ppvInterface =
@@ -658,6 +869,7 @@ public:
       ID3D12SDKConfiguration *real = (ID3D12SDKConfiguration *)realUnk;
       if(real)
       {
+        RDCLOG("Wrapping ID3D12SDKConfiguration real=%p", real);
         // take a reference ourselves, realUnk is a transient pointer and will be released after this function returns
         real->AddRef();
         *ppvInterface = (ID3D12SDKConfiguration *)(new WrappedID3D12SDKConfiguration(real, NULL));
@@ -669,6 +881,7 @@ public:
       ID3D12SDKConfiguration1 *real1 = (ID3D12SDKConfiguration1 *)realUnk;
       if(real1)
       {
+        RDCLOG("Wrapping ID3D12SDKConfiguration1 real=%p", real1);
         // take a reference ourselves, realUnk is a transient pointer and will be released after this function returns
         real1->AddRef();
         ID3D12SDKConfiguration *real = NULL;
@@ -686,6 +899,7 @@ private:
 
   HookedFunction<PFN_D3D12_GET_DEBUG_INTERFACE> GetDebugInterface;
   HookedFunction<PFN_D3D12_GET_INTERFACE> GetInterface;
+  HookedFunction<PFN_D3D12_GET_INTERFACE> GetInterfaceCore;
   HookedFunction<PFN_D3D12_CREATE_DEVICE> CreateDevice;
   HookedFunction<PFN_D3D12_ENABLE_EXPERIMENTAL_FEATURES> EnableExperimentalFeatures;
   HookedFunction<PFNGetD3D11On12On7Interface> GetD3D11On12On7;
@@ -731,6 +945,9 @@ private:
       return E_NOINTERFACE;
     }
 
+    RDCLOG("D3D12CreateDevice request adapter=%p minFeature=0x%04x riid=%s outDevice=%p", pAdapter,
+           MinimumFeatureLevel, ToStr(riid).c_str(), ppDevice);
+
     RDCDEBUG("Call to Create_Internal Feature Level %x", MinimumFeatureLevel, ToStr(riid).c_str());
 
     // we should no longer go through here in the replay application
@@ -744,6 +961,8 @@ private:
     RDCDEBUG("Calling real createdevice...");
 
     HRESULT ret = real(pAdapter, MinimumFeatureLevel, riid, ppDevice);
+
+    RDCLOG("D3D12CreateDevice result hr=0x%08x realDevice=%p", ret, ppDevice ? *ppDevice : NULL);
 
     RDCDEBUG("Called real createdevice... HRESULT: %s", ToStr(ret).c_str());
 
@@ -838,6 +1057,7 @@ private:
         }
 
         RDCDEBUG("created wrapped device.");
+        RDCLOG("Wrapped D3D12 device real=%p wrapped=%p", dev, wrap);
 
         *ppDevice = (ID3D12Device *)wrap;
 
@@ -957,11 +1177,26 @@ private:
 
     HRESULT hr = GetWrappedInterface(realUnk, riid, ppvDebug);
 
+    if(SUCCEEDED(hr))
+    {
+      if(realUnk)
+        realUnk->Release();
+      return hr;
+    }
+
+    if(SUCCEEDED(real) && realUnk)
+    {
+      ProbeKnownInterfaces(realUnk, "D3D12GetDebugInterface passthrough");
+      DumpIUnknownVTable(realUnk, "D3D12GetDebugInterface passthrough");
+      RDCLOG("Passing through unknown successful D3D12GetDebugInterface riid=%s real=%p",
+             ToStr(riid).c_str(), realUnk);
+      if(ppvDebug)
+        *ppvDebug = realUnk;
+      return real;
+    }
+
     if(realUnk)
       realUnk->Release();
-
-    if(SUCCEEDED(hr))
-      return hr;
 
     RDCWARN("Unknown UUID passed to D3D12GetDebugInterface: %s. Real call %s succeed (%x).",
             ToStr(riid).c_str(), SUCCEEDED(real) ? "did" : "did not", real);
@@ -971,6 +1206,9 @@ private:
 
   static HRESULT WINAPI D3D12GetInterface_hook(REFCLSID rclsid, REFIID riid, void **ppvDebug)
   {
+    RDCLOG("D3D12GetInterface request module=d3d12.dll clsid=%s riid=%s out=%p",
+           ToStr(rclsid).c_str(), ToStr(riid).c_str(), ppvDebug);
+
     if(riid == CLSID_D3D12StateObjectFactory)
     {
       RDCLOG("Deliberately reporting no support for state object factories");
@@ -982,13 +1220,81 @@ private:
 
     HRESULT hr = GetWrappedInterface(realUnk, riid, ppvDebug);
 
+    RDCLOG("D3D12GetInterface result module=d3d12.dll realHr=0x%08x wrapHr=0x%08x real=%p out=%p",
+           real, hr, realUnk, ppvDebug ? *ppvDebug : NULL);
+
+    if(SUCCEEDED(hr))
+    {
+      if(realUnk)
+        realUnk->Release();
+      return hr;
+    }
+
+    if(SUCCEEDED(real) && realUnk)
+    {
+      ProbeKnownInterfaces(realUnk, "D3D12GetInterface d3d12.dll passthrough");
+      DumpIUnknownVTable(realUnk, "D3D12GetInterface d3d12.dll passthrough");
+      RDCLOG("Passing through unknown successful D3D12GetInterface module=d3d12.dll clsid=%s "
+             "riid=%s real=%p",
+             ToStr(rclsid).c_str(), ToStr(riid).c_str(), realUnk);
+      if(ppvDebug)
+        *ppvDebug = realUnk;
+      return real;
+    }
+
     if(realUnk)
       realUnk->Release();
 
-    if(SUCCEEDED(hr))
-      return hr;
-
     RDCWARN("Unknown UUID passed to D3D12GetInterface: %s (clsid %s). Real call %s succeed (%x).",
+            ToStr(riid).c_str(), ToStr(rclsid).c_str(), SUCCEEDED(real) ? "did" : "did not", real);
+
+    return E_NOINTERFACE;
+  }
+
+  static HRESULT WINAPI D3D12CoreGetInterface_hook(REFCLSID rclsid, REFIID riid, void **ppvDebug)
+  {
+    RDCLOG("D3D12GetInterface request module=d3d12core.dll clsid=%s riid=%s out=%p",
+           ToStr(rclsid).c_str(), ToStr(riid).c_str(), ppvDebug);
+
+    if(riid == CLSID_D3D12StateObjectFactory)
+    {
+      RDCLOG("Deliberately reporting no support for state object factories");
+      return E_NOINTERFACE;
+    }
+
+    IUnknown *realUnk = NULL;
+    HRESULT real = d3d12hooks.GetInterfaceCore()(rclsid, riid, (void **)&realUnk);
+
+    HRESULT hr = GetWrappedInterface(realUnk, riid, ppvDebug);
+
+    RDCLOG(
+        "D3D12GetInterface result module=d3d12core.dll realHr=0x%08x wrapHr=0x%08x real=%p out=%p",
+        real, hr, realUnk, ppvDebug ? *ppvDebug : NULL);
+
+    if(SUCCEEDED(hr))
+    {
+      if(realUnk)
+        realUnk->Release();
+      return hr;
+    }
+
+    if(SUCCEEDED(real) && realUnk)
+    {
+      ProbeKnownInterfaces(realUnk, "D3D12GetInterface d3d12core.dll passthrough");
+      DumpIUnknownVTable(realUnk, "D3D12GetInterface d3d12core.dll passthrough");
+      RDCLOG("Passing through unknown successful D3D12GetInterface module=d3d12core.dll clsid=%s "
+             "riid=%s real=%p",
+             ToStr(rclsid).c_str(), ToStr(riid).c_str(), realUnk);
+      if(ppvDebug)
+        *ppvDebug = realUnk;
+      return real;
+    }
+
+    if(realUnk)
+      realUnk->Release();
+
+    RDCWARN("Unknown UUID passed to d3d12core!D3D12GetInterface: %s (clsid %s). Real call %s "
+            "succeed (%x).",
             ToStr(riid).c_str(), ToStr(rclsid).c_str(), SUCCEEDED(real) ? "did" : "did not", real);
 
     return E_NOINTERFACE;
@@ -1008,10 +1314,16 @@ HRESULT CreateD3D12_Internal(RealD3D12CreateFunction real, D3D12DevConfiguration
 HRESULT STDMETHODCALLTYPE WrappedID3D12DeviceFactory::GetConfigurationInterface(
     REFCLSID clsid, REFIID iid, _COM_Outptr_ void **ppv)
 {
+  RDCLOG("WrappedID3D12DeviceFactory::GetConfigurationInterface clsid=%s iid=%s out=%p",
+         ToStr(clsid).c_str(), ToStr(iid).c_str(), ppv);
+
   IUnknown *realUnk = NULL;
   HRESULT real = m_pReal->GetConfigurationInterface(clsid, iid, (void **)&realUnk);
 
   HRESULT hr = D3D12Hook::GetWrappedInterface(realUnk, iid, ppv);
+
+  RDCLOG("WrappedID3D12DeviceFactory::GetConfigurationInterface result realHr=0x%08x wrapHr=0x%08x real=%p out=%p",
+         real, hr, realUnk, ppv ? *ppv : NULL);
 
   if(realUnk)
     realUnk->Release();

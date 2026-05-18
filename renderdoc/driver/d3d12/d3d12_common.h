@@ -37,6 +37,18 @@
 // new versions come out we typedef it here when we don't need the specific interface
 using ID3D12GraphicsCommandListX = ID3D12GraphicsCommandList10;
 
+MIDL_INTERFACE("DFAFDD2C-355F-4CB3-A8B2-EA7F9260148B")
+ID3D12CoreModule : public IUnknown
+{
+public:
+  virtual DWORD STDMETHODCALLTYPE LOEnter(void) = 0;
+  virtual DWORD STDMETHODCALLTYPE LOLeave(void) = 0;
+  virtual DWORD STDMETHODCALLTYPE LOTryEnter(void) = 0;
+  virtual HRESULT STDMETHODCALLTYPE Initialize(DWORD version, LPCSTR unknown) = 0;
+  virtual DWORD STDMETHODCALLTYPE GetSDKVersion(void) = 0;
+  virtual HRESULT STDMETHODCALLTYPE GetDllExports(void *exports) = 0;
+};
+
 // replay only class for handling marker regions
 struct D3D12MarkerRegion
 {

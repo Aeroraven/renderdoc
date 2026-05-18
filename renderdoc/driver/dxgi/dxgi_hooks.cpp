@@ -248,6 +248,7 @@ public:
   void RegisterHooks()
   {
     RDCLOG("Registering DXGI hooks");
+    RDCLOG("DXGI diag marker 2026-05-14-B: create/present diagnostics enabled");
 
     LibraryHooks::RegisterLibraryHook("dxgi.dll", NULL);
 
@@ -274,10 +275,13 @@ private:
   {
     if(ppFactory)
       *ppFactory = NULL;
+    RDCLOG("CreateDXGIFactory request riid=%s", ToStr(riid).c_str());
     HRESULT ret = dxgihooks.CreateDXGIFactory()(riid, ppFactory);
 
     if(SUCCEEDED(ret))
       RefCountDXGIObject::HandleWrap("CreateDXGIFactory", riid, ppFactory);
+
+    RDCLOG("CreateDXGIFactory result hr=0x%08x factory=%p", ret, ppFactory ? *ppFactory : NULL);
 
     return ret;
   }
@@ -286,10 +290,13 @@ private:
   {
     if(ppFactory)
       *ppFactory = NULL;
+    RDCLOG("CreateDXGIFactory1 request riid=%s", ToStr(riid).c_str());
     HRESULT ret = dxgihooks.CreateDXGIFactory1()(riid, ppFactory);
 
     if(SUCCEEDED(ret))
       RefCountDXGIObject::HandleWrap("CreateDXGIFactory1", riid, ppFactory);
+
+    RDCLOG("CreateDXGIFactory1 result hr=0x%08x factory=%p", ret, ppFactory ? *ppFactory : NULL);
 
     return ret;
   }
@@ -298,10 +305,13 @@ private:
   {
     if(ppFactory)
       *ppFactory = NULL;
+    RDCLOG("CreateDXGIFactory2 request flags=0x%08x riid=%s", Flags, ToStr(riid).c_str());
     HRESULT ret = dxgihooks.CreateDXGIFactory2()(Flags, riid, ppFactory);
 
     if(SUCCEEDED(ret))
       RefCountDXGIObject::HandleWrap("CreateDXGIFactory2", riid, ppFactory);
+
+    RDCLOG("CreateDXGIFactory2 result hr=0x%08x factory=%p", ret, ppFactory ? *ppFactory : NULL);
 
     return ret;
   }

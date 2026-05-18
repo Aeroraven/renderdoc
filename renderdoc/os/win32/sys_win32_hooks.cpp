@@ -24,6 +24,8 @@
  ******************************************************************************/
 
 #include <winsock2.h>
+#include <winternl.h>
+#include <d3dkmthk.h>
 #include <shellapi.h>
 #include "core/core.h"
 #include "hooks/hooks.h"
@@ -51,6 +53,13 @@ typedef BOOL(WINAPI *PFN_CREATE_PROCESS_W)(LPCWSTR lpApplicationName, LPWSTR lpC
                                            LPSTARTUPINFOW lpStartupInfo,
                                            LPPROCESS_INFORMATION lpProcessInformation);
 
+typedef BOOL(WINAPI *PFN_CREATE_PROCESS_INTERNAL_W)(
+    HANDLE hToken, LPCWSTR lpApplicationName, LPWSTR lpCommandLine,
+    LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory,
+    LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation,
+    PHANDLE hNewToken);
+
 typedef BOOL(WINAPI *PFN_CREATE_PROCESS_AS_USER_A)(
     HANDLE hToken, LPCSTR lpApplicationName, LPSTR lpCommandLine,
     LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes,
@@ -75,6 +84,13 @@ typedef HINSTANCE(WINAPI *PFN_SHELL_EXECUTE_W)(HWND hwnd, LPCWSTR lpOperation, L
                                                LPCWSTR lpParameters, LPCWSTR lpDirectory,
                                                INT nShowCmd);
 typedef BOOL(WINAPI *PFN_SHELL_EXECUTE_EX_W)(SHELLEXECUTEINFOW *pExecInfo);
+using PFN_D3DKMT_CREATE_DEVICE = decltype(&::D3DKMTCreateDevice);
+using PFN_D3DKMT_CREATE_CONTEXT = decltype(&::D3DKMTCreateContext);
+using PFN_D3DKMT_CREATE_ALLOCATION2 = decltype(&::D3DKMTCreateAllocation2);
+using PFN_D3DKMT_OPEN_RESOURCE2 = decltype(&::D3DKMTOpenResource2);
+using PFN_D3DKMT_PRESENT = decltype(&::D3DKMTPresent);
+
+uintptr_t FindRemoteDLL(DWORD pid, rdcstr libName);
 
 class SysHook : LibraryHook
 {
@@ -91,17 +107,21 @@ public:
 
     // register libraries that we care about. We don't need a callback when they are loaded
     LibraryHooks::RegisterLibraryHook("kernel32.dll", NULL);
+    LibraryHooks::RegisterLibraryHook("kernelbase.dll", NULL);
     LibraryHooks::RegisterLibraryHook("advapi32.dll", NULL);
     LibraryHooks::RegisterLibraryHook("api-ms-win-core-processthreads-l1-1-0.dll", NULL);
     LibraryHooks::RegisterLibraryHook("api-ms-win-core-processthreads-l1-1-1.dll", NULL);
     LibraryHooks::RegisterLibraryHook("api-ms-win-core-processthreads-l1-1-2.dll", NULL);
     LibraryHooks::RegisterLibraryHook("shell32.dll", NULL);
     LibraryHooks::RegisterLibraryHook("ws2_32.dll", NULL);
+    LibraryHooks::RegisterLibraryHook("gdi32.dll", NULL);
 
     // we want to hook CreateProcess purely so that we can recursively insert our hooks (if we so
     // wish)
     CreateProcessA.Register("kernel32.dll", "CreateProcessA", CreateProcessA_hook);
     CreateProcessW.Register("kernel32.dll", "CreateProcessW", CreateProcessW_hook);
+    CreateProcessInternalW.Register("kernelbase.dll", "CreateProcessInternalW",
+                                    CreateProcessInternalW_hook);
 
     CreateProcessAsUserA.Register("advapi32.dll", "CreateProcessAsUserA", CreateProcessAsUserA_hook);
     CreateProcessAsUserW.Register("advapi32.dll", "CreateProcessAsUserW", CreateProcessAsUserW_hook);
@@ -138,6 +158,13 @@ public:
     WSAStartup.Register("ws2_32.dll", "WSAStartup", WSAStartup_hook);
     WSACleanup.Register("ws2_32.dll", "WSACleanup", WSACleanup_hook);
 
+    D3DKMTCreateDevice.Register("gdi32.dll", "D3DKMTCreateDevice", D3DKMTCreateDevice_hook);
+    D3DKMTCreateContext.Register("gdi32.dll", "D3DKMTCreateContext", D3DKMTCreateContext_hook);
+    D3DKMTCreateAllocation2.Register("gdi32.dll", "D3DKMTCreateAllocation2",
+                                     D3DKMTCreateAllocation2_hook);
+    D3DKMTOpenResource2.Register("gdi32.dll", "D3DKMTOpenResource2", D3DKMTOpenResource2_hook);
+    D3DKMTPresent.Register("gdi32.dll", "D3DKMTPresent", D3DKMTPresent_hook);
+
     m_RecurseSlot = Threading::AllocateTLSSlot();
     Threading::SetTLSValue(m_RecurseSlot, NULL);
   }
@@ -161,6 +188,7 @@ private:
   void EndRecurse() { Threading::SetTLSValue(m_RecurseSlot, NULL); }
   HookedFunction<PFN_CREATE_PROCESS_A> CreateProcessA;
   HookedFunction<PFN_CREATE_PROCESS_W> CreateProcessW;
+  HookedFunction<PFN_CREATE_PROCESS_INTERNAL_W> CreateProcessInternalW;
 
   HookedFunction<PFN_CREATE_PROCESS_A> API110CreateProcessA;
   HookedFunction<PFN_CREATE_PROCESS_W> API110CreateProcessW;
@@ -182,6 +210,11 @@ private:
 
   HookedFunction<PFN_WSASTARTUP> WSAStartup;
   HookedFunction<PFN_WSACLEANUP> WSACleanup;
+  HookedFunction<PFN_D3DKMT_CREATE_DEVICE> D3DKMTCreateDevice;
+  HookedFunction<PFN_D3DKMT_CREATE_CONTEXT> D3DKMTCreateContext;
+  HookedFunction<PFN_D3DKMT_CREATE_ALLOCATION2> D3DKMTCreateAllocation2;
+  HookedFunction<PFN_D3DKMT_OPEN_RESOURCE2> D3DKMTOpenResource2;
+  HookedFunction<PFN_D3DKMT_PRESENT> D3DKMTPresent;
 
   static rdcstr SafeWideLogString(LPCWSTR str)
   {
@@ -191,6 +224,20 @@ private:
   static rdcstr SafeAnsiLogString(LPCSTR str)
   {
     return str ? str : "<null>";
+  }
+
+  static uint64_t KMTHandleValue(D3DKMT_HANDLE handle)
+  {
+    return (uint64_t)(uintptr_t)handle;
+  }
+
+  template <typename FlagsType>
+  static uint32_t RawFlagValue(const FlagsType &flags)
+  {
+    uint32_t value = 0;
+    const size_t copyBytes = sizeof(value) < sizeof(flags) ? sizeof(value) : sizeof(flags);
+    memcpy(&value, &flags, copyBytes);
+    return value;
   }
 
   static int WSAAPI WSAStartup_hook(WORD wVersionRequested, LPWSADATA lpWSAData)
@@ -217,6 +264,153 @@ private:
     // decrement refcount and call the real thing
     syshooks.m_WSARefCount--;
     return syshooks.WSACleanup()();
+  }
+
+  static NTSTATUS APIENTRY D3DKMTCreateDevice_hook(D3DKMT_CREATEDEVICE *pData)
+  {
+    if(pData)
+    {
+      RDCLOG("D3DKMTCreateDevice in adapter=0x%llx flags=0x%08x commandBuffer=%p",
+             KMTHandleValue(pData->hAdapter), RawFlagValue(pData->Flags), pData->pCommandBuffer);
+    }
+    else
+    {
+      RDCLOG("D3DKMTCreateDevice called with null args");
+    }
+
+    NTSTATUS ret = syshooks.D3DKMTCreateDevice()(pData);
+
+    if(pData)
+    {
+      RDCLOG("D3DKMTCreateDevice out status=0x%08x device=0x%llx commandBuffer=%p",
+             (uint32_t)ret, KMTHandleValue(pData->hDevice), pData->pCommandBuffer);
+    }
+    else
+    {
+      RDCLOG("D3DKMTCreateDevice out status=0x%08x", (uint32_t)ret);
+    }
+
+    return ret;
+  }
+
+  static NTSTATUS APIENTRY D3DKMTCreateContext_hook(D3DKMT_CREATECONTEXT *pData)
+  {
+    if(pData)
+    {
+      RDCLOG(
+          "D3DKMTCreateContext in device=0x%llx node=%u engineAffinity=0x%08x clientHint=%u "
+          "flags=0x%08x privateDataSize=%u",
+          KMTHandleValue(pData->hDevice), pData->NodeOrdinal, pData->EngineAffinity,
+          (uint32_t)pData->ClientHint, pData->Flags.Value, pData->PrivateDriverDataSize);
+    }
+    else
+    {
+      RDCLOG("D3DKMTCreateContext called with null args");
+    }
+
+    NTSTATUS ret = syshooks.D3DKMTCreateContext()(pData);
+
+    if(pData)
+    {
+      RDCLOG("D3DKMTCreateContext out status=0x%08x context=0x%llx commandBuffer=%p",
+             (uint32_t)ret, KMTHandleValue(pData->hContext), pData->pCommandBuffer);
+    }
+    else
+    {
+      RDCLOG("D3DKMTCreateContext out status=0x%08x", (uint32_t)ret);
+    }
+
+    return ret;
+  }
+
+  static NTSTATUS APIENTRY D3DKMTCreateAllocation2_hook(D3DKMT_CREATEALLOCATION *pData)
+  {
+    if(pData)
+    {
+      RDCLOG(
+          "D3DKMTCreateAllocation2 in device=0x%llx resource=0x%llx numAllocs=%u flags=0x%08x "
+          "privRuntime=%u privDriver=%u",
+          KMTHandleValue(pData->hDevice), KMTHandleValue(pData->hResource), pData->NumAllocations,
+          RawFlagValue(pData->Flags), pData->PrivateRuntimeDataSize,
+          pData->PrivateDriverDataSize);
+    }
+    else
+    {
+      RDCLOG("D3DKMTCreateAllocation2 called with null args");
+    }
+
+    NTSTATUS ret = syshooks.D3DKMTCreateAllocation2()(pData);
+
+    if(pData)
+    {
+      RDCLOG(
+          "D3DKMTCreateAllocation2 out status=0x%08x resource=0x%llx globalShare=0x%llx "
+          "privateRuntimeHandle=0x%p",
+          (uint32_t)ret, KMTHandleValue(pData->hResource), KMTHandleValue(pData->hGlobalShare),
+          pData->hPrivateRuntimeResourceHandle);
+    }
+    else
+    {
+      RDCLOG("D3DKMTCreateAllocation2 out status=0x%08x", (uint32_t)ret);
+    }
+
+    return ret;
+  }
+
+  static NTSTATUS APIENTRY D3DKMTOpenResource2_hook(D3DKMT_OPENRESOURCE *pData)
+  {
+    if(pData)
+    {
+      RDCLOG(
+          "D3DKMTOpenResource2 in device=0x%llx globalShare=0x%llx numAllocs=%u "
+          "privRuntime=%u resourcePriv=%u totalPriv=%u",
+          KMTHandleValue(pData->hDevice), KMTHandleValue(pData->hGlobalShare),
+          pData->NumAllocations, pData->PrivateRuntimeDataSize,
+          pData->ResourcePrivateDriverDataSize, pData->TotalPrivateDriverDataBufferSize);
+    }
+    else
+    {
+      RDCLOG("D3DKMTOpenResource2 called with null args");
+    }
+
+    NTSTATUS ret = syshooks.D3DKMTOpenResource2()(pData);
+
+    if(pData)
+    {
+      RDCLOG("D3DKMTOpenResource2 out status=0x%08x resource=0x%llx totalPriv=%u",
+             (uint32_t)ret, KMTHandleValue(pData->hResource),
+             pData->TotalPrivateDriverDataBufferSize);
+    }
+    else
+    {
+      RDCLOG("D3DKMTOpenResource2 out status=0x%08x", (uint32_t)ret);
+    }
+
+    return ret;
+  }
+
+  static NTSTATUS APIENTRY D3DKMTPresent_hook(D3DKMT_PRESENT *pData)
+  {
+    if(pData)
+    {
+      RDCLOG(
+          "D3DKMTPresent in device=0x%llx context=0x%llx window=0x%p source=0x%llx dest=0x%llx "
+          "presentCount=%u flipInterval=%u flags=0x%08x broadcastCount=%lu",
+          KMTHandleValue(pData->hDevice), KMTHandleValue(pData->hContext), pData->hWindow,
+          KMTHandleValue(pData->hSource), KMTHandleValue(pData->hDestination),
+          pData->PresentCount, (uint32_t)pData->FlipInterval, pData->Flags.Value,
+          pData->BroadcastContextCount);
+    }
+    else
+    {
+      RDCLOG("D3DKMTPresent called with null args");
+    }
+
+    NTSTATUS ret = syshooks.D3DKMTPresent()(pData);
+
+    RDCLOG("D3DKMTPresent out status=0x%08x", (uint32_t)ret);
+
+    return ret;
   }
 
   static BOOL WINAPI
@@ -436,6 +630,26 @@ private:
           return syshooks.CreateProcessW()(lpApplicationName, lpCommandLine, lpProcessAttributes,
                                            lpThreadAttributes, bInheritHandles, flags, env,
                                            lpCurrentDirectory, lpStartupInfo, pi);
+        },
+        SafeWideLogString(lpApplicationName), SafeWideLogString(lpCommandLine),
+        SafeWideLogString(lpCurrentDirectory),
+        dwCreationFlags, ShouldInject(lpApplicationName, lpCommandLine), lpEnvironment,
+        lpProcessInformation);
+  }
+
+  static BOOL WINAPI CreateProcessInternalW_hook(
+      HANDLE hToken, LPCWSTR lpApplicationName, LPWSTR lpCommandLine,
+      LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes,
+      BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment,
+      LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo,
+      LPPROCESS_INFORMATION lpProcessInformation, PHANDLE hNewToken)
+  {
+    return Hooked_CreateProcess(
+        "CreateProcessInternalW",
+        [=](DWORD flags, LPVOID env, LPPROCESS_INFORMATION pi) {
+          return syshooks.CreateProcessInternalW()(
+              hToken, lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes,
+              bInheritHandles, flags, env, lpCurrentDirectory, lpStartupInfo, pi, hNewToken);
         },
         SafeWideLogString(lpApplicationName), SafeWideLogString(lpCommandLine),
         SafeWideLogString(lpCurrentDirectory),
@@ -707,12 +921,19 @@ private:
     HANDLE childProcess = (ret && pExecInfo) ? pExecInfo->hProcess : NULL;
     DWORD childPID = childProcess ? GetProcessId(childProcess) : 0;
     bool inject = pExecInfo && ShouldInject(pExecInfo->lpFile, pExecInfo->lpParameters);
+    bool alreadyInjected = childPID != 0 &&
+                           FindRemoteDLL(childPID, STRINGIZE(RDOC_BASE_NAME) ".dll") != 0;
 
     RDCLOG("ShellExecuteExW result ret=%s err=%u hProcess=0x%p pid=%u mask=0x%08x inject=%s",
            ret ? "true" : "false", retError, childProcess, childPID,
            pExecInfo ? pExecInfo->fMask : 0, inject ? "true" : "false");
 
-    if(ret && inject && childProcess && childPID != 0)
+    if(alreadyInjected)
+      RDCLOG("ShellExecuteExW child PID %u already has gugugaga.dll loaded, skipping fallback "
+             "injection",
+             childPID);
+
+    if(ret && inject && childProcess && childPID != 0 && !alreadyInjected)
     {
       rdcpair<RDResult, uint32_t> res = Process::InjectIntoProcess(
           childPID, {}, GuguGaga::Inst().GetCaptureFileTemplate(),
