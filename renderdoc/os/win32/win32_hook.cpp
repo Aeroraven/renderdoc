@@ -39,6 +39,14 @@
 #include "strings/string_utils.h"
 
 #define VERBOSE_DEBUG_HOOK OPTION_OFF
+// When enabled, keep scanning executable modules even if an earlier import in the same module was
+// already hooked. This is useful for investigating cases where a later graphics import such as
+// d3d11.dll!D3D11CreateDevice might otherwise be skipped.
+#define AGGRESSIVE_EXE_IAT_SCAN OPTION_ON
+#define VERBOSE_AGGRESSIVE_EXE_IAT_SCAN OPTION_ON
+// Diagnostic switch: keep observing D3D11CreateDevice resolution, but don't let RenderDoc replace
+// it. This helps separate "hook path found" from "RenderDoc-wrapped device breaks middleware".
+#define BYPASS_D3D11CREATEDEVICE_HOOK OPTION_ON
 
 // map from address of IAT entry, to original contents
 std::map<void **, void *> s_InstalledHooks;
@@ -117,6 +125,89 @@ static rdcstr DescribeModuleHandle(HMODULE mod)
   }
 
   return GetBaseFilename(modulePath);
+}
+
+struct ImgDelayDescrRDoc
+{
+  DWORD grAttrs;
+  DWORD szName;
+  DWORD phmod;
+  DWORD pIAT;
+  DWORD pINT;
+  DWORD pBoundIAT;
+  DWORD pUnloadIAT;
+  DWORD dwTimeStamp;
+};
+
+#if ENABLED(AGGRESSIVE_EXE_IAT_SCAN) || ENABLED(VERBOSE_AGGRESSIVE_EXE_IAT_SCAN)
+static bool IsExecutableModuleName(const char *filename)
+{
+  if(filename == NULL || filename[0] == 0)
+    return false;
+
+  const char *base = GetBaseFilename(filename);
+  size_t len = strlen(base);
+  return len >= 4 && !_stricmp(base + len - 4, ".exe");
+}
+
+static bool IsInterestingIATImport(const char *dllName, const char *funcName)
+{
+  return dllName != NULL && funcName != NULL && IsInterestingGraphicsModuleName(dllName) &&
+         IsInterestingGraphicsProcName(funcName);
+}
+#endif
+
+static void *ResolveDelayThunkPointer(byte *baseAddress, DWORD grAttrs, DWORD value)
+{
+  if(value == 0)
+    return NULL;
+
+  // Delay imports in modern PE32+ images are typically stored as RVAs when dlattrRva is set.
+  if(grAttrs & 1)
+    return baseAddress + value;
+
+  return (void *)(uintptr_t)value;
+}
+
+static bool AddressIsInModule(const void *addr, const char *moduleName)
+{
+  if(addr == NULL || moduleName == NULL)
+    return false;
+
+  HMODULE module = NULL;
+  if(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                        (LPCWSTR)addr, &module) == FALSE ||
+     module == NULL)
+  {
+    return false;
+  }
+
+  return !_stricmp(DescribeModuleHandle(module).c_str(), moduleName);
+}
+
+static bool ShouldBypassHookForDiagnostics(const char *dllName, const char *funcName)
+{
+#if ENABLED(BYPASS_D3D11CREATEDEVICE_HOOK)
+  return dllName != NULL && funcName != NULL && !_stricmp(dllName, "d3d11.dll") &&
+         !_stricmp(funcName, "D3D11CreateDevice");
+#else
+  (void)dllName;
+  (void)funcName;
+  return false;
+#endif
+}
+
+static bool ShouldContinueIATScan(const char *modName, bool applied, bool already)
+{
+#if ENABLED(AGGRESSIVE_EXE_IAT_SCAN)
+  return applied && already && IsExecutableModuleName(modName);
+#else
+  (void)modName;
+  (void)applied;
+  (void)already;
+  return false;
+#endif
 }
 
 bool ApplyHook(FunctionHook &hook, void **IATentry, bool &already)
@@ -490,8 +581,29 @@ struct CachedHookData
                   if(found != hookset->FunctionHooks.end() &&
                      !strcmp(found->function.c_str(), importName) && ownmodule != module)
                   {
+                    if(ShouldBypassHookForDiagnostics(dllName, importName))
+                    {
+                      RDCLOG("Skipping import hook for diagnostics module=%s import=%s!%s "
+                             "entry=%p current=%p hook=%p",
+                             modName, dllName, importName, IATentry, *IATentry, found->hook);
+                      origFirst++;
+                      first++;
+                      continue;
+                    }
+
                     bool already = false;
                     bool applied;
+
+#if ENABLED(VERBOSE_AGGRESSIVE_EXE_IAT_SCAN)
+                    if(IsInterestingIATImport(dllName, importName) && IsExecutableModuleName(modName))
+                    {
+                      RDCLOG(
+                          "Executable IAT candidate module=%s import=%s!%s entry=%p current=%p "
+                          "hook=%p",
+                          modName, dllName, importName, IATentry, *IATentry, found->hook);
+                    }
+#endif
+
                     {
                       SCOPED_LOCK(lock);
                       applied = ApplyHook(*found, IATentry, already);
@@ -502,6 +614,23 @@ struct CachedHookData
                     // module and there's no point wasting time re-hooking nothing
                     if(!applied || (already && !missedOrdinals))
                     {
+                      bool continueScan = ShouldContinueIATScan(modName, applied, already);
+
+#if ENABLED(VERBOSE_AGGRESSIVE_EXE_IAT_SCAN)
+                      if(continueScan)
+                      {
+                        RDCLOG("Continuing executable IAT scan for module=%s after import=%s!%s",
+                               modName, dllName, importName);
+                      }
+#endif
+
+                      if(continueScan)
+                      {
+                        origFirst++;
+                        first++;
+                        continue;
+                      }
+
 #if ENABLED(VERBOSE_DEBUG_HOOK)
                       RDCDEBUG("Stopping hooking module, %d %d %d", (int)applied, (int)already,
                                (int)missedOrdinals);
@@ -553,8 +682,27 @@ struct CachedHookData
           if(found != hookset->FunctionHooks.end() &&
              !strcmp(found->function.c_str(), importName) && ownmodule != module)
           {
+            if(ShouldBypassHookForDiagnostics(dllName, importName))
+            {
+              RDCLOG("Skipping import hook for diagnostics module=%s import=%s!%s "
+                     "entry=%p current=%p hook=%p",
+                     modName, dllName, importName, IATentry, *IATentry, found->hook);
+              origFirst++;
+              first++;
+              continue;
+            }
+
             bool already = false;
             bool applied;
+
+#if ENABLED(VERBOSE_AGGRESSIVE_EXE_IAT_SCAN)
+            if(IsInterestingIATImport(dllName, importName) && IsExecutableModuleName(modName))
+            {
+              RDCLOG("Executable IAT candidate module=%s import=%s!%s entry=%p current=%p hook=%p",
+                     modName, dllName, importName, IATentry, *IATentry, found->hook);
+            }
+#endif
+
             {
               SCOPED_LOCK(lock);
               applied = ApplyHook(*found, IATentry, already);
@@ -565,6 +713,23 @@ struct CachedHookData
             // module and there's no point wasting time re-hooking nothing
             if(!applied || (already && !missedOrdinals))
             {
+              bool continueScan = ShouldContinueIATScan(modName, applied, already);
+
+#if ENABLED(VERBOSE_AGGRESSIVE_EXE_IAT_SCAN)
+              if(continueScan)
+              {
+                RDCLOG("Continuing executable IAT scan for module=%s after import=%s!%s", modName,
+                       dllName, importName);
+              }
+#endif
+
+              if(continueScan)
+              {
+                origFirst++;
+                first++;
+                continue;
+              }
+
 #if ENABLED(VERBOSE_DEBUG_HOOK)
               RDCDEBUG("Stopping hooking module, %d %d %d", (int)applied, (int)already,
                        (int)missedOrdinals);
@@ -590,6 +755,255 @@ struct CachedHookData
       }
 
       importDesc++;
+    }
+
+    DWORD delayOffset = optHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT].VirtualAddress;
+    ImgDelayDescrRDoc *delayDesc = (ImgDelayDescrRDoc *)(baseAddress + delayOffset);
+
+#if ENABLED(VERBOSE_DEBUG_HOOK)
+    RDCDEBUG("=== delay import descriptors:");
+#endif
+
+    while(delayOffset && (delayDesc->grAttrs || delayDesc->szName || delayDesc->pIAT ||
+                          delayDesc->pINT || delayDesc->dwTimeStamp))
+    {
+      const char *dllName =
+          (const char *)ResolveDelayThunkPointer(baseAddress, delayDesc->grAttrs, delayDesc->szName);
+
+      if(dllName == NULL)
+      {
+        delayDesc++;
+        continue;
+      }
+
+#if ENABLED(VERBOSE_DEBUG_HOOK)
+      RDCDEBUG("found delay IAT for %s", dllName);
+#endif
+
+      DllHookset *hookset = NULL;
+
+      for(auto it = DllHooks.begin(); it != DllHooks.end(); ++it)
+        if(!_stricmp(it->first.c_str(), dllName))
+          hookset = &it->second;
+
+      if(hookset && delayDesc->pINT > 0 && delayDesc->pIAT > 0)
+      {
+        IMAGE_THUNK_DATA *origFirst =
+            (IMAGE_THUNK_DATA *)ResolveDelayThunkPointer(baseAddress, delayDesc->grAttrs, delayDesc->pINT);
+        IMAGE_THUNK_DATA *first =
+            (IMAGE_THUNK_DATA *)ResolveDelayThunkPointer(baseAddress, delayDesc->grAttrs, delayDesc->pIAT);
+
+        if(origFirst == NULL || first == NULL)
+        {
+          delayDesc++;
+          continue;
+        }
+
+#if ENABLED(VERBOSE_DEBUG_HOOK)
+        RDCDEBUG("Hooking delay imports for %s", dllName);
+#endif
+
+        while(origFirst->u1.AddressOfData)
+        {
+          void **IATentry = (void **)&first->u1.AddressOfData;
+
+          struct hook_find
+          {
+            bool operator()(const FunctionHook &a, const char *b)
+            {
+              return strcmp(a.function.c_str(), b) < 0;
+            }
+          };
+
+#if ENABLED(RDOC_X64)
+          if(IMAGE_SNAP_BY_ORDINAL64(origFirst->u1.AddressOfData))
+#else
+          if(IMAGE_SNAP_BY_ORDINAL32(origFirst->u1.AddressOfData))
+#endif
+          {
+            WORD ordinal = IMAGE_ORDINAL64(origFirst->u1.AddressOfData);
+
+            if(!hookset->OrdinalNames.empty() && ordinal >= hookset->OrdinalBase)
+            {
+              DWORD nameIndex = ordinal - hookset->OrdinalBase;
+
+              if(nameIndex < hookset->OrdinalNames.size())
+              {
+                const char *importName = (const char *)hookset->OrdinalNames[nameIndex].c_str();
+
+                auto found =
+                    std::lower_bound(hookset->FunctionHooks.begin(), hookset->FunctionHooks.end(),
+                                     importName, hook_find());
+
+                bool currentResolved =
+                    (found != hookset->FunctionHooks.end() && *IATentry == found->hook) ||
+                    AddressIsInModule(*IATentry, dllName);
+
+#if ENABLED(VERBOSE_AGGRESSIVE_EXE_IAT_SCAN)
+                if(IsInterestingIATImport(dllName, importName) && IsExecutableModuleName(modName))
+                {
+                  RDCLOG(
+                      "Executable delay-IAT candidate module=%s import=%s!%s entry=%p current=%p "
+                      "hook=%p resolved=%u",
+                      modName, dllName, importName, IATentry, *IATentry,
+                      found != hookset->FunctionHooks.end() ? found->hook : NULL, currentResolved ? 1U
+                                                                                                   : 0U);
+                }
+#endif
+
+                if(found != hookset->FunctionHooks.end() &&
+                   !strcmp(found->function.c_str(), importName) && ownmodule != module)
+                {
+                  if(ShouldBypassHookForDiagnostics(dllName, importName))
+                  {
+                    RDCLOG("Skipping delay-import hook for diagnostics module=%s import=%s!%s "
+                           "entry=%p current=%p hook=%p resolved=%u",
+                           modName, dllName, importName, IATentry, *IATentry, found->hook,
+                           currentResolved ? 1U : 0U);
+                    origFirst++;
+                    first++;
+                    continue;
+                  }
+
+                  // For delay imports, avoid overwriting the unresolved helper thunk. Once the
+                  // delay-load helper resolves the import, it will either write the real function
+                  // or our GetProcAddress hook result into this slot and future scans can patch it.
+                  if(!currentResolved)
+                  {
+                    origFirst++;
+                    first++;
+                    continue;
+                  }
+
+                  bool already = false;
+                  bool applied;
+                  {
+                    SCOPED_LOCK(lock);
+                    applied = ApplyHook(*found, IATentry, already);
+                  }
+
+                  if(!applied || (already && !missedOrdinals))
+                  {
+                    bool continueScan = ShouldContinueIATScan(modName, applied, already);
+
+#if ENABLED(VERBOSE_AGGRESSIVE_EXE_IAT_SCAN)
+                    if(continueScan)
+                    {
+                      RDCLOG(
+                          "Continuing executable delay-IAT scan for module=%s after import=%s!%s",
+                          modName, dllName, importName);
+                    }
+#endif
+
+                    if(continueScan)
+                    {
+                      origFirst++;
+                      first++;
+                      continue;
+                    }
+
+                    FreeLibrary(refcountModHandle);
+                    return;
+                  }
+                }
+              }
+            }
+
+            origFirst++;
+            first++;
+            continue;
+          }
+
+          IMAGE_IMPORT_BY_NAME *import =
+              (IMAGE_IMPORT_BY_NAME *)(baseAddress + origFirst->u1.AddressOfData);
+          const char *importName = (const char *)import->Name;
+
+          auto found = std::lower_bound(hookset->FunctionHooks.begin(),
+                                        hookset->FunctionHooks.end(), importName, hook_find());
+
+          bool currentResolved =
+              (found != hookset->FunctionHooks.end() && *IATentry == found->hook) ||
+              AddressIsInModule(*IATentry, dllName);
+
+#if ENABLED(VERBOSE_AGGRESSIVE_EXE_IAT_SCAN)
+          if(IsInterestingIATImport(dllName, importName) && IsExecutableModuleName(modName))
+          {
+            RDCLOG(
+                "Executable delay-IAT candidate module=%s import=%s!%s entry=%p current=%p "
+                "hook=%p resolved=%u",
+                modName, dllName, importName, IATentry, *IATentry,
+                found != hookset->FunctionHooks.end() ? found->hook : NULL, currentResolved ? 1U : 0U);
+          }
+#endif
+
+          if(found != hookset->FunctionHooks.end() &&
+             !strcmp(found->function.c_str(), importName) && ownmodule != module)
+          {
+            if(ShouldBypassHookForDiagnostics(dllName, importName))
+            {
+              RDCLOG("Skipping delay-import hook for diagnostics module=%s import=%s!%s "
+                     "entry=%p current=%p hook=%p resolved=%u",
+                     modName, dllName, importName, IATentry, *IATentry, found->hook,
+                     currentResolved ? 1U : 0U);
+              origFirst++;
+              first++;
+              continue;
+            }
+
+            if(!currentResolved)
+            {
+              origFirst++;
+              first++;
+              continue;
+            }
+
+            bool already = false;
+            bool applied;
+            {
+              SCOPED_LOCK(lock);
+              applied = ApplyHook(*found, IATentry, already);
+            }
+
+            if(!applied || (already && !missedOrdinals))
+            {
+              bool continueScan = ShouldContinueIATScan(modName, applied, already);
+
+#if ENABLED(VERBOSE_AGGRESSIVE_EXE_IAT_SCAN)
+              if(continueScan)
+              {
+                RDCLOG("Continuing executable delay-IAT scan for module=%s after import=%s!%s",
+                       modName, dllName, importName);
+              }
+#endif
+
+              if(continueScan)
+              {
+                origFirst++;
+                first++;
+                continue;
+              }
+
+              FreeLibrary(refcountModHandle);
+              return;
+            }
+          }
+
+          origFirst++;
+          first++;
+        }
+      }
+      else
+      {
+        if(hookset)
+        {
+#if ENABLED(VERBOSE_DEBUG_HOOK)
+          RDCDEBUG("!! Invalid delay IAT found for %s! %u %u", dllName, delayDesc->pINT,
+                   delayDesc->pIAT);
+#endif
+        }
+      }
+
+      delayDesc++;
     }
 
     FreeLibrary(refcountModHandle);
@@ -738,9 +1152,9 @@ static rdcstr CallerModuleForAddress(const void *addr)
 
   HMODULE module = NULL;
 
-  if(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
-                            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                        (LPCWSTR)addr, &module) == FALSE ||
+  if(GetModuleHandleExW(
+         GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+         (LPCWSTR)addr, &module) == FALSE ||
      module == NULL)
   {
     return "<unknown>";
@@ -1010,14 +1424,21 @@ FARPROC WINAPI Hooked_GetProcAddress(HMODULE mod, LPCSTR func)
         if(realfunc == NULL)
           return NULL;
 
+        if(ShouldBypassHookForDiagnostics(it->first.c_str(), func))
+        {
+          RDCLOG("GetProcAddress diagnostic-bypass module=%s func=%s real=%p hook=%p",
+                 moduleName.c_str(), func, realfunc, found->hook);
+          return realfunc;
+        }
+
         if(interestingModule && (interestingProc || ordinal))
         {
           if(ordinal)
             RDCLOG("GetProcAddress hook-hit module=%s ordinal=%u real=%p hook=%p",
                    moduleName.c_str(), (uint32_t)(uintptr_t(func) & 0xffff), realfunc, found->hook);
           else
-            RDCLOG("GetProcAddress hook-hit module=%s func=%s real=%p hook=%p",
-                   moduleName.c_str(), func, realfunc, found->hook);
+            RDCLOG("GetProcAddress hook-hit module=%s func=%s real=%p hook=%p", moduleName.c_str(),
+                   func, realfunc, found->hook);
         }
 
         return (FARPROC)found->hook;
@@ -1039,8 +1460,7 @@ FARPROC WINAPI Hooked_GetProcAddress(HMODULE mod, LPCSTR func)
       RDCLOG("GetProcAddress passthrough module=%s ordinal=%u real=%p", moduleName.c_str(),
              (uint32_t)(uintptr_t(func) & 0xffff), real);
     else
-      RDCLOG("GetProcAddress passthrough module=%s func=%s real=%p", moduleName.c_str(), func,
-             real);
+      RDCLOG("GetProcAddress passthrough module=%s func=%s real=%p", moduleName.c_str(), func, real);
   }
 
   return real;
