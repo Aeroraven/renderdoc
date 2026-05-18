@@ -26,6 +26,7 @@
 // must be separate so that it's included first and not sorted by clang-format
 #include <windows.h>
 
+#include <intrin.h>
 #include <tlhelp32.h>
 #include <algorithm>
 #include <functional>
@@ -730,6 +731,56 @@ static bool IsAPISet(const char *filename)
   return IsAPISet(wfn.c_str());
 }
 
+static rdcstr CallerModuleForAddress(const void *addr)
+{
+  if(addr == NULL)
+    return "<null>";
+
+  HMODULE module = NULL;
+
+  if(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                        (LPCWSTR)addr, &module) == FALSE ||
+     module == NULL)
+  {
+    return "<unknown>";
+  }
+
+  wchar_t modulePathW[512] = {};
+  GetModuleFileNameW(module, modulePathW, ARRAY_COUNT(modulePathW) - 1);
+
+  rdcstr modulePath = StringFormat::Wide2UTF8(modulePathW);
+  rdcstr moduleBase = get_basename(modulePath);
+  uintptr_t offset = (uintptr_t)addr - (uintptr_t)module;
+  char offsetStr[32] = {};
+  snprintf(offsetStr, ARRAY_COUNT(offsetStr), "%llx", (unsigned long long)offset);
+
+  return moduleBase + "+0x" + offsetStr;
+}
+
+static rdcstr CaptureStackModules(uint32_t framesToSkip, uint32_t framesToCapture)
+{
+  void *frames[32] = {};
+  const USHORT maxFrames =
+      (USHORT)(framesToCapture < ARRAY_COUNT(frames) ? framesToCapture : ARRAY_COUNT(frames));
+  const USHORT numFrames = RtlCaptureStackBackTrace(framesToSkip, maxFrames, frames, NULL);
+
+  if(numFrames == 0)
+    return "<empty>";
+
+  rdcstr ret;
+
+  for(USHORT i = 0; i < numFrames; i++)
+  {
+    if(!ret.empty())
+      ret += " <- ";
+
+    ret += CallerModuleForAddress(frames[i]);
+  }
+
+  return ret;
+}
+
 HMODULE WINAPI Hooked_LoadLibraryExA(LPCSTR lpLibFileName, HANDLE fileHandle, DWORD flags)
 {
   bool dohook = true;
@@ -770,6 +821,8 @@ HMODULE WINAPI Hooked_LoadLibraryExA(LPCSTR lpLibFileName, HANDLE fileHandle, DW
 
 HMODULE WINAPI Hooked_LoadLibraryExW(LPCWSTR lpLibFileName, HANDLE fileHandle, DWORD flags)
 {
+  void *caller = _ReturnAddress();
+  rdcstr stack = CaptureStackModules(2, 32);
   bool dohook = true;
 
   if(s_HookData->libraryIntercept)
@@ -816,7 +869,9 @@ HMODULE WINAPI Hooked_LoadLibraryExW(LPCWSTR lpLibFileName, HANDLE fileHandle, D
 
   rdcstr utf8Name = lpLibFileName ? StringFormat::Wide2UTF8(lpLibFileName) : "";
   if(IsInterestingGraphicsModuleName(utf8Name.c_str()))
-    RDCLOG("LoadLibraryExW graphics module %s flags=0x%08x -> %p", utf8Name.c_str(), flags, mod);
+    RDCLOG("LoadLibraryExW graphics module %s flags=0x%08x -> %p caller=%p (%s) stack=%s",
+           utf8Name.c_str(), flags, mod, caller, CallerModuleForAddress(caller).c_str(),
+           stack.c_str());
 
   DWORD err = GetLastError();
 

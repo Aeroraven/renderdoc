@@ -26,6 +26,7 @@
 #include <winsock2.h>
 #include <winternl.h>
 #include <d3dkmthk.h>
+#include <intrin.h>
 #include <shellapi.h>
 #include "core/core.h"
 #include "hooks/hooks.h"
@@ -86,6 +87,7 @@ typedef HINSTANCE(WINAPI *PFN_SHELL_EXECUTE_W)(HWND hwnd, LPCWSTR lpOperation, L
 typedef BOOL(WINAPI *PFN_SHELL_EXECUTE_EX_W)(SHELLEXECUTEINFOW *pExecInfo);
 using PFN_D3DKMT_CREATE_DEVICE = decltype(&::D3DKMTCreateDevice);
 using PFN_D3DKMT_CREATE_CONTEXT = decltype(&::D3DKMTCreateContext);
+using PFN_D3DKMT_CREATE_CONTEXT_VIRTUAL = decltype(&::D3DKMTCreateContextVirtual);
 using PFN_D3DKMT_CREATE_ALLOCATION2 = decltype(&::D3DKMTCreateAllocation2);
 using PFN_D3DKMT_OPEN_RESOURCE2 = decltype(&::D3DKMTOpenResource2);
 using PFN_D3DKMT_PRESENT = decltype(&::D3DKMTPresent);
@@ -160,6 +162,8 @@ public:
 
     D3DKMTCreateDevice.Register("gdi32.dll", "D3DKMTCreateDevice", D3DKMTCreateDevice_hook);
     D3DKMTCreateContext.Register("gdi32.dll", "D3DKMTCreateContext", D3DKMTCreateContext_hook);
+    D3DKMTCreateContextVirtual.Register("gdi32.dll", "D3DKMTCreateContextVirtual",
+                                        D3DKMTCreateContextVirtual_hook);
     D3DKMTCreateAllocation2.Register("gdi32.dll", "D3DKMTCreateAllocation2",
                                      D3DKMTCreateAllocation2_hook);
     D3DKMTOpenResource2.Register("gdi32.dll", "D3DKMTOpenResource2", D3DKMTOpenResource2_hook);
@@ -212,6 +216,7 @@ private:
   HookedFunction<PFN_WSACLEANUP> WSACleanup;
   HookedFunction<PFN_D3DKMT_CREATE_DEVICE> D3DKMTCreateDevice;
   HookedFunction<PFN_D3DKMT_CREATE_CONTEXT> D3DKMTCreateContext;
+  HookedFunction<PFN_D3DKMT_CREATE_CONTEXT_VIRTUAL> D3DKMTCreateContextVirtual;
   HookedFunction<PFN_D3DKMT_CREATE_ALLOCATION2> D3DKMTCreateAllocation2;
   HookedFunction<PFN_D3DKMT_OPEN_RESOURCE2> D3DKMTOpenResource2;
   HookedFunction<PFN_D3DKMT_PRESENT> D3DKMTPresent;
@@ -229,6 +234,96 @@ private:
   static uint64_t KMTHandleValue(D3DKMT_HANDLE handle)
   {
     return (uint64_t)(uintptr_t)handle;
+  }
+
+  static const char *ClientHintName(D3DKMT_CLIENTHINT hint)
+  {
+    switch(hint)
+    {
+      case D3DKMT_CLIENTHINT_UNKNOWN: return "UNKNOWN";
+      case D3DKMT_CLIENTHINT_OPENGL: return "OPENGL";
+      case D3DKMT_CLIENTHINT_CDD: return "CDD";
+      case D3DKMT_CLIENTHINT_OPENCL: return "OPENCL";
+      case D3DKMT_CLIENTHINT_VULKAN: return "VULKAN";
+      case D3DKMT_CLIENTHINT_CUDA: return "CUDA";
+      case D3DKMT_CLIENTHINT_RESERVED: return "RESERVED";
+      case D3DKMT_CLIENTHINT_DX7: return "DX7";
+      case D3DKMT_CLIENTHINT_DX8: return "DX8";
+      case D3DKMT_CLIENTHINT_DX9: return "DX9";
+      case D3DKMT_CLIENTHINT_DX10: return "DX10";
+      case D3DKMT_CLIENTHINT_DX11: return "DX11";
+      case D3DKMT_CLIENTHINT_DX12: return "DX12";
+      case D3DKMT_CLIENTHINT_9ON12: return "9ON12";
+      case D3DKMT_CLIENTHINT_11ON12: return "11ON12";
+      case D3DKMT_CLIENTHINT_MFT_ENCODE: return "MFT_ENCODE";
+      case D3DKMT_CLIENTHINT_GLON12: return "GLON12";
+      case D3DKMT_CLIENTHINT_CLON12: return "CLON12";
+      case D3DKMT_CLIENTHINT_DML_TENSORFLOW: return "DML_TENSORFLOW";
+      case D3DKMT_CLIENTHINT_ONEAPI_LEVEL0: return "ONEAPI_LEVEL0";
+      case D3DKMT_CLIENTHINT_DML_PYTORCH: return "DML_PYTORCH";
+      case D3DKMT_CLIENTHINT_VKON12: return "VKON12";
+      case D3DKMT_CLIENTHINT_FASTRPC: return "FASTRPC";
+      case D3DKMT_CLIENTHINT_SNPE: return "SNPE";
+      case D3DKMT_CLIENTHINT_QNN: return "QNN";
+      case D3DKMT_CLIENTHINT_VITIS: return "VITIS";
+      case D3DKMT_CLIENTHINT_FFMPEG: return "FFMPEG";
+      case D3DKMT_CLIENTHINT_OPEN_VINO: return "OPEN_VINO";
+      case D3DKMT_CLIENTHINT_MAX: return "MAX";
+      default: break;
+    }
+
+    return "UNKNOWN_ENUM";
+  }
+
+  static rdcstr CallerModuleForAddress(const void *addr)
+  {
+    if(addr == NULL)
+      return "<null>";
+
+    HMODULE module = NULL;
+
+    if(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                              GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                          (LPCWSTR)addr, &module) == FALSE ||
+       module == NULL)
+    {
+      return "<unknown>";
+    }
+
+    wchar_t modulePathW[512] = {};
+    GetModuleFileNameW(module, modulePathW, ARRAY_COUNT(modulePathW) - 1);
+
+    rdcstr modulePath = StringFormat::Wide2UTF8(modulePathW);
+    rdcstr moduleBase = get_basename(modulePath);
+    uintptr_t offset = (uintptr_t)addr - (uintptr_t)module;
+    char offsetStr[32] = {};
+    snprintf(offsetStr, ARRAY_COUNT(offsetStr), "%llx", (unsigned long long)offset);
+
+    return moduleBase + "+0x" + offsetStr;
+  }
+
+  static rdcstr CaptureStackModules(uint32_t framesToSkip, uint32_t framesToCapture)
+  {
+    void *frames[32] = {};
+    const USHORT maxFrames =
+        (USHORT)(framesToCapture < ARRAY_COUNT(frames) ? framesToCapture : ARRAY_COUNT(frames));
+    const USHORT numFrames =
+        RtlCaptureStackBackTrace(framesToSkip, maxFrames, frames, NULL);
+
+    if(numFrames == 0)
+      return "<empty>";
+
+    rdcstr ret;
+
+    for(USHORT i = 0; i < numFrames; i++)
+    {
+      if(!ret.empty())
+        ret += " <- ";
+
+      ret += CallerModuleForAddress(frames[i]);
+    }
+
+    return ret;
   }
 
   template <typename FlagsType>
@@ -268,14 +363,21 @@ private:
 
   static NTSTATUS APIENTRY D3DKMTCreateDevice_hook(D3DKMT_CREATEDEVICE *pData)
   {
+    void *caller = _ReturnAddress();
+    rdcstr stack = CaptureStackModules(2, 32);
+
     if(pData)
     {
-      RDCLOG("D3DKMTCreateDevice in adapter=0x%llx flags=0x%08x commandBuffer=%p",
-             KMTHandleValue(pData->hAdapter), RawFlagValue(pData->Flags), pData->pCommandBuffer);
+      RDCLOG(
+          "D3DKMTCreateDevice in adapter=0x%llx flags=0x%08x commandBuffer=%p caller=%p (%s) "
+          "stack=%s",
+          KMTHandleValue(pData->hAdapter), RawFlagValue(pData->Flags), pData->pCommandBuffer,
+          caller, CallerModuleForAddress(caller).c_str(), stack.c_str());
     }
     else
     {
-      RDCLOG("D3DKMTCreateDevice called with null args");
+      RDCLOG("D3DKMTCreateDevice called with null args caller=%p (%s) stack=%s", caller,
+             CallerModuleForAddress(caller).c_str(), stack.c_str());
     }
 
     NTSTATUS ret = syshooks.D3DKMTCreateDevice()(pData);
@@ -299,9 +401,10 @@ private:
     {
       RDCLOG(
           "D3DKMTCreateContext in device=0x%llx node=%u engineAffinity=0x%08x clientHint=%u "
-          "flags=0x%08x privateDataSize=%u",
+          "(%s) flags=0x%08x privateDataSize=%u",
           KMTHandleValue(pData->hDevice), pData->NodeOrdinal, pData->EngineAffinity,
-          (uint32_t)pData->ClientHint, pData->Flags.Value, pData->PrivateDriverDataSize);
+          (uint32_t)pData->ClientHint, ClientHintName(pData->ClientHint), pData->Flags.Value,
+          pData->PrivateDriverDataSize);
     }
     else
     {
@@ -318,6 +421,42 @@ private:
     else
     {
       RDCLOG("D3DKMTCreateContext out status=0x%08x", (uint32_t)ret);
+    }
+
+    return ret;
+  }
+
+  static NTSTATUS APIENTRY D3DKMTCreateContextVirtual_hook(D3DKMT_CREATECONTEXTVIRTUAL *pData)
+  {
+    void *caller = _ReturnAddress();
+    rdcstr stack = CaptureStackModules(2, 32);
+
+    if(pData)
+    {
+      RDCLOG(
+          "D3DKMTCreateContextVirtual in device=0x%llx node=%u engineAffinity=0x%08x "
+          "clientHint=%u (%s) flags=0x%08x privateDataSize=%u caller=%p (%s) stack=%s",
+          KMTHandleValue(pData->hDevice), pData->NodeOrdinal, pData->EngineAffinity,
+          (uint32_t)pData->ClientHint, ClientHintName(pData->ClientHint), pData->Flags.Value,
+          pData->PrivateDriverDataSize, caller, CallerModuleForAddress(caller).c_str(),
+          stack.c_str());
+    }
+    else
+    {
+      RDCLOG("D3DKMTCreateContextVirtual called with null args caller=%p (%s) stack=%s", caller,
+             CallerModuleForAddress(caller).c_str(), stack.c_str());
+    }
+
+    NTSTATUS ret = syshooks.D3DKMTCreateContextVirtual()(pData);
+
+    if(pData)
+    {
+      RDCLOG("D3DKMTCreateContextVirtual out status=0x%08x context=0x%llx", (uint32_t)ret,
+             KMTHandleValue(pData->hContext));
+    }
+    else
+    {
+      RDCLOG("D3DKMTCreateContextVirtual out status=0x%08x", (uint32_t)ret);
     }
 
     return ret;
@@ -391,19 +530,25 @@ private:
 
   static NTSTATUS APIENTRY D3DKMTPresent_hook(D3DKMT_PRESENT *pData)
   {
+    void *caller = _ReturnAddress();
+    rdcstr stack = CaptureStackModules(1, 32);
+
     if(pData)
     {
       RDCLOG(
-          "D3DKMTPresent in device=0x%llx context=0x%llx window=0x%p source=0x%llx dest=0x%llx "
-          "presentCount=%u flipInterval=%u flags=0x%08x broadcastCount=%lu",
-          KMTHandleValue(pData->hDevice), KMTHandleValue(pData->hContext), pData->hWindow,
-          KMTHandleValue(pData->hSource), KMTHandleValue(pData->hDestination),
+          "D3DKMTPresent in handle=0x%llx window=0x%p source=0x%llx dest=0x%llx "
+          "presentCount=%u flipInterval=%u flags=0x%08x broadcastCount=%lu caller=%p (%s) "
+          "stack=%s",
+          KMTHandleValue(pData->hContext), pData->hWindow, KMTHandleValue(pData->hSource),
+          KMTHandleValue(pData->hDestination),
           pData->PresentCount, (uint32_t)pData->FlipInterval, pData->Flags.Value,
-          pData->BroadcastContextCount);
+          pData->BroadcastContextCount, caller, CallerModuleForAddress(caller).c_str(),
+          stack.c_str());
     }
     else
     {
-      RDCLOG("D3DKMTPresent called with null args");
+      RDCLOG("D3DKMTPresent called with null args caller=%p (%s) stack=%s", caller,
+             CallerModuleForAddress(caller).c_str(), stack.c_str());
     }
 
     NTSTATUS ret = syshooks.D3DKMTPresent()(pData);

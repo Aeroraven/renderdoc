@@ -31,6 +31,17 @@
 #include <dcomp.h>
 #include <windows.graphics.directx.direct3d11.interop.h>
 
+// These exports are undocumented. Signatures below are inferred from local disassembly and are
+// only used for diagnostics/forwarding.
+typedef HRESULT(WINAPI *PFN_D3D11_CORE_CREATE_DEVICE)(void *param0, void *param1, UINT param2,
+                                                      void *param3, uintptr_t param4,
+                                                      uintptr_t param5, uintptr_t param6,
+                                                      uintptr_t param7, uintptr_t param8,
+                                                      uintptr_t param9);
+typedef HRESULT(WINAPI *PFN_D3D11_CORE_CREATE_LAYERED_DEVICE)(void *param0, SIZE_T param1,
+                                                              void *param2, void *param3,
+                                                              void **param4);
+
 ID3DDevice *GetD3D11DeviceIfAlloc(IUnknown *dev)
 {
   if(WrappedID3D11Device::IsAlloc(dev))
@@ -62,6 +73,9 @@ public:
     CreateDevice.Register("d3d11.dll", "D3D11CreateDevice", D3D11CreateDevice_hook);
     CreateDeviceAndSwapChain.Register("d3d11.dll", "D3D11CreateDeviceAndSwapChain",
                                       D3D11CreateDeviceAndSwapChain_hook);
+    CoreCreateDevice.Register("d3d11.dll", "D3D11CoreCreateDevice", D3D11CoreCreateDevice_hook);
+    CoreCreateLayeredDevice.Register("d3d11.dll", "D3D11CoreCreateLayeredDevice",
+                                     D3D11CoreCreateLayeredDevice_hook);
     D3D11On12CreateDeviceFn.Register("d3d11.dll", "D3D11On12CreateDevice",
                                      D3D11On12CreateDevice_hook);
     CreateDirect3D11DeviceFromDXGIDeviceFn.Register(
@@ -88,6 +102,8 @@ private:
 
   HookedFunction<PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN> CreateDeviceAndSwapChain;
   HookedFunction<PFN_D3D11_CREATE_DEVICE> CreateDevice;
+  HookedFunction<PFN_D3D11_CORE_CREATE_DEVICE> CoreCreateDevice;
+  HookedFunction<PFN_D3D11_CORE_CREATE_LAYERED_DEVICE> CoreCreateLayeredDevice;
   HookedFunction<PFN_D3D11ON12_CREATE_DEVICE> D3D11On12CreateDeviceFn;
   HookedFunction<decltype(&CreateDirect3D11DeviceFromDXGIDevice)>
       CreateDirect3D11DeviceFromDXGIDeviceFn;
@@ -285,6 +301,71 @@ private:
     return d3d11hooks.Create_Internal(createFunc, pAdapter, DriverType, Software, Flags,
                                       pFeatureLevels, FeatureLevels, SDKVersion, pSwapChainDesc,
                                       ppSwapChain, ppDevice, pFeatureLevel, ppImmediateContext);
+  }
+
+  static HRESULT WINAPI D3D11CoreCreateDevice_hook(void *param0, void *param1, UINT param2,
+                                                   void *param3, uintptr_t param4,
+                                                   uintptr_t param5, uintptr_t param6,
+                                                   uintptr_t param7, uintptr_t param8,
+                                                   uintptr_t param9)
+  {
+    RDCLOG(
+        "D3D11CoreCreateDevice request p0=%p p1=%p p2=0x%08x p3=%p p4=0x%llx p5=0x%llx "
+        "p6=0x%llx p7=0x%llx p8=0x%llx p9=0x%llx",
+        param0, param1, param2, param3, (unsigned long long)param4, (unsigned long long)param5,
+        (unsigned long long)param6, (unsigned long long)param7, (unsigned long long)param8,
+        (unsigned long long)param9);
+
+    PFN_D3D11_CORE_CREATE_DEVICE createFunc = d3d11hooks.CoreCreateDevice();
+
+    if(createFunc == NULL)
+    {
+      RDCWARN("Call to D3D11CoreCreateDevice_hook without onward function pointer");
+      createFunc = (PFN_D3D11_CORE_CREATE_DEVICE)GetProcAddress(GetModuleHandleA("d3d11.dll"),
+                                                                "D3D11CoreCreateDevice");
+    }
+
+    if(createFunc == NULL)
+    {
+      RDCERR("Something went seriously wrong with the D3D11CoreCreateDevice hooks!");
+      return E_UNEXPECTED;
+    }
+
+    HRESULT ret = createFunc(param0, param1, param2, param3, param4, param5, param6, param7,
+                             param8, param9);
+
+    RDCLOG("D3D11CoreCreateDevice result hr=0x%08x p8=0x%llx p9=0x%llx", ret,
+           (unsigned long long)param8, (unsigned long long)param9);
+    return ret;
+  }
+
+  static HRESULT WINAPI D3D11CoreCreateLayeredDevice_hook(void *param0, SIZE_T param1,
+                                                          void *param2, void *param3,
+                                                          void **param4)
+  {
+    RDCLOG("D3D11CoreCreateLayeredDevice request p0=%p size=%llu p2=%p p3=%p out=%p", param0,
+           (unsigned long long)param1, param2, param3, param4);
+
+    PFN_D3D11_CORE_CREATE_LAYERED_DEVICE createFunc = d3d11hooks.CoreCreateLayeredDevice();
+
+    if(createFunc == NULL)
+    {
+      RDCWARN("Call to D3D11CoreCreateLayeredDevice_hook without onward function pointer");
+      createFunc = (PFN_D3D11_CORE_CREATE_LAYERED_DEVICE)GetProcAddress(
+          GetModuleHandleA("d3d11.dll"), "D3D11CoreCreateLayeredDevice");
+    }
+
+    if(createFunc == NULL)
+    {
+      RDCERR("Something went seriously wrong with the D3D11CoreCreateLayeredDevice hooks!");
+      return E_UNEXPECTED;
+    }
+
+    HRESULT ret = createFunc(param0, param1, param2, param3, param4);
+
+    RDCLOG("D3D11CoreCreateLayeredDevice result hr=0x%08x outObj=%p", ret,
+           param4 ? *param4 : NULL);
+    return ret;
   }
 
   static HRESULT WINAPI D3D11On12CreateDevice_hook(
