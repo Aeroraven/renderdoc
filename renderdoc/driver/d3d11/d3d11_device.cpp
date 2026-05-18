@@ -41,6 +41,10 @@
 
 RDOC_EXTERN_CONFIG(bool, Replay_Debug_PrintChunkTimings);
 
+// Compatibility switch: some UE/Streamline interop paths probe for these interfaces and expect
+// the real D3D11 device to answer, even if RenderDoc doesn't wrap the returned interface.
+#define ALLOW_RAW_D3D11_INTEROP_QI 1
+
 WRAPPED_POOL_INST(WrappedID3D11Device);
 
 WrappedID3D11Device *WrappedID3D11Device::m_pCurrentWrappedDevice = NULL;
@@ -701,9 +705,18 @@ HRESULT WrappedID3D11Device::QueryInterface(REFIID riid, void **ppvObject)
   }
   else if(riid == ID3D12Device_uuid)
   {
+#if ALLOW_RAW_D3D11_INTEROP_QI
+    hr = m_pDevice->QueryInterface(riid, ppvObject);
+    RDCLOG("Raw passthrough QueryInterface for %s returned hr=0x%08x out=%p",
+           ToStr(riid).c_str(), hr, ppvObject ? *ppvObject : NULL);
+    if(FAILED(hr) && ppvObject)
+      *ppvObject = NULL;
+    return hr;
+#else
     RDCWARN("Trying to get ID3D12Device - not supported.");
     *ppvObject = NULL;
     return E_NOINTERFACE;
+#endif
   }
   else if(riid == IDirect3DDevice9_uuid)
   {
@@ -798,9 +811,18 @@ HRESULT WrappedID3D11Device::QueryInterface(REFIID riid, void **ppvObject)
   }
   else if(riid == ID3D11On12Device_uuid)
   {
+#if ALLOW_RAW_D3D11_INTEROP_QI
+    hr = m_pDevice->QueryInterface(riid, ppvObject);
+    RDCLOG("Raw passthrough QueryInterface for %s returned hr=0x%08x out=%p",
+           ToStr(riid).c_str(), hr, ppvObject ? *ppvObject : NULL);
+    if(FAILED(hr) && ppvObject)
+      *ppvObject = NULL;
+    return hr;
+#else
     RDCWARN("Trying to get ID3D11On12Device. Not supported at this time.");
     *ppvObject = NULL;
     return E_NOINTERFACE;
+#endif
   }
   else if(riid == __uuidof(ID3D11InfoQueue))
   {

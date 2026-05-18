@@ -31,6 +31,48 @@
 WRAPPED_POOL_INST(WrappedID3D12CommandQueue);
 WRAPPED_POOL_INST(WrappedID3D12GraphicsCommandList);
 
+static const char *D3D12UnknownQIModeString(int mode)
+{
+  switch(mode)
+  {
+    case D3D12_UNKNOWN_QI_PASSTHROUGH: return "passthrough";
+    case D3D12_UNKNOWN_QI_BLOCK: return "block";
+    default: break;
+  }
+
+  return "invalid";
+}
+
+static HRESULT HandleUnknownD3D12QueueQueryInterface(IUnknown *wrapped, IUnknown *real, REFIID riid,
+                                                     void **ppvObject)
+{
+#if D3D12_UNKNOWN_QI_VERBOSE_LOG
+  RDCLOG("ID3D12CommandQueue unknown QueryInterface fallback mode=%s wrapped=%p real=%p riid=%s",
+         D3D12UnknownQIModeString(D3D12_UNKNOWN_QUEUE_QI_MODE), wrapped, real,
+         ToStr(riid).c_str());
+#endif
+
+#if D3D12_UNKNOWN_QUEUE_QI_MODE == D3D12_UNKNOWN_QI_BLOCK
+  if(ppvObject)
+    *ppvObject = NULL;
+
+  RDCWARN("ID3D12CommandQueue blocking unknown QueryInterface for diagnostics riid=%s wrapped=%p "
+          "real=%p",
+          ToStr(riid).c_str(), wrapped, real);
+  return E_NOINTERFACE;
+#else
+  HRESULT hr = RefCountDXGIObject::WrapQueryInterface(real, "ID3D12CommandQueue", riid, ppvObject);
+
+#if D3D12_UNKNOWN_QI_VERBOSE_LOG
+  RDCLOG("ID3D12CommandQueue unknown QueryInterface fallback completed mode=%s hr=0x%08x out=%p",
+         D3D12UnknownQIModeString(D3D12_UNKNOWN_QUEUE_QI_MODE), hr,
+         ppvObject ? *ppvObject : NULL);
+#endif
+
+  return hr;
+#endif
+}
+
 template <>
 ID3D12GraphicsCommandList *Unwrap(ID3D12GraphicsCommandList *obj)
 {
@@ -676,7 +718,8 @@ HRESULT STDMETHODCALLTYPE WrappedID3D12CommandQueue::QueryInterface(REFIID riid,
     }
   }
 
-  return RefCounter12::QueryInterface("ID3D12CommandQueue", riid, ppvObject);
+  return HandleUnknownD3D12QueueQueryInterface((IUnknown *)(ID3D12CommandQueue *)this, m_pReal,
+                                               riid, ppvObject);
 }
 
 void WrappedID3D12CommandQueue::CheckAndFreeRayDispatches()

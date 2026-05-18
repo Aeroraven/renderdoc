@@ -59,6 +59,48 @@ WRAPPED_POOL_INST(WrappedID3D12Device);
 Threading::CriticalSection WrappedID3D12Device::m_DeviceWrappersLock;
 std::map<ID3D12Device *, WrappedID3D12Device *> WrappedID3D12Device::m_DeviceWrappers;
 
+static const char *D3D12UnknownQIModeString(int mode)
+{
+  switch(mode)
+  {
+    case D3D12_UNKNOWN_QI_PASSTHROUGH: return "passthrough";
+    case D3D12_UNKNOWN_QI_BLOCK: return "block";
+    default: break;
+  }
+
+  return "invalid";
+}
+
+static HRESULT HandleUnknownD3D12DeviceQueryInterface(IUnknown *wrapped, IUnknown *real, REFIID riid,
+                                                      void **ppvObject)
+{
+#if D3D12_UNKNOWN_QI_VERBOSE_LOG
+  RDCLOG("ID3D12Device unknown QueryInterface fallback mode=%s wrapped=%p real=%p riid=%s",
+         D3D12UnknownQIModeString(D3D12_UNKNOWN_DEVICE_QI_MODE), wrapped, real,
+         ToStr(riid).c_str());
+#endif
+
+#if D3D12_UNKNOWN_DEVICE_QI_MODE == D3D12_UNKNOWN_QI_BLOCK
+  if(ppvObject)
+    *ppvObject = NULL;
+
+  RDCWARN("ID3D12Device blocking unknown QueryInterface for diagnostics riid=%s wrapped=%p "
+          "real=%p",
+          ToStr(riid).c_str(), wrapped, real);
+  return E_NOINTERFACE;
+#else
+  HRESULT hr = RefCountDXGIObject::WrapQueryInterface(real, "ID3D12Device", riid, ppvObject);
+
+#if D3D12_UNKNOWN_QI_VERBOSE_LOG
+  RDCLOG("ID3D12Device unknown QueryInterface fallback completed mode=%s hr=0x%08x out=%p",
+         D3D12UnknownQIModeString(D3D12_UNKNOWN_DEVICE_QI_MODE), hr,
+         ppvObject ? *ppvObject : NULL);
+#endif
+
+  return hr;
+#endif
+}
+
 void WrappedID3D12Device::RemoveQueue(WrappedID3D12CommandQueue *queue)
 {
   m_Queues.removeOne(queue);
@@ -1600,7 +1642,8 @@ HRESULT WrappedID3D12Device::QueryInterface(REFIID riid, void **ppvObject)
     return m_pDevice->QueryInterface(riid, ppvObject);
   }
 
-  return m_RefCounter.QueryInterface("ID3D12Device", riid, ppvObject);
+  return HandleUnknownD3D12DeviceQueryInterface((IUnknown *)(ID3D12Device *)this, m_pDevice, riid,
+                                                ppvObject);
 }
 
 HRESULT WrappedID3D12Device::CreateInitialStateBuffer(const D3D12_RESOURCE_DESC &desc,

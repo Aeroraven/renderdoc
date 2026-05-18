@@ -46,7 +46,7 @@
 #define VERBOSE_AGGRESSIVE_EXE_IAT_SCAN OPTION_ON
 // Diagnostic switch: keep observing D3D11CreateDevice resolution, but don't let RenderDoc replace
 // it. This helps separate "hook path found" from "RenderDoc-wrapped device breaks middleware".
-#define BYPASS_D3D11CREATEDEVICE_HOOK OPTION_ON
+#define BYPASS_D3D11CREATEDEVICE_HOOK OPTION_OFF
 
 // map from address of IAT entry, to original contents
 std::map<void **, void *> s_InstalledHooks;

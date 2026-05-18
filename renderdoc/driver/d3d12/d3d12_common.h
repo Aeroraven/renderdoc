@@ -33,6 +33,14 @@
 #include "driver/shaders/dxbc/dxbc_compile.h"
 #include "serialise/serialiser.h"
 
+// Diagnostics for private/unknown D3D12 QueryInterface probes used by middleware.
+// 0 = allow the existing raw fallback path, 1 = block with E_NOINTERFACE.
+#define D3D12_UNKNOWN_QI_PASSTHROUGH 0
+#define D3D12_UNKNOWN_QI_BLOCK 1
+#define D3D12_UNKNOWN_DEVICE_QI_MODE D3D12_UNKNOWN_QI_BLOCK
+#define D3D12_UNKNOWN_QUEUE_QI_MODE D3D12_UNKNOWN_QI_BLOCK
+#define D3D12_UNKNOWN_QI_VERBOSE_LOG 1
+
 // we need to use the most-derived native interface all over the place. To make things easier when
 // new versions come out we typedef it here when we don't need the specific interface
 using ID3D12GraphicsCommandListX = ID3D12GraphicsCommandList10;
